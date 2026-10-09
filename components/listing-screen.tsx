@@ -121,7 +121,7 @@ export function ListingScreen({ id }: { id: string }) {
           <p className="text-muted-foreground mt-3 leading-7">
             このブラウザには、その車両の控えがありません。別の端末で保存した場合は、書き出したバックアップを読み込んでください。
           </p>
-          <Button className="mt-6" render={<Link href="/" />}>
+          <Button className="mt-6" nativeButton={false} render={<Link href="/" />}>
             一覧へ戻る
           </Button>
         </main>
@@ -144,10 +144,12 @@ export function ListingScreen({ id }: { id: string }) {
           保存した車
         </Link>
 
-        <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <PhotoGallery photos={photos} title={name} />
+        <div className="mt-4 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <div className="min-w-0">
+            <PhotoGallery photos={photos} title={name} />
+          </div>
 
-          <div>
+          <div className="min-w-0">
             <div className="flex flex-wrap gap-2">
               {record.availability === "ended" ? (
                 <Badge variant="destructive">掲載終了</Badge>
@@ -216,7 +218,7 @@ export function ListingScreen({ id }: { id: string }) {
           <section key={section.id} className="mt-10">
             <h2 className="font-heading text-2xl">{section.title}</h2>
             {section.columns.length > 0 ? (
-              <div className="mt-3 overflow-x-auto rounded-xl border bg-card">
+              <div className="mt-3 min-w-0 overflow-x-auto rounded-xl border bg-card">
                 <table className="w-full min-w-[36rem] text-left text-sm">
                   <thead className="bg-muted/70 text-muted-foreground">
                     <tr>
@@ -329,7 +331,7 @@ export function ListingScreen({ id }: { id: string }) {
             <Button variant="outline" disabled={Boolean(busy)} onClick={() => void refresh("update")}>
               内容を取り直す
             </Button>
-            <Button variant="outline" render={<a href={record.sourceUrl} target="_blank" rel="noreferrer" />}>
+            <Button variant="outline" nativeButton={false} render={<a href={record.sourceUrl} target="_blank" rel="noreferrer" />}>
               元のページ
               <ExternalLink />
             </Button>

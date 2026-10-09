@@ -46,7 +46,7 @@ export function CompareScreen() {
             <h1 className="font-heading text-3xl">並べて見る</h1>
             <p className="text-muted-foreground mt-2 text-sm">一覧で選んだ車を、同じ項目で並べます。</p>
           </div>
-          <Button variant="outline" render={<Link href="/" />}>
+          <Button variant="outline" nativeButton={false} render={<Link href="/" />}>
             一覧へ
           </Button>
         </div>
@@ -58,12 +58,12 @@ export function CompareScreen() {
             <p className="text-sm leading-7">
               比べる車が足りません。一覧のカードで「比べる」に2台以上チェックしてから戻ってきてください。
             </p>
-            <Button className="mt-4" render={<Link href="/" />}>
+            <Button className="mt-4" nativeButton={false} render={<Link href="/" />}>
               車を選ぶ
             </Button>
           </div>
         ) : (
-          <div className="mt-6 overflow-x-auto rounded-2xl border bg-card">
+          <div className="mt-6 min-w-0 overflow-x-auto rounded-2xl border bg-card">
             <table className="w-full min-w-[40rem] text-left text-sm">
               <thead>
                 <tr className="border-b">

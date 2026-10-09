@@ -38,12 +38,16 @@ export function Library() {
 
   useEffect(() => {
     let cancelled = false;
-    listListings().then((rows) => {
-      if (cancelled) return;
-      setListings(rows);
-      setCompareIds(readCompare());
-      setReady(true);
-    });
+    listListings()
+      .then((rows) => {
+        if (cancelled) return;
+        setListings(rows);
+        setCompareIds(readCompare());
+        setReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setReady(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -239,11 +243,11 @@ export function Library() {
         ) : visible.length === 0 ? (
           <p className="text-muted-foreground mt-10 text-sm">条件に合う車はありません。</p>
         ) : (
-          <ul className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-5 grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {visible.map((listing) => (
-              <li key={listing.id} className="overflow-hidden rounded-2xl border bg-card">
+              <li key={listing.id} className="min-w-0 overflow-hidden rounded-2xl border bg-card">
                 <Link href={`/listings/${listing.id}`} className="block">
-                  <div className="bg-muted aspect-[4/3]">
+                  <div className="bg-muted aspect-[4/3] overflow-hidden">
                     {covers[listing.id] ? (
                       <ArchiveImage src={covers[listing.id]} alt="" className="size-full object-cover" />
                     ) : (
@@ -300,7 +304,7 @@ export function Library() {
                 解除
               </Button>
               {compareIds.length >= 2 ? (
-                <Button render={<Link href="/compare" />}>並べて見る</Button>
+                <Button nativeButton={false} render={<Link href="/compare" />}>並べて見る</Button>
               ) : (
                 <Button disabled>並べて見る</Button>
               )}
