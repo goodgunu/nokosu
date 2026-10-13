@@ -1,4 +1,4 @@
-import { replyForAction, replyForText, validLineSignature, welcomeReply, type LineReply } from "@/lib/line-archive";
+import { replyForText, validLineSignature, welcomeReply, type LineReply } from "@/lib/line-archive";
 import type { LineMessage } from "@/lib/line-picker";
 
 export const maxDuration = 60;
@@ -13,12 +13,9 @@ type LineEvent = {
 };
 
 async function replyForEvent(event: LineEvent, origin: string): Promise<LineReply> {
-  const lineUserId = event.source?.userId || "";
-  if (!lineUserId) return { messages: [{ type: "text", text: "このトークからは入れません。" }], push: [] };
-  if (event.type === "follow") return welcomeReply(origin, lineUserId);
-  if (event.type === "postback" && event.postback?.data) return replyForAction(event.postback.data, origin);
-  if (event.type === "message" && event.message?.type === "text") return replyForText(event.message.text || "", origin, lineUserId);
-  return replyForText("", origin, lineUserId);
+  if (event.type === "follow") return welcomeReply(origin);
+  if (event.type === "message" && event.message?.type === "text") return replyForText(event.message.text || "", origin);
+  return replyForText("", origin);
 }
 
 export async function POST(request: Request) {

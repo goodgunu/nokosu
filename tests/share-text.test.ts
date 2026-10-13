@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { safeNext } from "../lib/line-login";
+import { fromLineUrl } from "../lib/line-archive";
 import { lineSignature, validLineSignature } from "../lib/line-archive";
 import { parseLineAction, togglePick } from "../lib/line-picker";
 import { carsensorTargetsFromText, defaultKeepIndexes } from "../lib/share-text";
@@ -36,10 +36,11 @@ test("LINE photo taps add and remove a picture without passing forty", () => {
   assert.equal(togglePick(Array.from({ length: 40 }, (_, index) => index), 41, 50).full, true);
 });
 
-test("a LINE sign-in link can only return to this site", () => {
-  assert.equal(safeNext("/listings/AU1?pick=1"), "/listings/AU1?pick=1");
-  assert.equal(safeNext("https://evil.example"), "/");
-  assert.equal(safeNext("//evil.example"), "/");
+test("a LINE share opens the signed-in account's photo page", () => {
+  assert.equal(
+    fromLineUrl("https://example.test", "https://www.carsensor.net/usedcar/detail/AU7290039473/index.html"),
+    "https://example.test/from-line?url=https%3A%2F%2Fwww.carsensor.net%2Fusedcar%2Fdetail%2FAU7290039473%2Findex.html",
+  );
 });
 
 test("LINE signatures reject a changed body", () => {
