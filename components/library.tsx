@@ -12,7 +12,7 @@ import { buildBackup, downloadBlob, importBackup } from "@/lib/backup";
 import { readCompare, writeCompare } from "@/lib/compare";
 import { listListings } from "@/lib/db";
 import { displayName, formatDay, highlightChips, yearNumber } from "@/lib/format";
-import { markEnded, requestArchive, saveParsedListing } from "@/lib/save-listing";
+import { markEnded, requestArchive, saveErrorMessage, saveParsedListing } from "@/lib/save-listing";
 import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type WatchStatus } from "@/lib/types";
 
 type Filter = "all" | WatchStatus | "ended";
@@ -45,8 +45,11 @@ export function Library() {
         setCompareIds(readCompare());
         setReady(true);
       })
-      .catch(() => {
-        if (!cancelled) setReady(true);
+      .catch((error) => {
+        if (cancelled) return;
+        setReady(true);
+        setNoticeError(true);
+        setNotice(saveErrorMessage(error));
       });
     return () => {
       cancelled = true;
@@ -115,16 +118,20 @@ export function Library() {
         setNotice(result.message);
         return;
       }
-      const saved = await saveParsedListing(result.listing, (done, total) => {
-        setBusy(total ? `写真を保存しています ${done}/${total}` : "保存しています");
-      });
+      const saved = await saveParsedListing(
+        result.listing,
+        (done, total) => {
+          setBusy(total ? `写真を保存しています ${done}/${total}` : "保存しています");
+        },
+        () => reload(),
+      );
       setUrl("");
       await reload();
       const photoNote = saved.failedPhotos ? `写真${saved.failedPhotos}枚は取れませんでした。` : `${saved.record.photoCount}枚の写真も残しました。`;
       setNotice(saved.updated ? `同じ車両を更新しました。${photoNote}` : `保存しました。${photoNote}`);
-    } catch {
+    } catch (error) {
       setNoticeError(true);
-      setNotice("保存できませんでした。通信状況を見て、もう一度試してください。");
+      setNotice(saveErrorMessage(error));
     } finally {
       setBusy("");
     }

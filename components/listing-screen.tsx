@@ -21,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { buildBackup, downloadBlob } from "@/lib/backup";
 import { deleteListing, getListing, putListing } from "@/lib/db";
 import { displayName, factValue, formatWhen, formatYen, gradeLine } from "@/lib/format";
-import { markEnded, requestArchive, saveParsedListing, updateMemo, updateWatchStatus } from "@/lib/save-listing";
+import { markEnded, requestArchive, saveErrorMessage, saveParsedListing, updateMemo, updateWatchStatus } from "@/lib/save-listing";
 import { WATCH_STATUSES, type ArchiveRecord, type WatchStatus } from "@/lib/types";
 
 export function ListingScreen({ id }: { id: string }) {
@@ -85,8 +85,8 @@ export function ListingScreen({ id }: { id: string }) {
           ? `内容を更新しました。写真は${saved.record.photoCount}枚保存でき、${saved.failedPhotos}枚は取れませんでした。`
           : "内容を更新しました。",
       );
-    } catch {
-      setMessage("確認できませんでした。通信状況を見て、もう一度試してください。");
+    } catch (error) {
+      setMessage(saveErrorMessage(error));
     } finally {
       setBusy("");
     }

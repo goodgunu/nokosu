@@ -5,6 +5,17 @@ const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
 
 export async function POST(request: Request) {
+  try {
+    return await archiveListing(request);
+  } catch {
+    return Response.json(
+      { status: "error", message: "保存処理が途中で止まったので、もう一度試してください。" },
+      { status: 500 },
+    );
+  }
+}
+
+async function archiveListing(request: Request) {
   let body: { url?: unknown };
   try {
     body = await request.json();

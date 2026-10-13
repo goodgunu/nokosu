@@ -26,7 +26,7 @@ let database: Promise<IDBPDatabase<NokosuDB>> | null = null;
 
 function getDb() {
   if (typeof indexedDB === "undefined") {
-    throw new Error("保存はブラウザの中だけで行えます。");
+    throw new DOMException("IndexedDB is unavailable", "SecurityError");
   }
   if (!database) {
     database = openDB<NokosuDB>("nokosu", 1, {
@@ -35,9 +35,16 @@ function getDb() {
         const photos = db.createObjectStore("photos", { keyPath: "key" });
         photos.createIndex("by-listing", "listingId");
       },
+    }).catch((error) => {
+      database = null;
+      throw error;
     });
   }
   return database;
+}
+
+function cloneRecord(record: ArchiveRecord): ArchiveRecord {
+  return JSON.parse(JSON.stringify(record)) as ArchiveRecord;
 }
 
 export async function listListings(): Promise<ArchiveRecord[]> {
@@ -53,7 +60,7 @@ export async function getListing(id: string): Promise<ArchiveRecord | undefined>
 
 export async function putListing(record: ArchiveRecord): Promise<void> {
   const db = await getDb();
-  await db.put("listings", record);
+  await db.put("listings", cloneRecord(record));
 }
 
 export async function getPhotos(listingId: string): Promise<StoredPhoto[]> {
@@ -67,33 +74,54 @@ export async function getCover(listingId: string): Promise<StoredPhoto | undefin
   return db.get("photos", `${listingId}:0`);
 }
 
+export async function clearPhotos(listingId: string): Promise<void> {
+  const db = await getDb();
+  const existing = await db.getAllKeysFromIndex("photos", "by-listing", listingId);
+  if (!existing.length) return;
+  const tx = db.transaction("photos", "readwrite");
+  await Promise.all([...existing.map((key) => tx.store.delete(key)), tx.done]);
+}
+
+export async function putPhoto(
+  listingId: string,
+  index: number,
+  photo: { blob: Blob; caption: string; category: string },
+): Promise<void> {
+  const db = await getDb();
+  await db.put("photos", {
+    key: `${listingId}:${index}`,
+    listingId,
+    index,
+    blob: photo.blob,
+    caption: photo.caption,
+    category: photo.category,
+  });
+}
+
 export async function replacePhotos(
   listingId: string,
   photos: { blob: Blob; caption: string; category: string }[],
-): Promise<void> {
-  const db = await getDb();
-  const existing = await db.getAllKeysFromIndex("photos", "by-listing", listingId);
-  const tx = db.transaction("photos", "readwrite");
-  await Promise.all(existing.map((key) => tx.store.delete(key)));
-  for (let index = 0; index < photos.length; index += 1) {
-    const photo = photos[index];
-    await tx.store.put({
-      key: `${listingId}:${index}`,
-      listingId,
-      index,
-      blob: photo.blob,
-      caption: photo.caption,
-      category: photo.category,
-    });
+): Promise<number> {
+  await clearPhotos(listingId);
+  let stored = 0;
+  for (const photo of photos) {
+    try {
+      await putPhoto(listingId, stored, photo);
+      stored += 1;
+    } catch {
+      break;
+    }
   }
-  await tx.done;
+  return stored;
 }
 
 export async function deleteListing(id: string): Promise<void> {
   const db = await getDb();
   const photoKeys = await db.getAllKeysFromIndex("photos", "by-listing", id);
   const tx = db.transaction(["listings", "photos"], "readwrite");
-  await tx.objectStore("listings").delete(id);
-  await Promise.all(photoKeys.map((key) => tx.objectStore("photos").delete(key)));
-  await tx.done;
+  await Promise.all([
+    tx.objectStore("listings").delete(id),
+    ...photoKeys.map((key) => tx.objectStore("photos").delete(key)),
+    tx.done,
+  ]);
 }
