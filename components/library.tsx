@@ -19,7 +19,7 @@ import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type ParsedListing, typ
 type Filter = "all" | WatchStatus | "ended";
 type Sort = "new" | "price" | "year";
 
-export function Library() {
+export function Library({ lineReady = false }: { lineReady?: boolean }) {
   const [listings, setListings] = useState<ArchiveRecord[]>([]);
   const [ready, setReady] = useState(false);
   const [url, setUrl] = useState("");
@@ -251,6 +251,9 @@ export function Library() {
           <h1 className="font-heading text-3xl leading-tight sm:text-4xl">気になった車を、消える前に残す</h1>
           <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-7">
             カーセンサーの詳細ページは、売約や掲載期間が終わると開けなくなります。URLを貼ると、価格、スペック、装備、販売店をアカウントに残します。写真は全部見てから、残したいものだけ選べます。
+            {lineReady
+              ? " 公式アプリの共有ボタンでは、LINEの「のこす」を選ぶと、その車がここに残ります。"
+              : ""}
           </p>
           <form onSubmit={save} className="mt-5 flex flex-col gap-2 sm:flex-row">
             <label className="sr-only" htmlFor="carsensor-url">
