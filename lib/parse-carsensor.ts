@@ -209,10 +209,15 @@ function parsePhotos($: CheerioRoot): { photos: ParsedPhoto[]; truncated: boolea
     } catch {
       return;
     }
-    if (found.has(key)) return;
-    const caption = clean($(el).attr("data-caption") || $(el).attr("data-categoryname") || $(el).attr("alt") || "");
+    const note = clean($(el).attr("data-caption") || "");
     const category = clean($(el).attr("data-categoryname") || $(el).attr("data-title") || "");
-    found.set(key, { url: raw, caption, category });
+    const existing = found.get(key);
+    if (!existing) {
+      found.set(key, { url: raw, caption: note, category });
+      return;
+    }
+    if (note && !existing.caption) existing.caption = note;
+    if (category && !existing.category) existing.category = category;
   };
 
   $("#js-mainPhoto[data-photo]").each((_, el) => add(el));

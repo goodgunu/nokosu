@@ -83,6 +83,8 @@ test("parses a detail page into price, specs, photos, and shop", () => {
   assert.equal(result.listing.priceYen, 2998000);
   assert.equal(result.listing.highlights.find((item) => item.label === "走行距離")?.value, "1.5万km");
   assert.equal(result.listing.photos.length, 2);
+  assert.equal(result.listing.photos[0]?.caption, "フロント");
+  assert.equal(result.listing.photos[1]?.caption, "室内");
   assert.equal(result.listing.shopName, "ウエインズトヨタ神奈川");
   assert.equal(result.listing.shopAddress, "神奈川県横須賀市佐原１－１－２");
   assert.equal(result.listing.shopUrl, "https://www.carsensor.net/shop/kanagawa/1/?BKKN=AU7204587050");
