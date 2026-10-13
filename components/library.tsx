@@ -375,7 +375,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     {heading.subline && <p className="text-muted-foreground mt-1 truncate text-xs">{heading.subline}</p>}
                     <p className="mt-1 text-xs">
                       <span className={listing.availability === "ended" ? "text-stamp" : "text-muted-foreground"}>
-                        {listing.availability === "ended" ? "掲載終了" : "掲載中"}
+                        {listing.availability === "ended" ? "掲載終了" : listing.availability === "live" ? "掲載中" : "未確認"}
                       </span>
                       <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
                     </p>
