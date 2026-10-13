@@ -1,4 +1,5 @@
 import { canonicalCarsensorUrl } from "@/lib/carsensor-url";
+import { currentUser, unauthorized } from "@/lib/current-user";
 import { parseCarsensorHtml } from "@/lib/parse-carsensor";
 
 const USER_AGENT =
@@ -8,6 +9,7 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
+    if (!(await currentUser(request))) return unauthorized();
     return await archiveListing(request);
   } catch {
     return Response.json(

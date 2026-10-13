@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { PhotoGallery } from "@/components/photo-gallery";
-import { useListingPhotos, usePhotoJob } from "@/components/use-photos";
+import { PhotoPicker } from "@/components/photo-picker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,10 +19,10 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildBackup, downloadBlob } from "@/lib/backup";
-import { deleteListing, getListing, putListing } from "@/lib/db";
 import { displayName, factValue, formatWhen, formatYen, gradeLine } from "@/lib/format";
-import { markEnded, requestArchive, saveErrorMessage, saveParsedListing, updateMemo, updateWatchStatus } from "@/lib/save-listing";
-import { WATCH_STATUSES, type ArchiveRecord, type WatchStatus } from "@/lib/types";
+import { deleteRemoteListing, fetchListing, loadRemotePhotos, patchListing, photoSrc, saveKept } from "@/lib/remote";
+import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
+import { WATCH_STATUSES, type ArchiveRecord, type ParsedListing, type WatchStatus } from "@/lib/types";
 
 export function ListingScreen({ id }: { id: string }) {
   const router = useRouter();
@@ -32,12 +32,11 @@ export function ListingScreen({ id }: { id: string }) {
   const [busy, setBusy] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showUnequipped, setShowUnequipped] = useState(false);
-  const { photos } = useListingPhotos(id);
-  const photoJob = usePhotoJob(id);
+  const [draft, setDraft] = useState<ParsedListing | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    getListing(id).then((found) => {
+    fetchListing(id).then((found) => {
       if (cancelled) return;
       setRecord(found ?? null);
       setMemo(found?.memo ?? "");
@@ -50,7 +49,7 @@ export function ListingScreen({ id }: { id: string }) {
   useEffect(() => {
     if (!record) return;
     const handle = window.setTimeout(() => {
-      void updateMemo(record.id, memo);
+      void patchListing(record.id, { memo }).catch(() => undefined);
     }, 400);
     return () => window.clearTimeout(handle);
   }, [memo, record]);
@@ -62,8 +61,11 @@ export function ListingScreen({ id }: { id: string }) {
     try {
       const result = await requestArchive(record.sourceUrl);
       if (result.status === "ended") {
-        const next = await markEnded(record.id);
-        if (next) setRecord(next);
+        const next = await patchListing(record.id, {
+          availability: "ended",
+          lastCheckedAt: new Date().toISOString(),
+        });
+        setRecord(next.record);
         setMessage("元の掲載は終了していました。保存してある内容はこのまま見られます。");
         return;
       }
@@ -72,21 +74,37 @@ export function ListingScreen({ id }: { id: string }) {
         return;
       }
       if (mode === "check") {
-        const next = { ...record, availability: "live" as const, lastCheckedAt: new Date().toISOString() };
-        await putListing(next);
-        setRecord(next);
+        const next = await patchListing(record.id, {
+          availability: "live",
+          lastCheckedAt: new Date().toISOString(),
+        });
+        setRecord(next.record);
         setMessage("まだ掲載されています。内容を取り直すと、価格や写真も更新できます。");
         return;
       }
-      const saved = await saveParsedListing(result.listing, (done, total) => {
-        setBusy(done < 0 ? "写真を集めています" : `写真を保存しています ${done}/${total}`);
-      });
-      const next = await getListing(record.id);
-      setRecord(next ?? saved.record);
+      setDraft(result.listing);
+      setMessage("残す写真を選んでください。選ばなかった写真は保存しません。");
+    } catch (error) {
+      setMessage(saveErrorMessage(error));
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function keepDraft(photoIndexes: number[] | null) {
+    if (!draft) return;
+    setBusy(photoIndexes === null ? "文章を更新しています" : "選んだ写真を保存しています");
+    setMessage("");
+    try {
+      const saved = await saveKept(draft, photoIndexes);
+      setRecord(saved.record);
+      setDraft(null);
       setMessage(
-        saved.failedPhotos
-          ? `内容を更新しました。写真は${saved.record.photoCount}枚保存でき、${saved.failedPhotos}枚は取れませんでした。`
-          : "内容を更新しました。",
+        photoIndexes === null
+          ? "文章を更新しました。写真は今のままです。"
+          : saved.failedPhotos
+            ? `更新しました。写真は${saved.record.photoCount}枚残せました。${saved.failedPhotos}枚は取れませんでした。`
+            : "更新しました。",
       );
     } catch (error) {
       setMessage(saveErrorMessage(error));
@@ -96,13 +114,13 @@ export function ListingScreen({ id }: { id: string }) {
   }
 
   async function remove() {
-    await deleteListing(id);
+    await deleteRemoteListing(id);
     router.push("/");
   }
 
   async function exportOne() {
     if (!record) return;
-    const blob = await buildBackup([record]);
+    const blob = await buildBackup([record], loadRemotePhotos);
     downloadBlob(blob, `nokosu-${record.id}.zip`);
   }
 
@@ -122,7 +140,7 @@ export function ListingScreen({ id }: { id: string }) {
         <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
           <h1 className="font-heading text-3xl">この保存は見つかりません</h1>
           <p className="text-muted-foreground mt-3 leading-7">
-            このブラウザには、その車両の控えがありません。別の端末で保存した場合は、書き出したバックアップを読み込んでください。
+            このアカウントには、その車両の控えがありません。
           </p>
           <Button className="mt-6" nativeButton={false} render={<Link href="/" />}>
             一覧へ戻る
@@ -133,6 +151,11 @@ export function ListingScreen({ id }: { id: string }) {
   }
 
   const name = displayName(record);
+  const photos = (record.savedPhotos ?? []).map((photo, index) => ({
+    url: photoSrc(record.id, index),
+    caption: photo.caption,
+    category: photo.category,
+  }));
   const equippedCount = record.equipment.reduce(
     (sum, group) => sum + group.items.filter((item) => item.equipped).length,
     0,
@@ -149,16 +172,23 @@ export function ListingScreen({ id }: { id: string }) {
 
         <div className="mt-4 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div className="min-w-0">
-            {photos.length > 0 ? (
+            {draft ? (
+              <PhotoPicker
+                listing={draft}
+                replacing={record.photoCount > 0}
+                busy={busy}
+                onKeep={(indexes) => void keepDraft(indexes)}
+                onTextOnly={() => void keepDraft(null)}
+                onCancel={() => setDraft(null)}
+              />
+            ) : photos.length > 0 ? (
               <PhotoGallery photos={photos} title={name} />
             ) : (
               <div className="bg-muted text-muted-foreground flex aspect-[4/3] flex-col items-center justify-center gap-4 rounded-xl border px-6 text-center">
-                <p>{photoJob ? photoJob.label : busy || "写真は保存されていません"}</p>
-                {!photoJob && (
-                  <Button disabled={Boolean(busy)} onClick={() => void refresh("update")}>
-                    写真を保存する
-                  </Button>
-                )}
+                <p>{busy || "残す写真はまだ選んでいません"}</p>
+                <Button disabled={Boolean(busy)} onClick={() => void refresh("update")}>
+                  写真を選ぶ
+                </Button>
               </div>
             )}
           </div>
@@ -203,7 +233,7 @@ export function ListingScreen({ id }: { id: string }) {
                   onClick={() => {
                     const next = status.id as WatchStatus;
                     setRecord({ ...record, watchStatus: next });
-                    void updateWatchStatus(record.id, next);
+                    void patchListing(record.id, { watchStatus: next });
                   }}
                 >
                   {status.label}
@@ -225,7 +255,7 @@ export function ListingScreen({ id }: { id: string }) {
             placeholder="電話した日、気になった傷、比較したい点"
             className="mt-3 min-h-28 bg-card text-base"
           />
-          <p className="text-muted-foreground mt-2 text-xs">入力するとこのブラウザに残ります。</p>
+          <p className="text-muted-foreground mt-2 text-xs">入力するとアカウントに残ります。</p>
         </section>
 
         {record.sections.map((section) => (
@@ -329,7 +359,7 @@ export function ListingScreen({ id }: { id: string }) {
             {formatWhen(record.savedAt)} に保存
             {record.lastCheckedAt ? `。最終確認 ${formatWhen(record.lastCheckedAt)}` : ""}。
             写真 {record.photoCount}枚
-            {record.photosTruncated ? "（掲載写真が多いため、先頭の60枚まで）" : ""}。
+            {record.photoTotal ? `（掲載にあった${record.photoTotal}枚から選択）` : ""}。
           </p>
           {message && <p className="text-sm leading-6">{message}</p>}
           {busy && (
@@ -367,7 +397,7 @@ export function ListingScreen({ id }: { id: string }) {
           <DialogHeader>
             <DialogTitle>この保存を消しますか</DialogTitle>
             <DialogDescription>
-              {name}の文章と写真を、このブラウザから消します。書き出していなければ戻せません。
+              {name}の文章と写真を、アカウントから消します。書き出していなければ戻せません。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

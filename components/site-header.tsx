@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { useAccount } from "@/components/account-provider";
 
 export function SiteHeader() {
+  const account = useAccount();
   return (
     <header className="border-b border-border/80 bg-card/90 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
@@ -15,7 +17,14 @@ export function SiteHeader() {
             </span>
           </span>
         </Link>
-        <p className="text-muted-foreground hidden text-sm sm:block">売れたあとも、見ていた一台は残る</p>
+        <div className="flex items-center gap-3">
+          <p className="text-muted-foreground hidden text-sm sm:block">売れたあとも、見ていた一台は残る</p>
+          {account && (
+            <button type="button" onClick={() => void account.logout()} className="text-sm underline-offset-4 hover:underline">
+              ログアウト
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );

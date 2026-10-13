@@ -1,4 +1,5 @@
 import { isCarsensorPhotoUrl } from "@/lib/carsensor-url";
+import { currentUser } from "@/lib/current-user";
 import { fetchCarsensorPhoto } from "@/lib/fetch-carsensor-photo";
 import { packPhotos, type PackedPhoto } from "@/lib/photo-pack";
 
@@ -8,6 +9,7 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
+    if (!(await currentUser(request))) return new Response("ログインしてください。", { status: 401 });
     return await packListingPhotos(request);
   } catch {
     return new Response("写真をまとめられませんでした。", { status: 500 });

@@ -4,11 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArchiveImage } from "@/components/archive-image";
 import { SiteHeader } from "@/components/site-header";
-import { useCovers } from "@/components/use-photos";
 import { Button } from "@/components/ui/button";
 import { readCompare, writeCompare } from "@/lib/compare";
-import { getListing } from "@/lib/db";
 import { displayName, factValue } from "@/lib/format";
+import { fetchListing, photoSrc } from "@/lib/remote";
 import type { ArchiveRecord } from "@/lib/types";
 
 const ROWS: { label: string; value: (record: ArchiveRecord) => string }[] = [
@@ -30,12 +29,10 @@ export function CompareScreen() {
 
   useEffect(() => {
     const ids = readCompare();
-    Promise.all(ids.map((id) => getListing(id))).then((rows) => {
+    Promise.all(ids.map((id) => fetchListing(id))).then((rows) => {
       setRecords(rows.filter((row): row is ArchiveRecord => Boolean(row)));
     });
   }, []);
-
-  const covers = useCovers(records?.map((record) => record.id) ?? []);
 
   return (
     <>
@@ -72,7 +69,9 @@ export function CompareScreen() {
                     <th key={record.id} className="min-w-52 px-3 py-3 align-bottom font-normal">
                       <Link href={`/listings/${record.id}`} className="block">
                         <div className="bg-muted mb-3 aspect-[4/3] overflow-hidden rounded-lg">
-                          {covers[record.id] && <ArchiveImage src={covers[record.id]} alt="" className="size-full object-cover" />}
+                          {record.photoCount > 0 && (
+                            <ArchiveImage src={photoSrc(record.id, 0)} alt="" className="size-full object-cover" />
+                          )}
                         </div>
                         <span className="font-heading text-xl leading-tight">{displayName(record)}</span>
                       </Link>

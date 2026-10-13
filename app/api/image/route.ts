@@ -1,4 +1,5 @@
 import { isCarsensorPhotoUrl } from "@/lib/carsensor-url";
+import { currentUser } from "@/lib/current-user";
 
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
@@ -6,6 +7,9 @@ const USER_AGENT =
 export const maxDuration = 60;
 
 export async function GET(request: Request) {
+  if (!(await currentUser(request))) {
+    return new Response("ログインしてください。", { status: 401 });
+  }
   const value = new URL(request.url).searchParams.get("url");
   if (!value || !isCarsensorPhotoUrl(value)) {
     return new Response("この写真URLは保存できません。", { status: 400 });

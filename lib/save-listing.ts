@@ -253,6 +253,7 @@ function toRecord(
     photoCount,
     photoTotal: listing.photos.length,
     photosTruncated: listing.photosTruncated,
+    savedPhotos: previous?.savedPhotos ?? [],
   };
 }
 

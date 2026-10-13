@@ -74,6 +74,12 @@ export type ArchiveRecord = {
   photoCount: number;
   photoTotal: number;
   photosTruncated: boolean;
+  savedPhotos: SavedPhoto[];
+};
+
+export type SavedPhoto = {
+  caption: string;
+  category: string;
 };
 
 export const WATCH_STATUSES: { id: WatchStatus; label: string }[] = [

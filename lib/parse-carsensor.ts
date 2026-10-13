@@ -9,7 +9,7 @@ import type {
   TableSection,
 } from "@/lib/types";
 
-const PHOTO_LIMIT = 60;
+const PHOTO_LIMIT = 120;
 
 export type ParseResult =
   | { status: "ok"; listing: ParsedListing }

@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArchiveImage } from "@/components/archive-image";
-import { useCovers } from "@/components/use-photos";
+import { PhotoPicker } from "@/components/photo-picker";
 import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { buildBackup, downloadBlob, importBackup } from "@/lib/backup";
+import { buildBackup, downloadBlob, readBackup } from "@/lib/backup";
 import { readCompare, writeCompare } from "@/lib/compare";
-import { listListings } from "@/lib/db";
+import { deleteListing, getPhotos, listListings, storedPhotoBlob } from "@/lib/db";
 import { displayName, formatDay, highlightChips, yearNumber } from "@/lib/format";
-import { markEnded, requestArchive, saveErrorMessage, saveParsedListing } from "@/lib/save-listing";
-import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type WatchStatus } from "@/lib/types";
+import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
+import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
+import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type ParsedListing, type WatchStatus } from "@/lib/types";
 
 type Filter = "all" | WatchStatus | "ended";
 type Sort = "new" | "price" | "year";
@@ -29,20 +30,25 @@ export function Library() {
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("new");
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [draft, setDraft] = useState<ParsedListing | null>(null);
+  const [localCount, setLocalCount] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function reload() {
-    setListings(await listListings());
+    setListings(await fetchListings());
     setReady(true);
   }
 
   useEffect(() => {
     let cancelled = false;
-    listListings()
-      .then((rows) => {
+    fetchListings()
+      .then(async (rows) => {
         if (cancelled) return;
         setListings(rows);
         setCompareIds(readCompare());
+        const local = await listListings().catch(() => []);
+        const known = new Set(rows.map((row) => row.id));
+        if (!cancelled) setLocalCount(local.filter((row) => !known.has(row.id)).length);
         setReady(true);
       })
       .catch((error) => {
@@ -55,11 +61,6 @@ export function Library() {
       cancelled = true;
     };
   }, []);
-
-  const covers = useCovers(
-    listings.map((listing) => listing.id),
-    listings.map((listing) => listing.photoCount).join(","),
-  );
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -106,8 +107,12 @@ export function Library() {
     try {
       const result = await requestArchive(target);
       if (result.status === "ended") {
-        const existing = await markEnded(result.id);
+        const existing = listings.find((item) => item.id === result.id);
         if (existing) {
+          await patchListing(existing.id, {
+            availability: "ended",
+            lastCheckedAt: new Date().toISOString(),
+          });
           await reload();
           setNotice("この掲載は終了していました。以前保存した内容に、終了の印を付けました。");
         } else {
@@ -121,20 +126,88 @@ export function Library() {
         setNotice(result.message);
         return;
       }
-      const saved = await saveParsedListing(
-        result.listing,
-        (done, total) => {
-          setBusy(done < 0 ? "写真を集めています" : total ? `写真を保存しています ${done}/${total}` : "保存しています");
-        },
-        () => reload(),
-      );
-      setUrl("");
-      await reload();
-      const photoNote = saved.failedPhotos ? `写真${saved.failedPhotos}枚は取れませんでした。` : `${saved.record.photoCount}枚の写真も残しました。`;
-      setNotice(saved.updated ? `同じ車両を更新しました。${photoNote}` : `保存しました。${photoNote}`);
+      setDraft(result.listing);
+      setNotice("写真を選んでから残してください。選ばなかった写真は保存しません。");
     } catch (error) {
       setNoticeError(true);
       setNotice(saveErrorMessage(error));
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function keepDraft(photoIndexes: number[] | null) {
+    if (!draft) return;
+    setBusy(photoIndexes === null ? "文章を更新しています" : "選んだ写真を保存しています");
+    setNotice("");
+    setNoticeError(false);
+    try {
+      const saved = await saveKept(draft, photoIndexes);
+      setDraft(null);
+      setUrl("");
+      await reload();
+      const photoNote =
+        photoIndexes === null
+          ? "写真は今のままです。"
+          : saved.failedPhotos
+            ? `写真は${saved.record.photoCount}枚残せました。${saved.failedPhotos}枚は取れませんでした。`
+            : saved.record.photoCount
+              ? `写真は${saved.record.photoCount}枚残しました。`
+              : "写真は残していません。";
+      setNotice(saved.updated ? `同じ車両を更新しました。${photoNote}` : `アカウントに保存しました。${photoNote}`);
+    } catch (error) {
+      setNoticeError(true);
+      setNotice(error instanceof Error ? error.message : saveErrorMessage(error));
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function moveLocal() {
+    setBusy("このブラウザの車を移しています");
+    setNotice("");
+    setNoticeError(false);
+    try {
+      const local = await listListings();
+      const known = new Set(listings.map((item) => item.id));
+      let moved = 0;
+      for (const record of local) {
+        if (known.has(record.id)) continue;
+        const stored = await getPhotos(record.id);
+        const photos = stored.flatMap((photo) => {
+          const blob = storedPhotoBlob(photo);
+          if (!blob) return [];
+          return [
+            {
+              bytes: new Uint8Array(),
+              type: blob.type || "image/jpeg",
+              caption: photo.caption,
+              category: photo.category,
+              blob,
+            },
+          ];
+        });
+        const ready = await Promise.all(
+          photos.map(async (photo) => ({
+            bytes: new Uint8Array(await photo.blob.arrayBuffer()),
+            type: photo.type,
+            caption: photo.caption,
+            category: photo.category,
+          })),
+        );
+        await uploadSavedCar(
+          { ...record, savedPhotos: record.savedPhotos ?? ready.map((photo) => ({ caption: photo.caption, category: photo.category })) },
+          ready,
+        );
+        await deleteListing(record.id);
+        moved += 1;
+      }
+      setLocalCount(0);
+      await reload();
+      setNotice(moved ? `${moved}台をアカウントに移しました。` : "移す車はありませんでした。");
+    } catch (error) {
+      setNoticeError(true);
+      setNotice(error instanceof Error ? error.message : "移せませんでした。");
     } finally {
       setBusy("");
     }
@@ -146,7 +219,7 @@ export function Library() {
       setNotice("書き出す保存がまだありません。");
       return;
     }
-    const blob = await buildBackup(listings);
+    const blob = await buildBackup(listings, loadRemotePhotos);
     downloadBlob(blob, `nokosu-backup.zip`);
     setNoticeError(false);
     setNotice(`${listings.length}台を書き出しました。このファイルを別のブラウザで読み込めます。`);
@@ -155,10 +228,13 @@ export function Library() {
   async function onImport(file: File | undefined) {
     if (!file) return;
     try {
-      const count = await importBackup(file);
+      const entries = await readBackup(file);
+      for (const entry of entries) {
+        await uploadSavedCar(entry.record, entry.photos);
+      }
       await reload();
       setNoticeError(false);
-      setNotice(`${count}台を読み込みました。`);
+      setNotice(`${entries.length}台をアカウントに読み込みました。`);
     } catch (error) {
       setNoticeError(true);
       setNotice(error instanceof Error ? error.message : "読み込めませんでした。");
@@ -174,7 +250,7 @@ export function Library() {
         <section className="rounded-2xl border bg-card px-4 py-5 sm:px-6">
           <h1 className="font-heading text-3xl leading-tight sm:text-4xl">気になった車を、消える前に残す</h1>
           <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-7">
-            カーセンサーの詳細ページは、売約や掲載期間が終わると開けなくなります。URLを貼ると、価格、スペック、装備、販売店、写真をこのブラウザに控えとして残します。
+            カーセンサーの詳細ページは、売約や掲載期間が終わると開けなくなります。URLを貼ると、価格、スペック、装備、販売店をアカウントに残します。写真は全部見てから、残したいものだけ選べます。
           </p>
           <form onSubmit={save} className="mt-5 flex flex-col gap-2 sm:flex-row">
             <label className="sr-only" htmlFor="carsensor-url">
@@ -191,13 +267,34 @@ export function Library() {
               autoCorrect="off"
             />
             <Button type="submit" className="h-11 px-5" disabled={Boolean(busy)}>
-              {busy || "この掲載を保存"}
+              {busy || "掲載を読み取る"}
             </Button>
           </form>
           {notice && (
             <p className={`mt-3 text-sm leading-6 ${noticeError ? "text-destructive" : ""}`}>{notice}</p>
           )}
+          {draft && (
+            <PhotoPicker
+              listing={draft}
+              replacing={listings.some((item) => item.id === draft.id)}
+              busy={busy}
+              onKeep={(indexes) => void keepDraft(indexes)}
+              onTextOnly={() => void keepDraft(null)}
+              onCancel={() => setDraft(null)}
+            />
+          )}
         </section>
+
+        {localCount > 0 && (
+          <section className="mt-4 rounded-2xl border bg-card px-4 py-4 sm:px-6">
+            <p className="text-sm leading-7">
+              このブラウザに、アカウントへまだ移していない車が{localCount}台あります。移すと、他の端末からも見られます。
+            </p>
+            <Button className="mt-3" disabled={Boolean(busy)} onClick={() => void moveLocal()}>
+              {busy || "このブラウザの保存をアカウントに移す"}
+            </Button>
+          </section>
+        )}
 
         <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex gap-2 overflow-x-auto pb-1">
@@ -258,8 +355,8 @@ export function Library() {
               <li key={listing.id} className="min-w-0 overflow-hidden rounded-2xl border bg-card">
                 <Link href={`/listings/${listing.id}`} className="block">
                   <div className="bg-muted aspect-[4/3] overflow-hidden">
-                    {covers[listing.id] ? (
-                      <ArchiveImage src={covers[listing.id]} alt="" className="size-full object-cover" />
+                    {listing.photoCount > 0 ? (
+                      <ArchiveImage src={photoSrc(listing.id, 0)} alt="" className="size-full object-cover" />
                     ) : (
                       <div className="text-muted-foreground grid size-full place-items-center text-sm">写真なし</div>
                     )}
@@ -295,7 +392,7 @@ export function Library() {
         )}
 
         <footer className="text-muted-foreground mt-12 border-t pt-5 text-xs leading-6">
-          のこすはカーセンサーとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店とカーセンサーにあります。保存データはこのブラウザの中だけにあり、消すと戻せないので、必要なときは書き出してください。
+          のこすはカーセンサーとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店とカーセンサーにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。
         </footer>
       </main>
 
@@ -350,7 +447,7 @@ function EmptyLibrary() {
       <ol className="text-muted-foreground mt-4 max-w-xl list-decimal space-y-2 pl-5 text-sm leading-7">
         <li>カーセンサーで気になる車の詳細ページを開く。</li>
         <li>アドレスバーのURLをコピーして、上の欄に貼る。</li>
-        <li>保存したあとは、元のページが消えてもここから見返せます。</li>
+        <li>残したい写真を選ぶ。選んだ車は、別の端末からログインしても見られます。</li>
       </ol>
     </div>
   );

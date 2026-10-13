@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AccountProvider } from "@/components/account-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
     default: "のこす",
     template: "%s · のこす",
   },
-  description: "カーセンサーの中古車掲載を、売約や掲載終了の前にこのブラウザへ残すメモ。",
+  description: "カーセンサーの中古車掲載を、売約や掲載終了の前に自分のアカウントへ残すメモ。",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -22,7 +23,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           rel="stylesheet"
         />
       </head>
-      <body className="bg-background text-foreground min-h-full">{children}</body>
+      <body className="bg-background text-foreground min-h-full">
+        <AccountProvider>{children}</AccountProvider>
+      </body>
     </html>
   );
 }

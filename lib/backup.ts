@@ -1,5 +1,4 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
-import { getPhotos, putListing, replacePhotos, storedPhotoBlob } from "@/lib/db";
 import type { ArchiveRecord } from "@/lib/types";
 
 const FORMAT = "nokosu-backup";
@@ -11,7 +10,17 @@ type PhotoMeta = {
   type?: string;
 };
 
-export async function buildBackup(records: ArchiveRecord[]): Promise<Blob> {
+export type BackupPhoto = {
+  bytes: Uint8Array;
+  type: string;
+  caption: string;
+  category: string;
+};
+
+export async function buildBackup(
+  records: ArchiveRecord[],
+  loadPhotos: (record: ArchiveRecord) => Promise<BackupPhoto[]>,
+): Promise<Blob> {
   const files: Record<string, Uint8Array> = {
     "manifest.json": strToU8(
       JSON.stringify({
@@ -24,20 +33,18 @@ export async function buildBackup(records: ArchiveRecord[]): Promise<Blob> {
   };
 
   for (const record of records) {
-    const photos = await getPhotos(record.id);
-    for (const photo of photos) {
-      const blob = storedPhotoBlob(photo);
-      if (!blob) continue;
-      const ext = blob.type.includes("png") ? "png" : "jpg";
-      files[`photos/${record.id}/${photo.index}.${ext}`] = new Uint8Array(await blob.arrayBuffer());
-      files[`photos/${record.id}/${photo.index}.json`] = strToU8(
+    const photos = await loadPhotos(record);
+    photos.forEach((photo, index) => {
+      const ext = photo.type.includes("png") ? "png" : "jpg";
+      files[`photos/${record.id}/${index}.${ext}`] = photo.bytes;
+      files[`photos/${record.id}/${index}.json`] = strToU8(
         JSON.stringify({
           caption: photo.caption,
           category: photo.category,
-          type: blob.type || "image/jpeg",
+          type: photo.type || "image/jpeg",
         } satisfies PhotoMeta),
       );
-    }
+    });
   }
 
   const zipped = zipSync(files, { level: 6 });
@@ -53,7 +60,7 @@ export function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export async function importBackup(file: File): Promise<number> {
+export async function readBackup(file: File): Promise<{ record: ArchiveRecord; photos: BackupPhoto[] }[]> {
   const unzipped = unzipSync(new Uint8Array(await file.arrayBuffer()));
   const manifestBytes = unzipped["manifest.json"];
   if (!manifestBytes) {
@@ -68,10 +75,9 @@ export async function importBackup(file: File): Promise<number> {
     throw new Error("バックアップの形式が違います。");
   }
 
-  let count = 0;
+  const entries: { record: ArchiveRecord; photos: BackupPhoto[] }[] = [];
   for (const record of manifest.listings) {
     if (!record || typeof record.id !== "string" || !/^AU\d{6,16}$/.test(record.id)) continue;
-    await putListing(record);
     const prefix = `photos/${record.id}/`;
     const slots = new Map<number, { bytes?: Uint8Array; meta?: PhotoMeta }>();
     for (const [path, data] of Object.entries(unzipped)) {
@@ -91,7 +97,6 @@ export async function importBackup(file: File): Promise<number> {
       }
       slots.set(index, slot);
     }
-
     const photos = [...slots.entries()]
       .sort((a, b) => a[0] - b[0])
       .flatMap(([, slot]) => {
@@ -106,10 +111,15 @@ export async function importBackup(file: File): Promise<number> {
           },
         ];
       });
-    await replacePhotos(record.id, photos);
-    count += 1;
+    entries.push({
+      record: {
+        ...record,
+        savedPhotos: Array.isArray(record.savedPhotos) ? record.savedPhotos : photos.map((photo) => ({ caption: photo.caption, category: photo.category })),
+      },
+      photos,
+    });
   }
 
-  if (!count) throw new Error("読み込める車両がありませんでした。");
-  return count;
+  if (!entries.length) throw new Error("読み込める車両がありませんでした。");
+  return entries;
 }
