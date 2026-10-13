@@ -1,3 +1,5 @@
+import { ClerkProvider } from "@clerk/nextjs";
+import { jaJP } from "@clerk/localizations";
 import type { Metadata } from "next";
 import { AccountProvider } from "@/components/account-provider";
 import "./globals.css";
@@ -24,7 +26,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="bg-background text-foreground min-h-full">
-        <AccountProvider>{children}</AccountProvider>
+        <ClerkProvider localization={jaJP}>
+          <AccountProvider>{children}</AccountProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

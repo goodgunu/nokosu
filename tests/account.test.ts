@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { loginAccount, registerAccount } from "../lib/account";
+import { acceptGoogleAccount } from "../lib/google-owner";
 import { choosePhotoIndexes } from "../lib/keep-photos";
 import { hashPassword, verifyPassword } from "../lib/password";
 import { readSession, signSession } from "../lib/session";
@@ -38,6 +39,8 @@ test("one account can store a car and only the chosen photos", async () => {
     assert.equal((await registerAccount("Owner@Example.com", "password1")).ok, true);
     const second = await registerAccount("other@example.com", "password1");
     assert.equal(second.ok, false);
+    assert.equal((await acceptGoogleAccount("owner@example.com")).ok, true);
+    assert.equal((await acceptGoogleAccount("other@example.com")).ok, false);
     assert.equal((await loginAccount("owner@example.com", "password1")).ok, true);
     assert.equal((await loginAccount("owner@example.com", "nope")).ok, false);
 

@@ -4,6 +4,7 @@ import type { ArchiveRecord, ParsedListing, WatchStatus } from "@/lib/types";
 export type SessionState = {
   email: string | null;
   hasOwner: boolean;
+  mismatch?: boolean;
 };
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
