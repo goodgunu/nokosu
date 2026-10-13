@@ -8,7 +8,7 @@ export async function fetchCarsensorPhoto(url: string): Promise<{ bytes: Uint8Ar
   try {
     const upstream = await fetch(url, {
       redirect: "manual",
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(8000),
       headers: {
         "User-Agent": USER_AGENT,
         Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",

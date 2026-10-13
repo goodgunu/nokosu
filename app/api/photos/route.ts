@@ -4,6 +4,8 @@ import { packPhotos, type PackedPhoto } from "@/lib/photo-pack";
 
 const PHOTO_LIMIT = 60;
 
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   try {
     return await packListingPhotos(request);
@@ -58,7 +60,7 @@ async function packListingPhotos(request: Request) {
     }
   }
 
-  const workers = Math.min(6, requested.length);
+  const workers = Math.min(10, requested.length);
   await Promise.all(Array.from({ length: workers }, () => worker()));
   const packed = packPhotos(results.filter((item): item is PackedPhoto => Boolean(item)));
   if (packed.byteLength < 32) {
