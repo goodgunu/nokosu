@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -24,7 +24,7 @@ import { deleteRemoteListing, fetchListing, loadRemotePhotos, patchListing, phot
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
 import { WATCH_STATUSES, type ArchiveRecord, type ParsedListing, type WatchStatus } from "@/lib/types";
 
-export function ListingScreen({ id }: { id: string }) {
+export function ListingScreen({ id, startPicking = false }: { id: string; startPicking?: boolean }) {
   const router = useRouter();
   const [record, setRecord] = useState<ArchiveRecord | null | undefined>(undefined);
   const [memo, setMemo] = useState("");
@@ -33,6 +33,34 @@ export function ListingScreen({ id }: { id: string }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showUnequipped, setShowUnequipped] = useState(false);
   const [draft, setDraft] = useState<ParsedListing | null>(null);
+  const pickStarted = useRef(false);
+
+  useEffect(() => {
+    if (!startPicking || !record || pickStarted.current) return;
+    pickStarted.current = true;
+    const sourceUrl = record.sourceUrl;
+    let cancelled = false;
+    requestArchive(sourceUrl)
+      .then((result) => {
+        if (cancelled) return;
+        if (result.status === "ok") {
+          setDraft(result.listing);
+          setMessage("残す写真を選んでください。選ばなかった写真は保存しません。");
+          return;
+        }
+        if (result.status === "ended") {
+          setMessage("元の掲載は終了していました。保存してある内容はこのまま見られます。");
+          return;
+        }
+        setMessage(result.message);
+      })
+      .catch((error) => {
+        if (!cancelled) setMessage(saveErrorMessage(error));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [startPicking, record]);
 
   useEffect(() => {
     let cancelled = false;

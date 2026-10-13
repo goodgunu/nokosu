@@ -98,9 +98,10 @@ function GoogleSignIn({ notice, onError }: { notice: string; onError: (message: 
     setBusy(true);
     onError("");
     try {
+      const here = `${window.location.pathname}${window.location.search}`;
       const result = await signIn.sso({
         strategy: "oauth_google",
-        redirectUrl: "/",
+        redirectUrl: here.startsWith("/sso-callback") ? "/" : here,
         redirectCallbackUrl: "/sso-callback",
         oidcPrompt: "select_account",
       });
