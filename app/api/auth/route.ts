@@ -1,4 +1,5 @@
 import { accountState, unauthorized } from "@/lib/current-user";
+import { clearSessionCookie } from "@/lib/session";
 import { getOwner } from "@/lib/store";
 
 export async function GET() {
@@ -18,7 +19,8 @@ export async function POST() {
   return Response.json({ message: "Googleでログインしてください。" }, { status: 400 });
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   if ((await accountState()).status === "anonymous") return unauthorized();
-  return Response.json({ ok: true });
+  const secure = Boolean(process.env.VERCEL) || new URL(request.url).protocol === "https:";
+  return Response.json({ ok: true }, { headers: { "Set-Cookie": clearSessionCookie(secure) } });
 }

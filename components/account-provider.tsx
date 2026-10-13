@@ -25,12 +25,12 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn) return;
+    if (!isLoaded) return;
     let cancelled = false;
     getSession()
       .then((session) => {
         if (cancelled) return;
-        if (session.mismatch) {
+        if (session.mismatch && isSignedIn) {
           setPhase("mismatch");
           return;
         }
@@ -50,12 +50,13 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
   }, [isLoaded, isSignedIn, user?.id]);
 
   async function logout() {
-    await signOut({ redirectUrl: "/" });
+    await fetch("/api/auth", { method: "DELETE" });
+    if (isSignedIn) await signOut({ redirectUrl: "/" });
     setEmail("");
     setPhase("google");
   }
 
-  const view = !isLoaded || (isSignedIn && phase === "loading") ? "loading" : !isSignedIn ? "google" : phase;
+  const view = !isLoaded || phase === "loading" ? "loading" : phase;
 
   if (pathname.startsWith("/sso-callback")) return children;
 

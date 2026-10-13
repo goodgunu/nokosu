@@ -1,4 +1,4 @@
-import { replyForAction, replyForText, validLineSignature, type LineReply } from "@/lib/line-archive";
+import { replyForAction, replyForText, validLineSignature, welcomeReply, type LineReply } from "@/lib/line-archive";
 import type { LineMessage } from "@/lib/line-picker";
 
 export const maxDuration = 60;
@@ -12,8 +12,14 @@ type LineEvent = {
   message?: { type?: string; text?: string };
 };
 
-const WELCOME =
-  "友だち追加ありがとうございます。\n\nカーセンサー公式アプリで気になる車を開いたら、共有からこの「のこす」を選んでください。価格や装備、選んだ写真を残します。\n\n残した車はこちらです。\nhttps://fleet-maple-mto3zo3.vercel.app";
+async function replyForEvent(event: LineEvent, origin: string): Promise<LineReply> {
+  const lineUserId = event.source?.userId || "";
+  if (!lineUserId) return { messages: [{ type: "text", text: "このトークからは入れません。" }], push: [] };
+  if (event.type === "follow") return welcomeReply(origin, lineUserId);
+  if (event.type === "postback" && event.postback?.data) return replyForAction(event.postback.data, origin);
+  if (event.type === "message" && event.message?.type === "text") return replyForText(event.message.text || "", origin, lineUserId);
+  return replyForText("", origin, lineUserId);
+}
 
 export async function POST(request: Request) {
   const secret = process.env.LINE_CHANNEL_SECRET || "";
@@ -50,13 +56,6 @@ export async function POST(request: Request) {
   }
 
   return new Response("ok");
-}
-
-async function replyForEvent(event: LineEvent, origin: string): Promise<LineReply> {
-  if (event.type === "follow") return { messages: [{ type: "text", text: WELCOME }], push: [] };
-  if (event.type === "postback" && event.postback?.data) return replyForAction(event.postback.data, origin);
-  if (event.type === "message" && event.message?.type === "text") return replyForText(event.message.text || "", origin);
-  return { messages: [{ type: "text", text: "車両ページの共有を送ってください。文章の中のURLを見て、残す写真を選べます。" }], push: [] };
 }
 
 function siteOrigin(request: Request): string {

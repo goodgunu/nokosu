@@ -7,10 +7,11 @@ export type LineAction =
   | { type: "clear"; id: string };
 
 export type LineMessage = {
-  type: "text" | "flex";
+  type: "text" | "flex" | "template";
   text?: string;
   altText?: string;
   contents?: unknown;
+  template?: unknown;
   quickReply?: unknown;
 };
 

@@ -1,17 +1,27 @@
 import { auth, currentUser as clerkCurrentUser } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { acceptGoogleAccount } from "@/lib/google-owner";
+import { readSession } from "@/lib/session";
+import { authSecret } from "@/lib/store";
 
 export type AccountState = { status: "anonymous" } | { status: "ready"; email: string } | { status: "mismatch" };
 
 export async function accountState(): Promise<AccountState> {
   const { userId } = await auth();
-  if (!userId) return { status: "anonymous" };
-  const user = await clerkCurrentUser();
-  const email = user?.primaryEmailAddress?.emailAddress;
-  if (!email) return { status: "anonymous" };
-  const accepted = await acceptGoogleAccount(email);
-  if (!accepted.ok) return { status: "mismatch" };
-  return { status: "ready", email: accepted.email };
+  if (userId) {
+    const user = await clerkCurrentUser();
+    const email = user?.primaryEmailAddress?.emailAddress;
+    if (email) {
+      const accepted = await acceptGoogleAccount(email);
+      if (!accepted.ok) return { status: "mismatch" };
+      return { status: "ready", email: accepted.email };
+    }
+  }
+  const token = (await cookies()).get("nokosu_session")?.value || "";
+  if (!token) return { status: "anonymous" };
+  const session = readSession(token, await authSecret());
+  if (!session?.email.startsWith("line:")) return { status: "anonymous" };
+  return { status: "ready", email: session.email };
 }
 
 export async function currentUser(request?: Request): Promise<{ email: string } | null> {
