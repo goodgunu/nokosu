@@ -25,7 +25,7 @@ function dataDir(): string {
 
 function fileStoreEnabled(): boolean {
   if (process.env.NOKOSU_DATA_DIR) return true;
-  if (process.env.BLOB_READ_WRITE_TOKEN) return false;
+  if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) return false;
   if (process.env.VERCEL) {
     throw new Error("保存先がまだ接続されていません。");
   }
