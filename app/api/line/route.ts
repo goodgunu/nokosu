@@ -11,7 +11,7 @@ type LineEvent = {
 export async function POST(request: Request) {
   const secret = process.env.LINE_CHANNEL_SECRET || "";
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN || "";
-  if (!secret || !token) return new Response("LINEの接続がまだです。", { status: 503 });
+  if (!secret) return new Response("LINEの接続がまだです。", { status: 503 });
 
   const body = await request.text();
   const signature = request.headers.get("x-line-signature") || "";
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
         : event.type === "message" && event.message?.type === "text"
           ? await archiveSharedText(event.message.text || "", origin)
           : "車両ページの共有を送ってください。文章の中のURLを見て残します。";
-    await replyLine(token, event.replyToken, text);
+    if (token) await replyLine(token, event.replyToken, text);
   }
 
   return new Response("ok");
