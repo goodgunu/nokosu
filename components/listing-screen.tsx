@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { PhotoGallery } from "@/components/photo-gallery";
-import { useListingPhotos } from "@/components/use-photos";
+import { useListingPhotos, usePhotoJob } from "@/components/use-photos";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +33,7 @@ export function ListingScreen({ id }: { id: string }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showUnequipped, setShowUnequipped] = useState(false);
   const { photos } = useListingPhotos(id);
+  const photoJob = usePhotoJob(id);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,7 +78,9 @@ export function ListingScreen({ id }: { id: string }) {
         setMessage("まだ掲載されています。内容を取り直すと、価格や写真も更新できます。");
         return;
       }
-      const saved = await saveParsedListing(result.listing, () => {});
+      const saved = await saveParsedListing(result.listing, (done, total) => {
+        setBusy(done < 0 ? "写真を集めています" : `写真を保存しています ${done}/${total}`);
+      });
       const next = await getListing(record.id);
       setRecord(next ?? saved.record);
       setMessage(
@@ -146,7 +149,18 @@ export function ListingScreen({ id }: { id: string }) {
 
         <div className="mt-4 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div className="min-w-0">
-            <PhotoGallery photos={photos} title={name} />
+            {photos.length > 0 ? (
+              <PhotoGallery photos={photos} title={name} />
+            ) : (
+              <div className="bg-muted text-muted-foreground flex aspect-[4/3] flex-col items-center justify-center gap-4 rounded-xl border px-6 text-center">
+                <p>{photoJob ? photoJob.label : busy || "写真は保存されていません"}</p>
+                {!photoJob && (
+                  <Button disabled={Boolean(busy)} onClick={() => void refresh("update")}>
+                    写真を保存する
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="min-w-0">

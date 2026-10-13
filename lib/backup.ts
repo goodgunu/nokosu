@@ -1,5 +1,5 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
-import { getPhotos, putListing, replacePhotos } from "@/lib/db";
+import { getPhotos, putListing, replacePhotos, storedPhotoBlob } from "@/lib/db";
 import type { ArchiveRecord } from "@/lib/types";
 
 const FORMAT = "nokosu-backup";
@@ -26,13 +26,15 @@ export async function buildBackup(records: ArchiveRecord[]): Promise<Blob> {
   for (const record of records) {
     const photos = await getPhotos(record.id);
     for (const photo of photos) {
-      const ext = photo.blob.type.includes("png") ? "png" : "jpg";
-      files[`photos/${record.id}/${photo.index}.${ext}`] = new Uint8Array(await photo.blob.arrayBuffer());
+      const blob = storedPhotoBlob(photo);
+      if (!blob) continue;
+      const ext = blob.type.includes("png") ? "png" : "jpg";
+      files[`photos/${record.id}/${photo.index}.${ext}`] = new Uint8Array(await blob.arrayBuffer());
       files[`photos/${record.id}/${photo.index}.json`] = strToU8(
         JSON.stringify({
           caption: photo.caption,
           category: photo.category,
-          type: photo.blob.type || "image/jpeg",
+          type: blob.type || "image/jpeg",
         } satisfies PhotoMeta),
       );
     }
@@ -97,7 +99,8 @@ export async function importBackup(file: File): Promise<number> {
         const type = slot.meta?.type && slot.meta.type.startsWith("image/") ? slot.meta.type : "image/jpeg";
         return [
           {
-            blob: new Blob([new Uint8Array(slot.bytes)], { type }),
+            bytes: new Uint8Array(slot.bytes),
+            type,
             caption: slot.meta?.caption || "",
             category: slot.meta?.category || "",
           },

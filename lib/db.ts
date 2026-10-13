@@ -1,14 +1,35 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type { ArchiveRecord } from "@/lib/types";
 
+export type PhotoDraft = {
+  bytes: Uint8Array;
+  type: string;
+  caption: string;
+  category: string;
+};
+
 export type StoredPhoto = {
   key: string;
   listingId: string;
   index: number;
-  blob: Blob;
+  bytes?: Uint8Array | ArrayBuffer;
+  type?: string;
+  blob?: Blob;
   caption: string;
   category: string;
 };
+
+export function storedPhotoBlob(photo: StoredPhoto): Blob | null {
+  if (photo.bytes) {
+    const view = photo.bytes instanceof ArrayBuffer ? new Uint8Array(photo.bytes) : photo.bytes;
+    if (view.byteLength < 80) return null;
+    const copy = new Uint8Array(view.byteLength);
+    copy.set(view);
+    return new Blob([copy], { type: photo.type || "image/jpeg" });
+  }
+  if (photo.blob && photo.blob.size >= 80) return photo.blob;
+  return null;
+}
 
 interface NokosuDB extends DBSchema {
   listings: {
@@ -82,26 +103,22 @@ export async function clearPhotos(listingId: string): Promise<void> {
   await Promise.all([...existing.map((key) => tx.store.delete(key)), tx.done]);
 }
 
-export async function putPhoto(
-  listingId: string,
-  index: number,
-  photo: { blob: Blob; caption: string; category: string },
-): Promise<void> {
+export async function putPhoto(listingId: string, index: number, photo: PhotoDraft): Promise<void> {
   const db = await getDb();
+  const bytes = new Uint8Array(photo.bytes.byteLength);
+  bytes.set(photo.bytes);
   await db.put("photos", {
     key: `${listingId}:${index}`,
     listingId,
     index,
-    blob: photo.blob,
+    bytes: bytes.buffer,
+    type: photo.type.startsWith("image/") ? photo.type : "image/jpeg",
     caption: photo.caption,
     category: photo.category,
   });
 }
 
-export async function replacePhotos(
-  listingId: string,
-  photos: { blob: Blob; caption: string; category: string }[],
-): Promise<number> {
+export async function replacePhotos(listingId: string, photos: PhotoDraft[]): Promise<number> {
   await clearPhotos(listingId);
   let stored = 0;
   for (const photo of photos) {

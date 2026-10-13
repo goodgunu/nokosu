@@ -1,4 +1,6 @@
-import { getListing, putListing, replacePhotos } from "@/lib/db";
+import { getListing, putListing, replacePhotos, type PhotoDraft } from "@/lib/db";
+import { finishPhotoJob, startPhotoJob, updatePhotoJob } from "@/lib/photo-jobs";
+import { unpackPhotos } from "@/lib/photo-pack";
 import type { ArchiveRecord, Availability, ParsedListing, WatchStatus } from "@/lib/types";
 
 export type ArchiveResponse =
@@ -135,11 +137,56 @@ async function fetchImage(url: string): Promise<Blob> {
   }
 }
 
+function downloadPhotoPack(
+  photos: ParsedListing["photos"],
+  onProgress: (done: number, total: number) => void,
+): Promise<Uint8Array> {
+  const payload = JSON.stringify({
+    photos: photos.map((photo) => ({ url: photo.url, caption: photo.caption, category: photo.category })),
+  });
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/photos");
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.responseType = "arraybuffer";
+    xhr.timeout = 120000;
+    xhr.onprogress = (event) => {
+      if (!event.lengthComputable || event.total <= 0) return;
+      onProgress(Math.min(photos.length, Math.round((event.loaded / event.total) * photos.length)), photos.length);
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300 && xhr.response instanceof ArrayBuffer && xhr.response.byteLength > 32) {
+        resolve(new Uint8Array(xhr.response));
+        return;
+      }
+      reject(new Error(String(xhr.status)));
+    };
+    xhr.onerror = () => reject(new TypeError("通信に失敗しました"));
+    xhr.ontimeout = () => reject(new TypeError("通信に失敗しました"));
+    xhr.send(payload);
+  });
+}
+
 async function downloadPhotos(
   photos: ParsedListing["photos"],
   onProgress: (done: number, total: number) => void,
-) {
-  const results: ({ blob: Blob; caption: string; category: string } | null)[] = photos.map(() => null);
+): Promise<PhotoDraft[]> {
+  if (!photos.length) return [];
+  onProgress(-1, photos.length);
+  try {
+    const packed = await downloadPhotoPack(photos, onProgress);
+    const unpacked = unpackPhotos(packed).map((photo) => ({
+      bytes: photo.bytes,
+      type: photo.type,
+      caption: photo.caption,
+      category: photo.category,
+    }));
+    if (unpacked.length) return unpacked;
+  } catch {
+    // The single download did not arrive. Fall back to one photo at a time.
+  }
+
+  const results: (PhotoDraft | null)[] = photos.map(() => null);
   let cursor = 0;
   let done = 0;
 
@@ -150,7 +197,12 @@ async function downloadPhotos(
       const photo = photos[index];
       try {
         const blob = await fetchImage(photo.url);
-        results[index] = { blob, caption: photo.caption, category: photo.category };
+        results[index] = {
+          bytes: new Uint8Array(await blob.arrayBuffer()),
+          type: blob.type || "image/jpeg",
+          caption: photo.caption,
+          category: photo.category,
+        };
       } catch {
         results[index] = null;
       } finally {
@@ -164,7 +216,7 @@ async function downloadPhotos(
   if (photos.length) {
     await Promise.all(Array.from({ length: workers }, () => worker()));
   }
-  return results.filter((item): item is NonNullable<typeof item> => item !== null);
+  return results.filter((item): item is PhotoDraft => item !== null);
 }
 
 function toRecord(
@@ -224,28 +276,43 @@ export async function saveParsedListing(
     }
   }
 
-  const downloaded = await downloadPhotos(listing.photos, onProgress);
-  const keepOldPhotos = listing.photos.length > 0 && downloaded.length === 0 && Boolean(previous);
-  let photoCount = 0;
-  let failedPhotos = listing.photos.length - downloaded.length;
-  if (keepOldPhotos && previous) {
-    photoCount = previous.photoCount;
-    failedPhotos = listing.photos.length;
-  } else {
-    try {
-      photoCount = await replacePhotos(listing.id, downloaded);
-    } catch {
-      photoCount = previous?.photoCount ?? 0;
+  if (listing.photos.length) startPhotoJob(listing.id, listing.photos.length);
+  try {
+    const downloaded = await downloadPhotos(listing.photos, (done, total) => {
+      if (listing.photos.length) {
+        updatePhotoJob(
+          listing.id,
+          Math.max(done, 0),
+          total,
+          done < 0 ? "写真を集めています" : `写真を保存しています ${done}/${total}`,
+        );
+      }
+      onProgress(done, total);
+    });
+    const keepOldPhotos = listing.photos.length > 0 && downloaded.length === 0 && Boolean(previous);
+    let photoCount = 0;
+    let failedPhotos = listing.photos.length - downloaded.length;
+    if (keepOldPhotos && previous) {
+      photoCount = previous.photoCount;
+      failedPhotos = listing.photos.length;
+    } else {
+      try {
+        photoCount = await replacePhotos(listing.id, downloaded);
+      } catch {
+        photoCount = previous?.photoCount ?? 0;
+      }
+      failedPhotos += Math.max(downloaded.length - photoCount, 0);
     }
-    failedPhotos += Math.max(downloaded.length - photoCount, 0);
+    const record = toRecord(listing, previous, photoCount, "live");
+    if (keepOldPhotos && previous) {
+      record.photoTotal = previous.photoTotal;
+      record.photosTruncated = previous.photosTruncated;
+    }
+    await putListing(record);
+    return { record, failedPhotos, updated: Boolean(previous) };
+  } finally {
+    finishPhotoJob(listing.id);
   }
-  const record = toRecord(listing, previous, photoCount, "live");
-  if (keepOldPhotos && previous) {
-    record.photoTotal = previous.photoTotal;
-    record.photosTruncated = previous.photosTruncated;
-  }
-  await putListing(record);
-  return { record, failedPhotos, updated: Boolean(previous) };
 }
 
 export async function markEnded(id: string): Promise<ArchiveRecord | undefined> {

@@ -56,7 +56,10 @@ export function Library() {
     };
   }, []);
 
-  const covers = useCovers(listings.map((listing) => listing.id));
+  const covers = useCovers(
+    listings.map((listing) => listing.id),
+    listings.map((listing) => listing.photoCount).join(","),
+  );
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -121,7 +124,7 @@ export function Library() {
       const saved = await saveParsedListing(
         result.listing,
         (done, total) => {
-          setBusy(total ? `写真を保存しています ${done}/${total}` : "保存しています");
+          setBusy(done < 0 ? "写真を集めています" : total ? `写真を保存しています ${done}/${total}` : "保存しています");
         },
         () => reload(),
       );

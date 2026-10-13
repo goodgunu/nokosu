@@ -1,10 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getCover, getPhotos } from "@/lib/db";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { getCover, getPhotos, storedPhotoBlob } from "@/lib/db";
 import type { GalleryPhoto } from "@/components/photo-gallery";
+import { getPhotoJob, photoDataVersion, subscribePhotoJobs } from "@/lib/photo-jobs";
+
+export function usePhotoJob(listingId: string) {
+  return useSyncExternalStore(
+    subscribePhotoJobs,
+    () => getPhotoJob(listingId),
+    () => undefined,
+  );
+}
+
+function usePhotoDataVersion() {
+  return useSyncExternalStore(subscribePhotoJobs, photoDataVersion, () => 0);
+}
 
 export function useListingPhotos(listingId: string) {
+  const version = usePhotoDataVersion();
   const [state, setState] = useState<{ id: string; photos: GalleryPhoto[] }>({ id: "", photos: [] });
 
   useEffect(() => {
@@ -13,9 +27,11 @@ export function useListingPhotos(listingId: string) {
 
     getPhotos(listingId)
       .then((rows) => {
-        const next = rows.map((row) => {
-          const url = URL.createObjectURL(row.blob);
-          return { url, caption: row.caption, category: row.category };
+        const next = rows.flatMap((row) => {
+          const blob = storedPhotoBlob(row);
+          if (!blob) return [];
+          const url = URL.createObjectURL(blob);
+          return [{ url, caption: row.caption, category: row.category }];
         });
         if (cancelled) {
           next.forEach((photo) => URL.revokeObjectURL(photo.url));
@@ -33,7 +49,7 @@ export function useListingPhotos(listingId: string) {
       created.forEach((url) => URL.revokeObjectURL(url));
       created = [];
     };
-  }, [listingId]);
+  }, [listingId, version]);
 
   return {
     photos: state.id === listingId ? state.photos : [],
@@ -41,7 +57,8 @@ export function useListingPhotos(listingId: string) {
   };
 }
 
-export function useCovers(ids: string[]) {
+export function useCovers(ids: string[], refreshKey = "") {
+  const version = usePhotoDataVersion();
   const key = ids.join("|");
   const [covers, setCovers] = useState<Record<string, string>>({});
 
@@ -49,12 +66,14 @@ export function useCovers(ids: string[]) {
     let cancelled = false;
     let created: string[] = [];
     const listingIds = key ? key.split("|") : [];
+    void refreshKey;
 
     Promise.all(
       listingIds.map(async (id) => {
         const photo = await getCover(id);
-        if (!photo) return [id, ""] as const;
-        const url = URL.createObjectURL(photo.blob);
+        const blob = photo ? storedPhotoBlob(photo) : null;
+        if (!blob) return [id, ""] as const;
+        const url = URL.createObjectURL(blob);
         created.push(url);
         return [id, url] as const;
       }),
@@ -75,7 +94,7 @@ export function useCovers(ids: string[]) {
       created.forEach((url) => URL.revokeObjectURL(url));
       created = [];
     };
-  }, [key]);
+  }, [key, refreshKey, version]);
 
   return covers;
 }
