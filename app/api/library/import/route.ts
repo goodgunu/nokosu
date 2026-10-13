@@ -6,7 +6,8 @@ import type { StoredImage } from "@/lib/store";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
-  if (!(await currentUser(request))) return unauthorized();
+  const user = await currentUser(request);
+  if (!user) return unauthorized();
   let body: { record?: unknown; photos?: unknown; mode?: unknown };
   try {
     body = await request.json();
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
     });
   }
   try {
-    const saved = await importRecordPhotos(record, photos, mode);
+    const saved = await importRecordPhotos(user.email, record, photos, mode);
     return Response.json({ record: saved });
   } catch (error) {
     const message = error instanceof Error && error.message ? error.message : "読み込めませんでした。";

@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { del, get, list, put } from "@vercel/blob";
@@ -70,9 +70,10 @@ export async function putOwner(owner: OwnerRecord): Promise<void> {
   await writeBlobJson("owner.json", owner);
 }
 
-export async function listRecords(): Promise<ArchiveRecord[]> {
+export async function listRecords(email: string): Promise<ArchiveRecord[]> {
+  const folder = userFolder(email);
   if (fileStoreEnabled()) {
-    const dir = path.join(dataDir(), "records");
+    const dir = path.join(dataDir(), "records", folder);
     const names = await readdir(dir).catch(() => []);
     const records: ArchiveRecord[] = [];
     for (const name of names) {
@@ -82,7 +83,7 @@ export async function listRecords(): Promise<ArchiveRecord[]> {
     }
     return records.sort((a, b) => (a.savedAt < b.savedAt ? 1 : -1));
   }
-  const pathnames = await listBlobPathnames("records/");
+  const pathnames = await listBlobPathnames(`records/${folder}/`);
   const records: ArchiveRecord[] = [];
   for (const pathname of pathnames) {
     const record = await readBlobJson<ArchiveRecord>(pathname);
@@ -91,27 +92,181 @@ export async function listRecords(): Promise<ArchiveRecord[]> {
   return records.sort((a, b) => (a.savedAt < b.savedAt ? 1 : -1));
 }
 
-export async function getRecord(id: string): Promise<ArchiveRecord | null> {
+export async function getRecord(email: string, id: string): Promise<ArchiveRecord | null> {
   if (!isListingId(id)) return null;
-  if (fileStoreEnabled()) return readJsonFile<ArchiveRecord>(path.join(dataDir(), "records", `${id}.json`));
-  return readBlobJson<ArchiveRecord>(`records/${id}.json`);
+  const file = recordFile(email, id);
+  if (fileStoreEnabled()) return readJsonFile<ArchiveRecord>(path.join(dataDir(), file));
+  return readBlobJson<ArchiveRecord>(file);
 }
 
-export async function putRecord(record: ArchiveRecord): Promise<void> {
+export async function putRecord(email: string, record: ArchiveRecord): Promise<void> {
   if (!isListingId(record.id)) throw new Error("車両IDが不正です。");
+  const file = recordFile(email, record.id);
   if (fileStoreEnabled()) {
-    const dir = path.join(dataDir(), "records");
-    await ensureDir(dir);
-    await writeFile(path.join(dir, `${record.id}.json`), JSON.stringify(record));
+    await ensureDir(path.dirname(path.join(dataDir(), file)));
+    await writeFile(path.join(dataDir(), file), JSON.stringify(record));
     return;
   }
-  await writeBlobJson(`records/${record.id}.json`, record);
+  await writeBlobJson(file, record);
 }
 
-export async function getPhoto(listingId: string, index: number): Promise<StoredImage | null> {
+export async function getPhoto(email: string, listingId: string, index: number): Promise<StoredImage | null> {
   if (!isListingId(listingId) || !Number.isInteger(index) || index < 0) return null;
-  const meta = await photoMeta(listingId);
+  const meta = await photoMeta(email, listingId);
   const item = meta[index];
+  if (!item) return null;
+  const bytes = fileStoreEnabled()
+    ? await readFile(path.join(dataDir(), photoFile(email, listingId, index))).catch(() => null)
+    : await readBlobBytes(photoFile(email, listingId, index));
+  if (!bytes || bytes.byteLength < 80) return null;
+  return { bytes, type: item.type || "image/jpeg", caption: item.caption, category: item.category };
+}
+
+export async function replacePhotos(email: string, listingId: string, photos: StoredImage[]): Promise<void> {
+  if (!isListingId(listingId)) throw new Error("車両IDが不正です。");
+  await clearPhotos(email, listingId);
+  const meta: PhotoMeta[] = [];
+  for (let index = 0; index < photos.length; index += 1) {
+    const photo = photos[index];
+    if (fileStoreEnabled()) {
+      const file = photoFile(email, listingId, index);
+      await ensureDir(path.dirname(path.join(dataDir(), file)));
+      await writeFile(path.join(dataDir(), file), photo.bytes);
+    } else {
+      await put(photoFile(email, listingId, index), Buffer.from(photo.bytes), {
+        access: "private",
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: photo.type || "image/jpeg",
+      });
+    }
+    meta.push({ caption: photo.caption, category: photo.category, type: photo.type || "image/jpeg" });
+  }
+  await writePhotoMeta(email, listingId, meta);
+}
+
+export async function appendPhotos(email: string, listingId: string, photos: StoredImage[]): Promise<PhotoMeta[]> {
+  const meta = await photoMeta(email, listingId);
+  for (const photo of photos) {
+    const index = meta.length;
+    if (fileStoreEnabled()) {
+      const file = photoFile(email, listingId, index);
+      await ensureDir(path.dirname(path.join(dataDir(), file)));
+      await writeFile(path.join(dataDir(), file), photo.bytes);
+    } else {
+      await put(photoFile(email, listingId, index), Buffer.from(photo.bytes), {
+        access: "private",
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: photo.type || "image/jpeg",
+      });
+    }
+    meta.push({ caption: photo.caption, category: photo.category, type: photo.type || "image/jpeg" });
+  }
+  await writePhotoMeta(email, listingId, meta);
+  return meta;
+}
+
+export async function deleteRecord(email: string, id: string): Promise<void> {
+  if (!isListingId(id)) return;
+  await clearPhotos(email, id);
+  const file = recordFile(email, id);
+  if (fileStoreEnabled()) {
+    await rm(path.join(dataDir(), file), { force: true });
+    return;
+  }
+  await del(file).catch(() => undefined);
+}
+
+export async function adoptLegacyLibrary(email: string): Promise<void> {
+  const owner = await getOwner();
+  if (!owner || owner.email !== email) return;
+  for (const record of await listLegacyRecords()) {
+    const existing = await getRecord(email, record.id);
+    if (!existing || existing.photoCount < record.photoCount) {
+      const photos: StoredImage[] = [];
+      for (let index = 0; index < record.photoCount; index += 1) {
+        const photo = await legacyPhoto(record.id, index);
+        if (photo) photos.push(photo);
+      }
+      if (photos.length) await replacePhotos(email, record.id, photos);
+      await putRecord(email, { ...record, photoCount: photos.length || record.photoCount, savedPhotos: photos.length ? photos.map((photo) => ({ caption: photo.caption, category: photo.category })) : record.savedPhotos });
+    }
+    await deleteLegacyRecord(record.id);
+  }
+}
+
+async function photoMeta(email: string, listingId: string): Promise<PhotoMeta[]> {
+  const file = `${photoDir(email, listingId)}/meta.json`;
+  const meta = fileStoreEnabled()
+    ? await readJsonFile<PhotoMeta[]>(path.join(dataDir(), file))
+    : await readBlobJson<PhotoMeta[]>(file);
+  return Array.isArray(meta) ? meta : [];
+}
+
+async function writePhotoMeta(email: string, listingId: string, meta: PhotoMeta[]): Promise<void> {
+  const file = `${photoDir(email, listingId)}/meta.json`;
+  if (fileStoreEnabled()) {
+    await ensureDir(path.dirname(path.join(dataDir(), file)));
+    await writeFile(path.join(dataDir(), file), JSON.stringify(meta));
+    return;
+  }
+  await writeBlobJson(file, meta);
+}
+
+async function clearPhotos(email: string, listingId: string): Promise<void> {
+  const dir = photoDir(email, listingId);
+  if (fileStoreEnabled()) {
+    await rm(path.join(dataDir(), dir), { recursive: true, force: true });
+    return;
+  }
+  const pathnames = await listBlobPathnames(`${dir}/`);
+  if (pathnames.length) await del(pathnames).catch(() => undefined);
+}
+
+function userFolder(email: string): string {
+  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex").slice(0, 20);
+}
+
+function recordFile(email: string, id: string): string {
+  return `records/${userFolder(email)}/${id}.json`;
+}
+
+function photoDir(email: string, listingId: string): string {
+  return `photos/${userFolder(email)}/${listingId}`;
+}
+
+function photoFile(email: string, listingId: string, index: number): string {
+  return `${photoDir(email, listingId)}/${index}.bin`;
+}
+
+async function listLegacyRecords(): Promise<ArchiveRecord[]> {
+  if (fileStoreEnabled()) {
+    const dir = path.join(dataDir(), "records");
+    const names = await readdir(dir, { withFileTypes: true }).catch(() => []);
+    const records: ArchiveRecord[] = [];
+    for (const name of names) {
+      if (!name.isFile() || !/^AU\d{6,16}\.json$/.test(name.name)) continue;
+      const record = await readJsonFile<ArchiveRecord>(path.join(dir, name.name));
+      if (record?.id) records.push(record);
+    }
+    return records;
+  }
+  const pathnames = await listBlobPathnames("records/");
+  const records: ArchiveRecord[] = [];
+  for (const pathname of pathnames) {
+    if (!/^records\/AU\d{6,16}\.json$/.test(pathname)) continue;
+    const record = await readBlobJson<ArchiveRecord>(pathname);
+    if (record?.id) records.push(record);
+  }
+  return records;
+}
+
+async function legacyPhoto(listingId: string, index: number): Promise<StoredImage | null> {
+  const meta = fileStoreEnabled()
+    ? await readJsonFile<PhotoMeta[]>(path.join(dataDir(), "photos", listingId, "meta.json"))
+    : await readBlobJson<PhotoMeta[]>(`photos/${listingId}/meta.json`);
+  const item = Array.isArray(meta) ? meta[index] : undefined;
   if (!item) return null;
   const bytes = fileStoreEnabled()
     ? await readFile(path.join(dataDir(), "photos", listingId, `${index}.bin`)).catch(() => null)
@@ -120,84 +275,14 @@ export async function getPhoto(listingId: string, index: number): Promise<Stored
   return { bytes, type: item.type || "image/jpeg", caption: item.caption, category: item.category };
 }
 
-export async function replacePhotos(listingId: string, photos: StoredImage[]): Promise<void> {
-  if (!isListingId(listingId)) throw new Error("車両IDが不正です。");
-  await clearPhotos(listingId);
-  const meta: PhotoMeta[] = [];
-  for (let index = 0; index < photos.length; index += 1) {
-    const photo = photos[index];
-    if (fileStoreEnabled()) {
-      const dir = path.join(dataDir(), "photos", listingId);
-      await ensureDir(dir);
-      await writeFile(path.join(dir, `${index}.bin`), photo.bytes);
-    } else {
-      await put(`photos/${listingId}/${index}.bin`, Buffer.from(photo.bytes), {
-        access: "private",
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: photo.type || "image/jpeg",
-      });
-    }
-    meta.push({ caption: photo.caption, category: photo.category, type: photo.type || "image/jpeg" });
-  }
-  await writePhotoMeta(listingId, meta);
-}
-
-export async function appendPhotos(listingId: string, photos: StoredImage[]): Promise<PhotoMeta[]> {
-  const meta = await photoMeta(listingId);
-  for (const photo of photos) {
-    const index = meta.length;
-    if (fileStoreEnabled()) {
-      const dir = path.join(dataDir(), "photos", listingId);
-      await ensureDir(dir);
-      await writeFile(path.join(dir, `${index}.bin`), photo.bytes);
-    } else {
-      await put(`photos/${listingId}/${index}.bin`, Buffer.from(photo.bytes), {
-        access: "private",
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: photo.type || "image/jpeg",
-      });
-    }
-    meta.push({ caption: photo.caption, category: photo.category, type: photo.type || "image/jpeg" });
-  }
-  await writePhotoMeta(listingId, meta);
-  return meta;
-}
-
-export async function deleteRecord(id: string): Promise<void> {
-  if (!isListingId(id)) return;
-  await clearPhotos(id);
+async function deleteLegacyRecord(id: string): Promise<void> {
   if (fileStoreEnabled()) {
     await rm(path.join(dataDir(), "records", `${id}.json`), { force: true });
+    await rm(path.join(dataDir(), "photos", id), { recursive: true, force: true });
     return;
   }
   await del(`records/${id}.json`).catch(() => undefined);
-}
-
-async function photoMeta(listingId: string): Promise<PhotoMeta[]> {
-  const meta = fileStoreEnabled()
-    ? await readJsonFile<PhotoMeta[]>(path.join(dataDir(), "photos", listingId, "meta.json"))
-    : await readBlobJson<PhotoMeta[]>(`photos/${listingId}/meta.json`);
-  return Array.isArray(meta) ? meta : [];
-}
-
-async function writePhotoMeta(listingId: string, meta: PhotoMeta[]): Promise<void> {
-  if (fileStoreEnabled()) {
-    const dir = path.join(dataDir(), "photos", listingId);
-    await ensureDir(dir);
-    await writeFile(path.join(dir, "meta.json"), JSON.stringify(meta));
-    return;
-  }
-  await writeBlobJson(`photos/${listingId}/meta.json`, meta);
-}
-
-async function clearPhotos(listingId: string): Promise<void> {
-  if (fileStoreEnabled()) {
-    await rm(path.join(dataDir(), "photos", listingId), { recursive: true, force: true });
-    return;
-  }
-  const pathnames = await listBlobPathnames(`photos/${listingId}/`);
+  const pathnames = await listBlobPathnames(`photos/${id}/`);
   if (pathnames.length) await del(pathnames).catch(() => undefined);
 }
 

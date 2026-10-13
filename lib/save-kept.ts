@@ -42,10 +42,11 @@ export function recordFromListing(
 }
 
 export async function saveKeptListing(
+  email: string,
   listing: ParsedListing,
   photoIndexes: number[] | null,
 ): Promise<{ record: ArchiveRecord; failedPhotos: number; updated: boolean }> {
-  const previous = await getRecord(listing.id);
+  const previous = await getRecord(email, listing.id);
   if (photoIndexes === null) {
     const record = recordFromListing(listing, previous ?? undefined, previous?.savedPhotos ?? [], "live");
     record.photoCount = previous?.photoCount ?? 0;
@@ -54,7 +55,7 @@ export async function saveKeptListing(
       record.photoTotal = previous.photoTotal;
       record.photosTruncated = previous.photosTruncated;
     }
-    await putRecord(record);
+    await putRecord(email, record);
     return { record, failedPhotos: 0, updated: Boolean(previous) };
   }
 
@@ -80,19 +81,19 @@ export async function saveKeptListing(
   if (workers) await Promise.all(Array.from({ length: workers }, () => worker()));
   const fetched = slots.filter((photo): photo is StoredImage => Boolean(photo));
   if (!indexes.length) {
-    await replacePhotos(listing.id, []);
+    await replacePhotos(email, listing.id, []);
   } else if (fetched.length) {
-    await replacePhotos(listing.id, fetched);
+    await replacePhotos(email, listing.id, fetched);
   } else if (previous) {
     const record = recordFromListing(listing, previous, previous.savedPhotos, "live");
     record.photoCount = previous.photoCount;
-    await putRecord(record);
+    await putRecord(email, record);
     return { record, failedPhotos: indexes.length, updated: true };
   }
 
   const saved = fetched.map((photo) => ({ caption: photo.caption, category: photo.category }));
   const record = recordFromListing(listing, previous ?? undefined, saved, "live");
-  await putRecord(record);
+  await putRecord(email, record);
   return { record, failedPhotos: indexes.length - fetched.length, updated: Boolean(previous) };
 }
 
@@ -145,6 +146,7 @@ export function sanitizeImportedRecord(input: unknown): ArchiveRecord | null {
 }
 
 export async function importRecordPhotos(
+  email: string,
   record: ArchiveRecord,
   photos: StoredImage[],
   mode: "replace" | "append",
@@ -152,19 +154,19 @@ export async function importRecordPhotos(
   const incoming = photos.slice(0, PHOTO_KEEP_LIMIT);
   if (mode === "replace") {
     const kept = incoming.slice(0, PHOTO_KEEP_LIMIT);
-    await replacePhotos(record.id, kept);
+    await replacePhotos(email, record.id, kept);
     const next = {
       ...record,
       photoCount: kept.length,
       savedPhotos: kept.map((photo) => ({ caption: photo.caption, category: photo.category })),
     };
-    await putRecord(next);
+    await putRecord(email, next);
     return next;
   }
-  const existing = await getRecord(record.id);
+  const existing = await getRecord(email, record.id);
   const room = Math.max(PHOTO_KEEP_LIMIT - (existing?.photoCount ?? 0), 0);
   const kept = incoming.slice(0, room);
-  const meta = await appendPhotos(record.id, kept);
+  const meta = await appendPhotos(email, record.id, kept);
   const next = {
     ...(existing ?? record),
     ...record,
@@ -172,7 +174,7 @@ export async function importRecordPhotos(
     savedPhotos: meta.map((photo) => ({ caption: photo.caption, category: photo.category })),
     savedAt: existing?.savedAt ?? record.savedAt,
   };
-  await putRecord(next);
+  await putRecord(email, next);
   return next;
 }
 

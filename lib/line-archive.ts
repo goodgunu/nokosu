@@ -3,7 +3,7 @@ import { fetchCarsensorListing } from "@/lib/fetch-listing";
 import { parseLineAction } from "@/lib/line-picker";
 import { carsensorTargetsFromText } from "@/lib/share-text";
 import { saveKeptListing } from "@/lib/save-kept";
-import { getRecord, putRecord } from "@/lib/store";
+import { getOwner, getRecord, putRecord } from "@/lib/store";
 import type { LineMessage } from "@/lib/line-picker";
 
 export type LineReply = {
@@ -41,18 +41,22 @@ async function replyForListingUrl(target: string, origin: string): Promise<LineR
   const fetched = await fetchCarsensorListing(target);
   if (fetched.parsed.status === "error") return textOnly(fetched.parsed.message);
   if (fetched.parsed.status === "ended") {
-    const existing = await getRecord(fetched.parsed.id);
+    const owner = await getOwner();
+    if (!owner) return textOnly("先に、のこすをGoogleアカウントで開いてください。");
+    const existing = await getRecord(owner.email, fetched.parsed.id);
     if (existing) {
       const now = new Date().toISOString();
-      await putRecord({ ...existing, availability: "ended", lastCheckedAt: now, updatedAt: now });
+      await putRecord(owner.email, { ...existing, availability: "ended", lastCheckedAt: now, updatedAt: now });
       return textOnly(`「${trimTitle(fetched.parsed.title)}」は掲載が終わっていました。以前残した内容はそのまま見られます。\n${origin}/listings/${fetched.parsed.id}`);
     }
     return textOnly(`「${trimTitle(fetched.parsed.title)}」はすでに掲載が終わっていて、新しくは残せません。`);
   }
 
   const listing = fetched.parsed.listing;
-  const previous = await getRecord(listing.id);
-  await saveKeptListing(listing, previous?.photoCount ? null : []);
+  const owner = await getOwner();
+  if (!owner) return textOnly("先に、のこすをGoogleアカウントで開いてください。");
+  const previous = await getRecord(owner.email, listing.id);
+  await saveKeptListing(owner.email, listing, previous?.photoCount ? null : []);
   return textOnly(
     `${trimTitle(listing.title)}を読み取りました。残す写真は、このページで選んでください。\n${pickPageUrl(origin, listing.id)}`,
   );

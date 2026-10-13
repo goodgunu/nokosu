@@ -6,13 +6,15 @@ import type { ParsedListing } from "@/lib/types";
 export const maxDuration = 60;
 
 export async function GET(request: Request) {
-  if (!(await currentUser(request))) return unauthorized();
-  const listings = await listRecords();
+  const user = await currentUser(request);
+  if (!user) return unauthorized();
+  const listings = await listRecords(user.email);
   return Response.json({ listings });
 }
 
 export async function POST(request: Request) {
-  if (!(await currentUser(request))) return unauthorized();
+  const user = await currentUser(request);
+  if (!user) return unauthorized();
   let body: { listing?: ParsedListing; photoIndexes?: unknown };
   try {
     body = await request.json();
@@ -24,7 +26,7 @@ export async function POST(request: Request) {
   }
   const photoIndexes = body.photoIndexes === null ? null : Array.isArray(body.photoIndexes) ? body.photoIndexes.filter((item) => typeof item === "number") : [];
   try {
-    const saved = await saveKeptListing(body.listing, photoIndexes);
+    const saved = await saveKeptListing(user.email, body.listing, photoIndexes);
     return Response.json(saved);
   } catch (error) {
     const message = error instanceof Error && error.message ? error.message : "保存できませんでした。";

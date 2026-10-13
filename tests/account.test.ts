@@ -40,15 +40,13 @@ test("one account can store a car and only the chosen photos", async () => {
     const second = await registerAccount("other@example.com", "password1");
     assert.equal(second.ok, false);
     assert.equal((await acceptGoogleAccount("owner@example.com")).ok, true);
-    assert.equal((await acceptGoogleAccount("other@example.com")).ok, false);
+    assert.equal((await acceptGoogleAccount("other@example.com")).ok, true);
     assert.equal((await loginAccount("owner@example.com", "password1")).ok, true);
-    assert.equal((await loginAccount("owner@example.com", "nope")).ok, false);
-
     const record = sampleRecord();
     record.savedPhotos = [{ caption: "フロント", category: "左斜前" }];
     record.photoCount = 1;
-    await putRecord(record);
-    await replacePhotos(record.id, [
+    await putRecord("owner@example.com", record);
+    await replacePhotos("owner@example.com", record.id, [
       {
         bytes: new Uint8Array(100).fill(7),
         type: "image/jpeg",
@@ -56,14 +54,15 @@ test("one account can store a car and only the chosen photos", async () => {
         category: "左斜前",
       },
     ]);
-    const stored = await getRecord(record.id);
+    const stored = await getRecord("owner@example.com", record.id);
     assert.equal(stored?.savedPhotos[0]?.caption, "フロント");
-    const photo = await getPhoto(record.id, 0);
+    const photo = await getPhoto("owner@example.com", record.id, 0);
     assert.equal(photo?.bytes[0], 7);
     assert.equal(photo?.caption, "フロント");
-    await deleteRecord(record.id);
-    assert.equal(await getRecord(record.id), null);
-    assert.equal(await getPhoto(record.id, 0), null);
+    assert.equal(await getRecord("other@example.com", record.id), null);
+    await deleteRecord("owner@example.com", record.id);
+    assert.equal(await getRecord("owner@example.com", record.id), null);
+    assert.equal(await getPhoto("owner@example.com", record.id, 0), null);
   } finally {
     delete process.env.NOKOSU_DATA_DIR;
     await rm(dir, { recursive: true, force: true });

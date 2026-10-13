@@ -5,18 +5,20 @@ import type { ArchiveRecord, WatchStatus } from "@/lib/types";
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, context: Context) {
-  if (!(await currentUser(request))) return unauthorized();
+  const user = await currentUser(request);
+  if (!user) return unauthorized();
   const { id } = await context.params;
   if (!isListingId(id)) return Response.json({ message: "車両が見つかりません。" }, { status: 404 });
-  const record = await getRecord(id);
+  const record = await getRecord(user.email, id);
   if (!record) return Response.json({ message: "この車はアカウントにありません。" }, { status: 404 });
   return Response.json({ record });
 }
 
 export async function PATCH(request: Request, context: Context) {
-  if (!(await currentUser(request))) return unauthorized();
+  const user = await currentUser(request);
+  if (!user) return unauthorized();
   const { id } = await context.params;
-  const record = await getRecord(id);
+  const record = await getRecord(user.email, id);
   if (!record) return Response.json({ message: "この車はアカウントにありません。" }, { status: 404 });
   let body: Partial<ArchiveRecord>;
   try {
@@ -34,14 +36,15 @@ export async function PATCH(request: Request, context: Context) {
     next.availability = body.availability;
   }
   if (typeof body.lastCheckedAt === "string") next.lastCheckedAt = body.lastCheckedAt;
-  await putRecord(next);
+  await putRecord(user.email, next);
   return Response.json({ record: next });
 }
 
 export async function DELETE(request: Request, context: Context) {
-  if (!(await currentUser(request))) return unauthorized();
+  const user = await currentUser(request);
+  if (!user) return unauthorized();
   const { id } = await context.params;
-  await deleteRecord(id);
+  await deleteRecord(user.email, id);
   return Response.json({ ok: true });
 }
 

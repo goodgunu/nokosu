@@ -1,5 +1,5 @@
 import { normalizeEmail } from "@/lib/account";
-import { getOwner, putOwner } from "@/lib/store";
+import { adoptLegacyLibrary, getOwner, putOwner } from "@/lib/store";
 
 export async function acceptGoogleAccount(
   email: string,
@@ -13,10 +13,7 @@ export async function acceptGoogleAccount(
       passwordHash: "google",
       createdAt: new Date().toISOString(),
     });
-    return { ok: true, email: normalized };
   }
-  if (owner.email !== normalized) {
-    return { ok: false, message: "こののこすは、別のGoogleアカウントで開きます。" };
-  }
-  return { ok: true, email: owner.email };
+  await adoptLegacyLibrary(normalized);
+  return { ok: true, email: normalized };
 }
