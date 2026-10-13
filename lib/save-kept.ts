@@ -1,7 +1,7 @@
 import { fetchCarsensorPhoto } from "@/lib/fetch-carsensor-photo";
 import { choosePhotoIndexes, PHOTO_KEEP_LIMIT } from "@/lib/keep-photos";
 import { appendPhotos, getRecord, isListingId, putRecord, replacePhotos, type StoredImage } from "@/lib/store";
-import type { ArchiveRecord, Availability, ParsedListing, SavedPhoto, WatchStatus } from "@/lib/types";
+import type { ArchiveRecord, Availability, MemoEntry, ParsedListing, SavedPhoto, WatchStatus } from "@/lib/types";
 
 export function recordFromListing(
   listing: ParsedListing,
@@ -19,6 +19,7 @@ export function recordFromListing(
     availability,
     watchStatus: previous?.watchStatus ?? "watching",
     memo: previous?.memo ?? "",
+    memoEntries: previous?.memoEntries,
     title: listing.title,
     maker: listing.maker,
     model: listing.model,
@@ -123,6 +124,7 @@ export function sanitizeImportedRecord(input: unknown): ArchiveRecord | null {
     availability: record.availability === "ended" || record.availability === "live" ? record.availability : "unknown",
     watchStatus: isWatchStatus(record.watchStatus) ? record.watchStatus : "watching",
     memo: typeof record.memo === "string" ? record.memo.slice(0, 4000) : "",
+    memoEntries: sanitizeMemoEntries(record.memoEntries),
     title: text(record.title, 300),
     maker: text(record.maker, 80),
     model: text(record.model, 80),
@@ -143,6 +145,18 @@ export function sanitizeImportedRecord(input: unknown): ArchiveRecord | null {
     photosTruncated: Boolean(record.photosTruncated),
     savedPhotos,
   };
+}
+
+function sanitizeMemoEntries(input: unknown): ArchiveRecord["memoEntries"] {
+  if (!Array.isArray(input)) return undefined;
+  const entries = input.slice(0, 40).flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const item = entry as Partial<MemoEntry>;
+    if (typeof item.text !== "string" || !item.text.trim()) return [];
+    const at = typeof item.at === "string" && !Number.isNaN(Date.parse(item.at)) ? item.at : new Date().toISOString();
+    return [{ at, text: item.text.trim().slice(0, 500) }];
+  });
+  return entries;
 }
 
 export async function importRecordPhotos(

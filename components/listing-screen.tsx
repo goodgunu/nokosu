@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
+import { ArrowLeft, ExternalLink, MoreHorizontal, RefreshCw } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { PhotoPicker } from "@/components/photo-picker";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,21 +16,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { buildBackup, downloadBlob } from "@/lib/backup";
-import { displayName, factValue, formatWhen, formatYen, gradeLine } from "@/lib/format";
+import { displayName, formatCheck, formatMonthDay, formatWhen, isBlankValue, ledgerFacts, vehicleHeading } from "@/lib/format";
 import { deleteRemoteListing, fetchListing, loadRemotePhotos, patchListing, photoSrc, saveKept } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
-import { WATCH_STATUSES, type ArchiveRecord, type ParsedListing, type WatchStatus } from "@/lib/types";
+import { WATCH_STATUSES, type ArchiveRecord, type MemoEntry, type ParsedListing, type TableSection, type WatchStatus } from "@/lib/types";
 
 export function ListingScreen({ id, startPicking = false }: { id: string; startPicking?: boolean }) {
   const router = useRouter();
   const [record, setRecord] = useState<ArchiveRecord | null | undefined>(undefined);
-  const [memo, setMemo] = useState("");
+  const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [showUnequipped, setShowUnequipped] = useState(false);
   const [draft, setDraft] = useState<ParsedListing | null>(null);
   const pickStarted = useRef(false);
 
@@ -67,20 +71,32 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
     fetchListing(id).then((found) => {
       if (cancelled) return;
       setRecord(found ?? null);
-      setMemo(found?.memo ?? "");
     });
     return () => {
       cancelled = true;
     };
   }, [id]);
 
-  useEffect(() => {
+  async function addNote() {
     if (!record) return;
-    const handle = window.setTimeout(() => {
-      void patchListing(record.id, { memo }).catch(() => undefined);
-    }, 400);
-    return () => window.clearTimeout(handle);
-  }, [memo, record]);
+    const text = note.trim();
+    if (!text) return;
+    const existing = record.memoEntries?.length
+      ? record.memoEntries
+      : record.memo.trim()
+        ? [{ at: record.savedAt, text: record.memo.trim() }]
+        : [];
+    const memoEntries: MemoEntry[] = [...existing, { at: new Date().toISOString(), text: text.slice(0, 500) }].slice(-40);
+    const memo = memoEntries.map((entry) => entry.text).join("\n").slice(0, 4000);
+    setNote("");
+    setRecord({ ...record, memo, memoEntries });
+    try {
+      const next = await patchListing(record.id, { memo, memoEntries });
+      setRecord(next.record);
+    } catch (error) {
+      setMessage(saveErrorMessage(error));
+    }
+  }
 
   async function refresh(mode: "check" | "update") {
     if (!record) return;
@@ -178,247 +194,254 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
     );
   }
 
-  const name = displayName(record);
+  const heading = vehicleHeading(record);
+  const name = heading.heading || displayName(record);
   const photos = (record.savedPhotos ?? []).map((photo, index) => ({
     url: photoSrc(record.id, index),
     caption: photo.caption,
     category: photo.category,
   }));
-  const equippedCount = record.equipment.reduce(
-    (sum, group) => sum + group.items.filter((item) => item.equipped).length,
-    0,
-  );
+  const facts = ledgerFacts(record);
+  const equipped = record.equipment.flatMap((group) => group.items.filter((item) => item.equipped).map((item) => item.name));
+  const detailSections = record.sections
+    .map(visibleSection)
+    .filter((section): section is TableSection => Boolean(section));
+  const price = priceParts(record.totalPrice || record.basePrice);
+  const checked = record.lastCheckedAt ? formatCheck(record.lastCheckedAt) : "";
+  const notes: MemoEntry[] = record.memoEntries?.length
+    ? record.memoEntries
+    : record.memo.trim()
+      ? [{ at: record.savedAt, text: record.memo.trim() }]
+      : [];
 
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        <Link href="/" className="text-muted-foreground inline-flex items-center gap-1 text-sm hover:text-foreground">
-          <ArrowLeft className="size-4" />
-          保存した車
-        </Link>
+      <main className="mx-auto max-w-3xl px-4 pt-4 pb-28 sm:px-6">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="text-muted-foreground inline-flex items-center gap-1 text-sm hover:text-foreground">
+            <ArrowLeft className="size-4" />
+            保存した車
+          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground px-2 text-lg tracking-widest" aria-label="その他の操作">
+              <MoreHorizontal className="size-5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem disabled={Boolean(busy)} onClick={() => void refresh("update")}>
+                内容を取り直す
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => void exportOne()}>書き出す</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setConfirmDelete(true)}>削除</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-        <div className="mt-4 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <div className="min-w-0">
-            {draft ? (
-              <PhotoPicker
-                listing={draft}
-                replacing={record.photoCount > 0}
-                busy={busy}
-                onKeep={(indexes) => void keepDraft(indexes)}
-                onTextOnly={() => void keepDraft(null)}
-                onCancel={() => setDraft(null)}
-              />
-            ) : photos.length > 0 ? (
+        <div className="mt-3 min-w-0">
+          {draft ? (
+            <PhotoPicker
+              listing={draft}
+              replacing={record.photoCount > 0}
+              busy={busy}
+              onKeep={(indexes) => void keepDraft(indexes)}
+              onTextOnly={() => void keepDraft(null)}
+              onCancel={() => setDraft(null)}
+            />
+          ) : photos.length > 0 ? (
+            <div className={record.availability === "ended" ? "grayscale" : ""}>
               <PhotoGallery photos={photos} title={name} />
-            ) : (
-              <div className="bg-muted text-muted-foreground flex aspect-[4/3] flex-col items-center justify-center gap-4 rounded-xl border px-6 text-center">
-                <p>{busy || "残す写真はまだ選んでいません"}</p>
-                <Button disabled={Boolean(busy)} onClick={() => void refresh("update")}>
-                  写真を選ぶ
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <div className="min-w-0">
-            <div className="flex flex-wrap gap-2">
-              {record.availability === "ended" ? (
-                <Badge variant="destructive">掲載終了</Badge>
-              ) : (
-                <Badge variant="secondary">保存済み</Badge>
-              )}
-              {record.color && <Badge variant="outline">{record.color}</Badge>}
             </div>
-            <p className="text-muted-foreground mt-4 text-sm">{[record.maker, record.model].filter(Boolean).join(" ")}</p>
-            <h1 className="font-heading mt-1 text-3xl leading-tight sm:text-4xl">{name}</h1>
-            <p className="mt-3 text-sm leading-6">{gradeLine(record)}</p>
-            <p className="font-heading mt-5 text-4xl tracking-tight">{record.totalPrice || record.basePrice || "価格未記載"}</p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              {record.totalPrice ? "支払総額（税込）" : "車両本体価格"}
-              {record.priceYen ? ` / ${formatYen(record.priceYen)}` : ""}
-              {record.expenseNote ? ` ${record.expenseNote}` : ""}
-            </p>
-            {record.basePrice && record.totalPrice && (
-              <p className="text-muted-foreground mt-1 text-sm">車両本体価格 {record.basePrice}</p>
-            )}
+          ) : (
+            <div className="bg-muted text-muted-foreground flex aspect-[4/3] flex-col items-center justify-center gap-4 rounded-xl border px-6 text-center">
+              <p>{busy || "残す写真はまだ選んでいません"}</p>
+              <Button disabled={Boolean(busy)} onClick={() => void refresh("update")}>
+                写真を選ぶ
+              </Button>
+            </div>
+          )}
+        </div>
 
-            <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {record.highlights.map((item) => (
-                <div key={item.label} className="rounded-lg border bg-card px-3 py-2">
+        <div className="mt-3 flex items-center justify-between rounded-lg bg-secondary px-3 py-2 text-sm">
+          <span>
+            <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${record.availability === "ended" ? "bg-stamp" : "bg-emerald-700"}`} />
+            {record.availability === "ended" ? "掲載終了" : "掲載中"}
+            {checked ? <span className="text-muted-foreground"> ・ {checked}に確認</span> : null}
+          </span>
+        </div>
+
+        <p className="text-muted-foreground mt-4 text-xs tracking-[0.16em]">{heading.maker}</p>
+        <h1 className="font-heading mt-1 text-3xl leading-tight">{name}</h1>
+        {heading.subline && <p className="text-muted-foreground mt-1 text-sm">{heading.subline}</p>}
+
+        <div className="mt-4 flex items-baseline gap-1">
+          {price ? (
+            <>
+              <span className="font-heading text-5xl leading-none tabular-nums">{price.number}</span>
+              <span className="font-heading text-lg">{price.unit}</span>
+            </>
+          ) : (
+            <span className="font-heading text-4xl">{record.totalPrice || record.basePrice || "価格未記載"}</span>
+          )}
+          <span className="text-muted-foreground ml-2 text-xs">{record.totalPrice ? "支払総額" : "車両本体"}</span>
+        </div>
+        {record.basePrice && record.totalPrice && (
+          <p className="text-muted-foreground mt-1 text-xs">本体 {record.basePrice}{record.expenseNote ? ` ${record.expenseNote}` : ""}</p>
+        )}
+
+        <div className="mt-4 flex rounded-full border p-1">
+          {WATCH_STATUSES.map((status) => (
+            <button
+              key={status.id}
+              type="button"
+              className={`flex-1 rounded-full px-1 py-2 text-xs ${record.watchStatus === status.id ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              onClick={() => {
+                const next = status.id as WatchStatus;
+                setRecord({ ...record, watchStatus: next });
+                void patchListing(record.id, { watchStatus: next });
+              }}
+            >
+              {status.label}
+            </button>
+          ))}
+        </div>
+
+        {facts.length > 0 && (
+          <section className="mt-8">
+            <h2 className="font-heading text-lg tracking-wide">要点</h2>
+            <dl className="mt-2 grid grid-cols-2 border-t">
+              {facts.map((item, index) => (
+                <div key={item.label} className={`border-b py-2 ${index % 2 === 1 ? "border-l pl-3" : "pr-3"}`}>
                   <dt className="text-muted-foreground text-[11px]">{item.label}</dt>
-                  <dd className="mt-1 text-sm font-medium">{item.value}</dd>
+                  <dd className="mt-0.5 text-sm">{item.value}</dd>
                 </div>
               ))}
             </dl>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              {WATCH_STATUSES.map((status) => (
-                <Button
-                  key={status.id}
-                  size="sm"
-                  variant={record.watchStatus === status.id ? "default" : "outline"}
-                  onClick={() => {
-                    const next = status.id as WatchStatus;
-                    setRecord({ ...record, watchStatus: next });
-                    void patchListing(record.id, { watchStatus: next });
-                  }}
-                >
-                  {status.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {record.qualityComment && (
-          <p className="mt-8 rounded-xl border bg-card px-4 py-3 text-sm leading-7">{record.qualityComment}</p>
+          </section>
         )}
 
-        <section className="mt-8">
-          <h2 className="font-heading text-2xl">自分用のメモ</h2>
-          <Textarea
-            value={memo}
-            onChange={(event) => setMemo(event.target.value)}
-            placeholder="電話した日、気になった傷、比較したい点"
-            className="mt-3 min-h-28 bg-card text-base"
-          />
-          <p className="text-muted-foreground mt-2 text-xs">入力するとアカウントに残ります。</p>
+        <section className="mt-8 rounded-xl border bg-card p-4">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-heading text-base">自分のメモ</h2>
+            <span className="text-muted-foreground text-[11px]">{notes.length ? `${notes.length}件` : ""}</span>
+          </div>
+          {notes.map((entry, index) => (
+            <div key={`${entry.at}-${index}`} className="mt-3 flex gap-3 text-sm">
+              <span className="text-muted-foreground w-10 shrink-0 tabular-nums">{formatMonthDay(entry.at)}</span>
+              <p className="leading-6">{entry.text}</p>
+            </div>
+          ))}
+          <form
+            className="mt-3 flex gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void addNote();
+            }}
+          >
+            <Input
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="メモを追加"
+              className="h-10 bg-background text-base"
+            />
+            <Button type="submit" variant="outline" className="shrink-0" disabled={!note.trim()}>
+              残す
+            </Button>
+          </form>
         </section>
 
-        {record.sections.map((section) => (
-          <section key={section.id} className="mt-10">
-            <h2 className="font-heading text-2xl">{section.title}</h2>
-            {section.columns.length > 0 ? (
-              <div className="mt-3 min-w-0 overflow-x-auto rounded-xl border bg-card">
-                <table className="w-full min-w-[36rem] text-left text-sm">
-                  <thead className="bg-muted/70 text-muted-foreground">
-                    <tr>
-                      <th className="px-3 py-2 font-medium" />
-                      {section.columns.map((column) => (
-                        <th key={column} className="px-3 py-2 font-medium">
-                          {column}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {section.rows.map((row) => (
-                      <tr key={row.label} className="border-t">
-                        <th className="px-3 py-2 align-top font-medium whitespace-nowrap">{row.label}</th>
-                        {row.values.map((value, valueIndex) => (
-                          <td key={`${row.label}-${valueIndex}`} className="px-3 py-2 align-top leading-6">
-                            <CellValue value={value} />
-                          </td>
+        <div className="mt-6 border-t">
+          {equipped.length > 0 && (
+            <details className="border-b py-3">
+              <summary className="cursor-pointer text-sm">装備 <span className="text-muted-foreground">{equipped.length}</span></summary>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {equipped.map((item) => (
+                  <li key={item} className="rounded-full border px-3 py-1 text-sm">{item}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+          {detailSections.map((section) => (
+            <details key={section.id} className="border-b py-3">
+              <summary className="cursor-pointer text-sm">{section.title}</summary>
+              {section.columns.length > 0 ? (
+                <div className="mt-3 min-w-0 overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="text-muted-foreground">
+                      <tr>
+                        <th className="py-1 pr-3 font-normal" />
+                        {section.columns.map((column) => (
+                          <th key={column} className="py-1 pr-3 font-normal">{column}</th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <dl className="mt-3 grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2">
-                {section.rows.map((row) => (
-                  <div key={row.label} className="bg-card px-4 py-3">
-                    <dt className="text-muted-foreground text-xs">{row.label}</dt>
-                    <dd className="mt-1 text-sm leading-6">
-                      <CellValue value={row.values.join(" / ")} />
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            )}
-          </section>
-        ))}
-
-        {record.equipment.length > 0 && (
-          <section className="mt-10">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <h2 className="font-heading text-2xl">装備 {equippedCount}点</h2>
-              <Button variant="outline" size="sm" onClick={() => setShowUnequipped((value) => !value)}>
-                {showUnequipped ? "付いているものだけ" : "付いていない装備も見る"}
-              </Button>
-            </div>
-            <div className="mt-4 space-y-5">
-              {record.equipment.map((group) => {
-                const items = showUnequipped ? group.items : group.items.filter((item) => item.equipped);
-                if (!items.length) return null;
-                return (
-                  <div key={group.category}>
-                    <h3 className="text-sm font-medium">{group.category}</h3>
-                    <ul className="mt-2 flex flex-wrap gap-2">
-                      {items.map((item) => (
-                        <li
-                          key={item.name}
-                          className={`rounded-full border px-3 py-1 text-sm ${
-                            item.equipped ? "bg-card" : "text-muted-foreground border-dashed"
-                          }`}
-                        >
-                          {item.name}
-                        </li>
+                    </thead>
+                    <tbody>
+                      {section.rows.map((row) => (
+                        <tr key={row.label} className="border-t">
+                          <th className="py-2 pr-3 align-top font-medium whitespace-nowrap">{row.label}</th>
+                          {row.values.map((value, valueIndex) => (
+                            <td key={`${row.label}-${valueIndex}`} className="py-2 pr-3 align-top leading-6">{value}</td>
+                          ))}
+                        </tr>
                       ))}
-                    </ul>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <dl className="mt-2">
+                  {section.rows.map((row) => (
+                    <div key={row.label} className="border-t py-2">
+                      <dt className="text-muted-foreground text-xs">{row.label}</dt>
+                      <dd className="mt-1 text-sm leading-6">{row.values.filter((value) => !isBlankValue(value)).join(" / ")}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </details>
+          ))}
+          {record.qualityComment && (
+            <details className="border-b py-3">
+              <summary className="cursor-pointer text-sm">販売店コメント</summary>
+              <p className="text-muted-foreground mt-2 text-sm leading-7">{record.qualityComment}</p>
+            </details>
+          )}
+        </div>
 
-        <section className="mt-10 rounded-xl border bg-card p-4 sm:p-5">
-          <h2 className="font-heading text-2xl">販売店</h2>
-          <p className="mt-3 text-base font-medium">{record.shopName || "店名は保存されていません"}</p>
+        <section className="py-5">
+          <p className="text-muted-foreground text-[11px]">販売店</p>
+          <p className="mt-1 text-sm">{record.shopName || "店名は保存されていません"}</p>
           {record.shopAddress && <p className="text-muted-foreground mt-1 text-sm">{record.shopAddress}</p>}
           {record.shopUrl && (
-            <a
-              href={record.shopUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1 text-sm underline underline-offset-4"
-            >
+            <a href={record.shopUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm underline underline-offset-4">
               お店のページ
               <ExternalLink className="size-3.5" />
             </a>
           )}
-        </section>
-
-        <section className="mt-8 flex flex-col gap-3 border-t pt-6">
-          <p className="text-muted-foreground text-sm leading-6">
-            {formatWhen(record.savedAt)} に保存
-            {record.lastCheckedAt ? `。最終確認 ${formatWhen(record.lastCheckedAt)}` : ""}。
-            写真 {record.photoCount}枚
-            {record.photoTotal ? `（掲載にあった${record.photoTotal}枚から選択）` : ""}。
+          <p className="text-muted-foreground mt-4 text-[11px]">
+            {formatWhen(record.savedAt)} 保存
+            {record.photoTotal ? ` ・ 写真 ${record.photoCount} / ${record.photoTotal}枚` : ` ・ 写真 ${record.photoCount}枚`}
           </p>
-          {message && <p className="text-sm leading-6">{message}</p>}
+          {message && <p className="mt-3 text-sm leading-6">{message}</p>}
           {busy && (
-            <p className="text-muted-foreground inline-flex items-center gap-2 text-sm">
+            <p className="text-muted-foreground mt-2 inline-flex items-center gap-2 text-sm">
               <RefreshCw className="size-4 animate-spin" />
               {busy}
             </p>
           )}
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" disabled={Boolean(busy)} onClick={() => void refresh("check")}>
-              今も載っているか見る
-            </Button>
-            <Button variant="outline" disabled={Boolean(busy)} onClick={() => void refresh("update")}>
-              内容を取り直す
-            </Button>
-            <Button variant="outline" nativeButton={false} render={<a href={record.sourceUrl} target="_blank" rel="noreferrer" />}>
-              元のページ
-              <ExternalLink />
-            </Button>
-            <Button variant="outline" onClick={() => void exportOne()}>
-              この一台を書き出す
-            </Button>
-            <Button variant="destructive" onClick={() => setConfirmDelete(true)}>
-              削除
-            </Button>
-          </div>
-          <p className="text-muted-foreground text-xs leading-5">
-            気になる点: {factValue(record, "修復歴") || "修復歴は未記載"} / {factValue(record, "保証") || "保証は未記載"}
-          </p>
         </section>
       </main>
+
+      {!draft && (
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 p-3 backdrop-blur">
+        <div className="mx-auto flex max-w-3xl gap-2">
+          <Button variant="outline" className="h-11 flex-1 rounded-full" disabled={Boolean(busy)} onClick={() => void refresh("check")}>
+            掲載を確認
+          </Button>
+          <Button className="h-11 flex-[1.4] rounded-full" nativeButton={false} render={<a href={record.sourceUrl} target="_blank" rel="noreferrer" />}>
+            カーセンサーで開く
+          </Button>
+        </div>
+      </div>
+      )}
 
       <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <DialogContent>
@@ -442,15 +465,22 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
   );
 }
 
-function CellValue({ value }: { value: string }) {
-  const muted = value === "－" || value === "-" || value === "−";
-  if (value.length > 180) {
-    return (
-      <details>
-        <summary className="cursor-pointer">{value.slice(0, 120)}…</summary>
-        <p className="mt-2 leading-7">{value}</p>
-      </details>
-    );
-  }
-  return <span className={muted ? "text-muted-foreground" : undefined}>{value}</span>;
+function visibleSection(section: TableSection): TableSection | null {
+  const hidden = new Set(["修復歴", "保証", "保証期間", "車検", "車検有無", "法定整備", "ミッション", "ミッション詳細", "地域", "年式", "年式(初度登録年)", "走行距離"]);
+  const rows = section.rows.filter((row) => !hidden.has(row.label) && row.values.some((value) => !isBlankValue(value)));
+  if (!rows.length) return null;
+  if (!section.columns.length) return { ...section, rows };
+  const used = section.columns.map((_, index) => rows.some((row) => !isBlankValue(row.values[index] || "")));
+  if (used.every((item) => !item)) return null;
+  return {
+    ...section,
+    columns: section.columns.filter((_, index) => used[index]),
+    rows: rows.map((row) => ({ ...row, values: row.values.filter((_, index) => used[index]) })),
+  };
+}
+
+function priceParts(display: string): { number: string; unit: string } | null {
+  const match = display.match(/([\d,.]+)\s*万円/);
+  if (!match) return null;
+  return { number: match[1], unit: "万円" };
 }

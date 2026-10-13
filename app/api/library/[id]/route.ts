@@ -1,6 +1,6 @@
 import { currentUser, unauthorized } from "@/lib/current-user";
 import { deleteRecord, getRecord, isListingId, putRecord } from "@/lib/store";
-import type { ArchiveRecord, WatchStatus } from "@/lib/types";
+import type { ArchiveRecord, MemoEntry, WatchStatus } from "@/lib/types";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -31,6 +31,15 @@ export async function PATCH(request: Request, context: Context) {
     updatedAt: new Date().toISOString(),
   };
   if (typeof body.memo === "string") next.memo = body.memo.slice(0, 4000);
+  if (Array.isArray(body.memoEntries)) {
+    next.memoEntries = body.memoEntries.slice(0, 40).flatMap((entry) => {
+      if (!entry || typeof entry !== "object") return [];
+      const item = entry as Partial<MemoEntry>;
+      if (typeof item.text !== "string" || !item.text.trim()) return [];
+      const at = typeof item.at === "string" && !Number.isNaN(Date.parse(item.at)) ? item.at : new Date().toISOString();
+      return [{ at, text: item.text.trim().slice(0, 500) }];
+    });
+  }
   if (isWatchStatus(body.watchStatus)) next.watchStatus = body.watchStatus;
   if (body.availability === "live" || body.availability === "ended" || body.availability === "unknown") {
     next.availability = body.availability;

@@ -67,7 +67,7 @@ export function saveKept(listing: ParsedListing, photoIndexes: number[] | null) 
 
 export function patchListing(
   id: string,
-  patch: Partial<Pick<ArchiveRecord, "memo" | "watchStatus" | "availability" | "lastCheckedAt">>,
+  patch: Partial<Pick<ArchiveRecord, "memo" | "memoEntries" | "watchStatus" | "availability" | "lastCheckedAt">>,
 ) {
   return requestJson<{ record: ArchiveRecord }>(`/api/library/${id}`, {
     method: "PATCH",

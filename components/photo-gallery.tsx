@@ -57,19 +57,13 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
         onClick={() => setOpen(true)}
       >
         {/* blob URLs cannot go through next/image */}
-        <ArchiveImage src={photo.url} alt={photo.caption || photo.category || title} className="size-full max-w-full object-cover" />
+        <ArchiveImage src={photo.url} alt={photo.category || title} className="size-full max-w-full object-cover" />
         {photos.length > 1 && (
-          <span className="absolute top-3 right-3 rounded-full bg-black/70 px-2.5 py-1 text-xs text-white">
+          <span className="absolute right-3 bottom-3 rounded-full bg-black/70 px-2.5 py-1 text-xs text-white">
             {activeIndex + 1} / {photos.length}
           </span>
         )}
-        {(photo.caption || photo.category) && (
-          <span className="absolute inset-x-0 bottom-0 line-clamp-3 bg-black/60 px-3 py-2 text-left text-[13px] leading-5 text-white">
-            {photo.caption || photo.category}
-          </span>
-        )}
       </button>
-      {photo.caption && <p className="mt-2 text-sm leading-6">{photo.caption}</p>}
       {photos.length > 1 && (
         <div className="mt-3 flex min-w-0 gap-2 overflow-x-auto pb-1">
           {photos.map((item, itemIndex) => (

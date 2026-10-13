@@ -235,6 +235,7 @@ function toRecord(
     availability,
     watchStatus: previous?.watchStatus ?? "watching",
     memo: previous?.memo ?? "",
+    memoEntries: previous?.memoEntries,
     title: listing.title,
     maker: listing.maker,
     model: listing.model,

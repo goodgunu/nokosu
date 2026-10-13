@@ -5,13 +5,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArchiveImage } from "@/components/archive-image";
 import { PhotoPicker } from "@/components/photo-picker";
 import { SiteHeader } from "@/components/site-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { buildBackup, downloadBlob, readBackup } from "@/lib/backup";
 import { readCompare, writeCompare } from "@/lib/compare";
 import { deleteListing, getPhotos, listListings, storedPhotoBlob } from "@/lib/db";
-import { displayName, formatDay, highlightChips, yearNumber } from "@/lib/format";
+import { displayName, vehicleHeading, yearNumber } from "@/lib/format";
 import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
 import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type ParsedListing, type WatchStatus } from "@/lib/types";
@@ -68,7 +67,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
       if (filter === "ended" && listing.availability !== "ended") return false;
       if (filter !== "all" && filter !== "ended" && listing.watchStatus !== filter) return false;
       if (!needle) return true;
-      const haystack = [listing.title, listing.maker, listing.model, listing.shopName, listing.memo, listing.color, listing.totalPrice]
+      const haystack = [listing.title, listing.maker, listing.model, listing.shopName, listing.memo, listing.color, listing.totalPrice, ...(listing.memoEntries ?? []).map((entry) => entry.text)]
         .join(" ")
         .toLowerCase();
       return haystack.includes(needle);
@@ -353,44 +352,42 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         ) : visible.length === 0 ? (
           <p className="text-muted-foreground mt-10 text-sm">条件に合う車はありません。</p>
         ) : (
-          <ul className="mt-5 grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {visible.map((listing) => (
-              <li key={listing.id} className="min-w-0 overflow-hidden rounded-2xl border bg-card">
-                <Link href={`/listings/${listing.id}`} className="block">
-                  <div className="bg-muted aspect-[4/3] overflow-hidden">
+          <ul className="mt-2 min-w-0 max-w-2xl">
+            {visible.map((listing) => {
+              const heading = vehicleHeading(listing);
+              return (
+              <li key={listing.id} className={`min-w-0 border-b py-4 ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
+                <Link href={`/listings/${listing.id}`} className="flex min-w-0 gap-3">
+                  <div className={`bg-muted aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-md ${listing.availability === "ended" ? "grayscale" : ""}`}>
                     {listing.photoCount > 0 ? (
                       <ArchiveImage src={photoSrc(listing.id, 0)} alt="" className="size-full object-cover" />
                     ) : (
-                      <div className="text-muted-foreground grid size-full place-items-center text-sm">写真なし</div>
+                      <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
                     )}
                   </div>
-                  <div className="px-4 pt-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="outline">{watchLabel(listing.watchStatus)}</Badge>
-                      {listing.availability === "ended" && <Badge variant="destructive">掲載終了</Badge>}
-                    </div>
-                    <h2 className="font-heading mt-2 text-2xl leading-tight">{displayName(listing)}</h2>
-                    <p className="mt-2 text-lg">{listing.totalPrice || listing.basePrice || "価格未記載"}</p>
-                    <p className="text-muted-foreground mt-1 line-clamp-2 text-sm leading-6">
-                      {highlightChips(listing.highlights)
-                        .map((item) => item.value)
-                        .join(" · ") || listing.shopName}
+                  <div className="min-w-0 flex-1">
+                    {heading.maker && <p className="text-muted-foreground text-[11px] tracking-[0.14em]">{heading.maker}</p>}
+                    <h2 className="truncate text-base">{heading.heading || displayName(listing)}</h2>
+                    <p className="font-heading mt-0.5 text-2xl leading-none tabular-nums">
+                      {priceNumber(listing.totalPrice || listing.basePrice)}
+                      {showsMan(listing.totalPrice || listing.basePrice) && <span className="ml-0.5 text-xs">万円</span>}
+                    </p>
+                    {heading.subline && <p className="text-muted-foreground mt-1 truncate text-xs">{heading.subline}</p>}
+                    <p className="mt-1 text-xs">
+                      <span className={listing.availability === "ended" ? "text-stamp" : "text-muted-foreground"}>
+                        {listing.availability === "ended" ? "掲載終了" : "掲載中"}
+                      </span>
+                      <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
                     </p>
                   </div>
                 </Link>
-                <div className="flex items-center justify-between gap-3 px-4 py-3">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={compareIds.includes(listing.id)}
-                      onChange={() => toggleCompare(listing.id)}
-                    />
-                    比べる
-                  </label>
-                  <span className="text-muted-foreground text-xs">{formatDay(listing.savedAt)}</span>
-                </div>
+                <label className="mt-2 flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={compareIds.includes(listing.id)} onChange={() => toggleCompare(listing.id)} />
+                  比べる
+                </label>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
 
@@ -440,6 +437,15 @@ function FilterButton({
       {children}
     </Button>
   );
+}
+
+function priceNumber(display: string): string {
+  if (!display) return "価格未記載";
+  return display.replace(/\s*万円.*$/u, "") || display;
+}
+
+function showsMan(display: string): boolean {
+  return display.includes("万円");
 }
 
 function EmptyLibrary() {

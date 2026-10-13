@@ -47,6 +47,11 @@ export type WatchStatus = "watching" | "contacted" | "passed" | "bought";
 
 export type Availability = "live" | "ended" | "unknown";
 
+export type MemoEntry = {
+  at: string;
+  text: string;
+};
+
 export type ArchiveRecord = {
   id: string;
   sourceUrl: string;
@@ -56,6 +61,7 @@ export type ArchiveRecord = {
   availability: Availability;
   watchStatus: WatchStatus;
   memo: string;
+  memoEntries?: MemoEntry[];
   title: string;
   maker: string;
   model: string;
