@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     if (!event.replyToken) continue;
     const text =
       event.type === "follow"
-        ? "カーセンサー公式アプリの共有で、このアカウントを選ぶと、その車をのこすに残します。"
+        ? "友だち追加ありがとうございます。\n\nカーセンサー公式アプリで気になる車を開いたら、共有からこの「のこす」を選んでください。価格や装備、選んだ写真を残します。\n\n残した車はこちらです。\nhttps://fleet-maple-mto3zo3.vercel.app"
         : event.type === "message" && event.message?.type === "text"
           ? await archiveSharedText(event.message.text || "", origin)
           : "車両ページの共有を送ってください。文章の中のURLを見て残します。";
