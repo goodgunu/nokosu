@@ -15,7 +15,7 @@ test("archive payload turns a non-json body into a readable error", () => {
 });
 
 test("storage failures explain that the browser refused to save", () => {
-  assert.match(saveErrorMessage(new DOMException("nope", "SecurityError")), /プライベートブラウズ/);
+  assert.match(saveErrorMessage(new DOMException("nope", "SecurityError")), /再読み込み/);
   assert.match(saveErrorMessage(new DOMException("full", "QuotaExceededError")), /容量/);
   assert.match(saveErrorMessage(new TypeError("Load failed")), /通信状況/);
 });

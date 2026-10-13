@@ -37,8 +37,8 @@ export function saveErrorMessage(error: unknown): string {
   if (name === "TransactionInactiveError") {
     return "ブラウザが保存を中断しました。もう一度押してください。";
   }
-  if (name === "SecurityError" || name === "InvalidStateError" || name === "UnknownError") {
-    return "このブラウザでは保存できませんでした。プライベートブラウズをオフにして、普通のタブでもう一度開いてください。";
+  if (name === "SecurityError" || name === "InvalidStateError" || name === "UnknownError" || name === "DataCloneError") {
+    return "ブラウザが保存を拒否しました。ページを再読み込みして、もう一度保存してください。";
   }
   return "保存できませんでした。通信状況を見て、もう一度試してください。";
 }
