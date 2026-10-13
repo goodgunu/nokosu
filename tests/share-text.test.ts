@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { lineSignature, validLineSignature } from "../lib/line-archive";
+import { parseLineAction, photoPickerMessages, togglePick } from "../lib/line-picker";
 import { carsensorTargetsFromText, defaultKeepIndexes } from "../lib/share-text";
+import type { ParsedListing } from "../lib/types";
 
 test("a LINE share message yields the carsensor detail url", () => {
   const text = "この車どう？ https://www.carsensor.net/usedcar/detail/AU7290039473/index.html?vos=smphi201401201";
@@ -23,6 +25,23 @@ test("shared photos prefer dealer notes and stay in page order", () => {
   ];
   assert.deepEqual(defaultKeepIndexes(photos, 2), [1, 3]);
   assert.equal(defaultKeepIndexes(Array.from({ length: 20 }, () => ({ caption: "", category: "" })), 12).length, 12);
+});
+
+test("LINE photo taps add and remove a picture without passing forty", () => {
+  assert.deepEqual(parseLineAction("pick=AU7290039473:4"), { type: "pick", id: "AU7290039473", index: 4 });
+  assert.deepEqual(parseLineAction("save=AU7290039473"), { type: "save", id: "AU7290039473" });
+  assert.equal(parseLineAction("nope"), null);
+  assert.deepEqual(togglePick([1], 4, 10), { selected: [1, 4], added: true, full: false });
+  assert.deepEqual(togglePick([1, 4], 4, 10).selected, [1]);
+  assert.equal(togglePick(Array.from({ length: 40 }, (_, index) => index), 41, 50).full, true);
+});
+
+test("the LINE picker shows every photo and does not keep them yet", () => {
+  const listing = { id: "AU7290039473", title: "アウディ", photos: Array.from({ length: 15 }, (_, index) => ({ url: `https://ccsrpcma.carsensor.net/CSphoto/${index}.jpg`, caption: "", category: "" })) } as ParsedListing;
+  const messages = photoPickerMessages("https://example.test", listing, 0);
+  assert.equal(messages.reply[0]?.text?.includes("残したい写真を押してください"), true);
+  assert.equal(messages.reply.filter((message) => message.type === "flex").length, 2);
+  assert.equal(messages.push.length, 0);
 });
 
 test("LINE signatures reject a changed body", () => {

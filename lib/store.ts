@@ -240,3 +240,23 @@ async function listBlobPathnames(prefix: string): Promise<string[]> {
 export function isListingId(id: string): boolean {
   return /^AU\d{6,16}$/.test(id);
 }
+
+export async function readAppJson<T>(name: string): Promise<T | null> {
+  if (!isAppJsonName(name)) return null;
+  if (fileStoreEnabled()) return readJsonFile<T>(path.join(dataDir(), name));
+  return readBlobJson<T>(name);
+}
+
+export async function writeAppJson(name: string, value: unknown): Promise<void> {
+  if (!isAppJsonName(name)) throw new Error("保存名が不正です。");
+  if (fileStoreEnabled()) {
+    await ensureDir(path.dirname(path.join(dataDir(), name)));
+    await writeFile(path.join(dataDir(), name), JSON.stringify(value));
+    return;
+  }
+  await writeBlobJson(name, value);
+}
+
+function isAppJsonName(name: string): boolean {
+  return /^drafts\/AU\d{6,16}\.json$/.test(name);
+}

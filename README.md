@@ -26,6 +26,6 @@ npm run dev
 
 保存のたびに、指定した1件の詳細ページだけを取得します。一覧の巡回や一括収集はしません。
 
-公式アプリの共有ボタンから残すときは、LINE公式アカウント「のこす」に共有します。受け取ったURLの車をアカウントに残し、写真は販売店の注釈があるものを優先して12枚まで入れます。入れ替えはサイト上でできます。接続には `LINE_CHANNEL_SECRET` と `LINE_CHANNEL_ACCESS_TOKEN` が必要で、Webhook URL は `/api/line` です。
+公式アプリの共有ボタンから残すときは、LINE公式アカウント「のこす」に共有します。届いた写真から残したいものを選び、選び終えたら「これで残す」を押します。接続には `LINE_CHANNEL_SECRET` と `LINE_CHANNEL_ACCESS_TOKEN` が必要で、Webhook URL は `/api/line` です。
 
 公開先は Vercel です。車の文章と選んだ写真は、ログインしたアカウントの保存先に残ります。写真の保存には Vercel Blob（`BLOB_READ_WRITE_TOKEN`）と、ログイン用の `AUTH_SECRET` が必要です。この二つが無いローカル実行では、`.data` フォルダに保存します。
