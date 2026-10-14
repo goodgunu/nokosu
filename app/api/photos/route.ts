@@ -33,7 +33,7 @@ async function packListingPhotos(request: Request) {
       return [
         {
           url: record.url,
-          caption: typeof record.caption === "string" ? record.caption.slice(0, 80) : "",
+          caption: typeof record.caption === "string" ? record.caption.slice(0, 500) : "",
           category: typeof record.category === "string" ? record.category.slice(0, 80) : "",
         },
       ];

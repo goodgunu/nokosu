@@ -12,6 +12,18 @@ export type GalleryPhoto = {
   category: string;
 };
 
+export function PhotoNote({ caption, category }: { caption: string; category: string }) {
+  const note = caption.trim();
+  const label = category.trim();
+  if (!note && !label) return null;
+  return (
+    <div className="mt-2">
+      {label && label !== note ? <p className="text-muted-foreground text-xs">{label}</p> : null}
+      {note ? <p className="text-sm leading-7">{note}</p> : null}
+    </div>
+  );
+}
+
 export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title: string }) {
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
@@ -57,13 +69,14 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
         onClick={() => setOpen(true)}
       >
         {/* blob URLs cannot go through next/image */}
-        <ArchiveImage src={photo.url} alt={photo.category || title} className="size-full max-w-full object-cover" />
+        <ArchiveImage src={photo.url} alt={photo.caption || photo.category || title} className="size-full max-w-full object-cover" />
         {photos.length > 1 && (
           <span className="absolute right-3 bottom-3 rounded-full bg-black/70 px-2.5 py-1 text-xs text-white">
             {activeIndex + 1} / {photos.length}
           </span>
         )}
       </button>
+      <PhotoNote caption={photo.caption} category={photo.category} />
       {photos.length > 1 && (
         <div className="mt-3 flex min-w-0 gap-2 overflow-x-auto pb-1">
           {photos.map((item, itemIndex) => (
@@ -86,7 +99,7 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
           <DialogTitle className="sr-only">{title}の写真</DialogTitle>
           <ArchiveImage src={photo.url} alt={photo.caption || title} className="max-h-[78vh] w-full object-contain" />
           <div className="flex items-center justify-between gap-3 px-2 pb-2">
-            <p className="text-muted-foreground text-sm">{photo.caption || photo.category || title}</p>
+            <PhotoNote caption={photo.caption} category={photo.category} />
             {photos.length > 1 && (
               <div className="flex gap-2">
                 <Button variant="secondary" size="icon" onClick={() => show(activeIndex - 1)} aria-label="前の写真">

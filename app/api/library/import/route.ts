@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     photos.push({
       bytes,
       type,
-      caption: typeof photo.caption === "string" ? photo.caption.slice(0, 80) : "",
+      caption: typeof photo.caption === "string" ? photo.caption.slice(0, 500) : "",
       category: typeof photo.category === "string" ? photo.category.slice(0, 80) : "",
     });
   }

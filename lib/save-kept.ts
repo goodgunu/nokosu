@@ -114,7 +114,7 @@ export function sanitizeImportedRecord(input: unknown): ArchiveRecord | null {
         const item = photo as Partial<SavedPhoto>;
         return [
           {
-            caption: typeof item.caption === "string" ? item.caption.slice(0, 80) : "",
+            caption: typeof item.caption === "string" ? item.caption.slice(0, 500) : "",
             category: typeof item.category === "string" ? item.category.slice(0, 80) : "",
           },
         ];
