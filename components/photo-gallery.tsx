@@ -98,7 +98,7 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
         <DialogContent className="max-w-5xl sm:max-w-5xl">
           <DialogTitle className="sr-only">{title}の写真</DialogTitle>
           <ArchiveImage src={photo.url} alt={photo.caption || title} className="max-h-[78vh] w-full object-contain" />
-          <div className="flex items-center justify-between gap-3 px-2 pb-2">
+          <div className="flex items-start justify-between gap-3 px-2 pb-2">
             <PhotoNote caption={photo.caption} category={photo.category} />
             {photos.length > 1 && (
               <div className="flex gap-2">
