@@ -15,7 +15,7 @@ export async function GET(request: Request, context: Context) {
   return new Response(Buffer.from(photo.bytes), {
     headers: {
       "Content-Type": photo.type || "image/jpeg",
-      "Cache-Control": "private, max-age=86400",
+      "Cache-Control": "private, no-cache",
     },
   });
 }

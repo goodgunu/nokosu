@@ -25,10 +25,10 @@ test("the first save is one card without a raw url", () => {
   assert.ok(texts.every((text) => !text.includes("http") && !text.includes("%3A")));
   assert.match(raw, /保存しました/);
   assert.match(raw, /のこすで見る/);
-  assert.match(raw, /残す写真を選ぶ（2枚を自動で選択済み）/);
-  assert.match(raw, /\/listings\/AU7169230774\?pick=1/);
+  assert.equal(raw.includes("残す写真を選ぶ"), false);
+  assert.equal(raw.includes("pick=1"), false);
   const labels = [...raw.matchAll(/"label":"([^"]+)"/g)].map((match) => match[1]);
-  assert.ok(labels.every((label) => label.length <= 40));
+  assert.deepEqual(labels, ["のこすで見る"]);
 });
 
 test("sending the same car reports a price drop in one card", () => {

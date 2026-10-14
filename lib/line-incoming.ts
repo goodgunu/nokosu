@@ -107,7 +107,6 @@ export async function saveAndReply(input: {
 }
 
 export function savedMessage(origin: string, listing: ParsedListing, record: ArchiveRecord, shareName?: string): LineMessage {
-  const count = record.photoCount;
   return cardMessage({
     origin,
     head: "保存しました",
@@ -118,8 +117,6 @@ export function savedMessage(origin: string, listing: ParsedListing, record: Arc
     meta: listingMeta(record),
     primaryLabel: "のこすで見る",
     primaryPath: `/listings/${record.id}`,
-    secondaryLabel: count > 0 ? `残す写真を選ぶ（${count}枚を自動で選択済み）` : undefined,
-    secondaryPath: count > 0 ? `/listings/${record.id}?pick=1` : undefined,
   });
 }
 

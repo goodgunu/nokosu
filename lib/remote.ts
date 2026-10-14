@@ -87,8 +87,9 @@ export function deleteRemoteListing(id: string) {
   return requestJson<{ ok: boolean }>(`/api/library/${id}`, { method: "DELETE" });
 }
 
-export function photoSrc(id: string, index: number): string {
-  return `/api/library/${id}/photos/${index}`;
+export function photoSrc(id: string, index: number, version?: string): string {
+  const base = `/api/library/${id}/photos/${index}`;
+  return version ? `${base}?v=${encodeURIComponent(version)}` : base;
 }
 
 export async function uploadSavedCar(

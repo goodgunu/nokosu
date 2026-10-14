@@ -370,7 +370,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                 <Link href={`/listings/${listing.id}`} className="flex min-w-0 gap-3">
                   <div className={`bg-muted aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-md ${listing.availability === "ended" ? "grayscale" : ""}`}>
                     {listing.photoCount > 0 ? (
-                      <ArchiveImage src={photoSrc(listing.id, 0)} alt="" className="size-full object-cover" />
+                      <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
                     ) : (
                       <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
                     )}

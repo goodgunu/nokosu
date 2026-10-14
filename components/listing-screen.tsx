@@ -157,6 +157,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
       const saved = await saveKept(draft, photoIndexes);
       setRecord(saved.record);
       setDraft(null);
+      router.replace(`/listings/${id}`);
       setMessage(
         photoIndexes === null
           ? "文章を更新しました。写真は今のままです。"
@@ -211,7 +212,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
   const heading = vehicleHeading(record);
   const name = heading.heading || displayName(record);
   const photos = (record.savedPhotos ?? []).map((photo, index) => ({
-    url: photoSrc(record.id, index),
+    url: photoSrc(record.id, index, record.updatedAt),
     caption: photo.caption,
     category: photo.category,
   }));
@@ -260,11 +261,24 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
               busy={busy}
               onKeep={(indexes) => void keepDraft(indexes)}
               onTextOnly={() => void keepDraft(null)}
-              onCancel={() => setDraft(null)}
+                onCancel={() => {
+                  setDraft(null);
+                  router.replace(`/listings/${id}`);
+                }}
             />
           ) : photos.length > 0 ? (
-            <div className={record.availability === "ended" ? "grayscale" : ""}>
-              <PhotoGallery photos={photos} title={name} />
+            <div>
+              <div className={record.availability === "ended" ? "grayscale" : ""}>
+                <PhotoGallery photos={photos} title={name} />
+              </div>
+              <button
+                type="button"
+                className="text-muted-foreground mt-3 text-sm underline-offset-4 hover:underline"
+                disabled={Boolean(busy)}
+                onClick={() => void refresh("update")}
+              >
+                写真を選び直す
+              </button>
             </div>
           ) : (
             <div className="bg-muted text-muted-foreground flex aspect-[4/3] flex-col items-center justify-center gap-4 rounded-xl border px-6 text-center">

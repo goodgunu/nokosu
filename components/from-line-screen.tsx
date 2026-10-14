@@ -26,7 +26,7 @@ export function FromLineScreen({ url }: { url: string }) {
           return;
         }
         await saveKept(result.listing, null);
-        router.replace(`/listings/${result.listing.id}?pick=1`);
+        router.replace(`/listings/${result.listing.id}`);
       })
       .catch((error) => {
         if (!cancelled) setMessage(saveErrorMessage(error));

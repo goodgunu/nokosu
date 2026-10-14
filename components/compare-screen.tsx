@@ -70,7 +70,7 @@ export function CompareScreen() {
                       <Link href={`/listings/${record.id}`} className="block">
                         <div className="bg-muted mb-3 aspect-[4/3] overflow-hidden rounded-lg">
                           {record.photoCount > 0 && (
-                            <ArchiveImage src={photoSrc(record.id, 0)} alt="" className="size-full object-cover" />
+                            <ArchiveImage src={photoSrc(record.id, 0, record.updatedAt)} alt="" className="size-full object-cover" />
                           )}
                         </div>
                         <span className="font-heading text-xl leading-tight">{displayName(record)}</span>
