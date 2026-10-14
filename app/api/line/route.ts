@@ -1,5 +1,7 @@
-import { replyForText, validLineSignature, welcomeReply, type LineReply } from "@/lib/line-archive";
+import { validLineSignature } from "@/lib/line-archive";
+import { replyForIncoming, welcomeReply } from "@/lib/line-incoming";
 import type { LineMessage } from "@/lib/line-picker";
+import type { LineReply } from "@/lib/line-archive";
 
 export const maxDuration = 60;
 
@@ -13,9 +15,14 @@ type LineEvent = {
 };
 
 async function replyForEvent(event: LineEvent, origin: string): Promise<LineReply> {
-  if (event.type === "follow") return welcomeReply(origin);
-  if (event.type === "message" && event.message?.type === "text") return replyForText(event.message.text || "", origin);
-  return replyForText("", origin);
+  if (event.type === "follow") return welcomeReply();
+  if (event.type === "postback") {
+    return replyForIncoming({ postback: event.postback?.data || "", lineUserId: event.source?.userId, origin });
+  }
+  if (event.type === "message" && event.message?.type === "text") {
+    return replyForIncoming({ text: event.message.text || "", lineUserId: event.source?.userId, origin });
+  }
+  return replyForIncoming({ text: "", origin });
 }
 
 export async function POST(request: Request) {
@@ -39,15 +46,15 @@ export async function POST(request: Request) {
   for (const event of events) {
     if (!event.replyToken || !token) continue;
     const reply = await replyForEvent(event, origin);
-    await sendLine(token, "https://api.line.me/v2/bot/message/reply", {
+    const sent = await sendLine(token, "https://api.line.me/v2/bot/message/reply", {
       replyToken: event.replyToken,
       messages: reply.messages,
     });
     const userId = event.source?.userId;
-    if (userId && reply.push.length) {
+    if (userId && !sent) {
       await sendLine(token, "https://api.line.me/v2/bot/message/push", {
         to: userId,
-        messages: reply.push,
+        messages: reply.messages,
       });
     }
   }
@@ -61,13 +68,14 @@ function siteOrigin(request: Request): string {
   return `${proto}://${host}`;
 }
 
-async function sendLine(token: string, url: string, body: { messages: LineMessage[]; replyToken?: string; to?: string }) {
-  await fetch(url, {
+async function sendLine(token: string, url: string, body: { messages: LineMessage[]; replyToken?: string; to?: string }): Promise<boolean> {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ ...body, messages: body.messages.slice(0, 5) }),
-  }).catch(() => undefined);
+  }).catch(() => null);
+  return Boolean(response?.ok);
 }

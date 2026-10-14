@@ -2,6 +2,12 @@ import { canonicalCarsensorUrl } from "@/lib/carsensor-url";
 
 const URL_PATTERN = /https?:\/\/[^\s<>"']+/gi;
 
+export function shareCarName(text: string): string {
+  const match = text.replace(/\s+/g, " ").match(/(.+?)の物件情報/u);
+  if (!match) return "";
+  return match[1].replace(/^[\s「」]+/u, "").trim().slice(0, 80);
+}
+
 export function carsensorTargetsFromText(text: string): string[] {
   const found = new Set<string>();
   for (const match of text.match(URL_PATTERN) ?? []) {

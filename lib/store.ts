@@ -392,5 +392,5 @@ export async function writeAppJson(name: string, value: unknown): Promise<void> 
 }
 
 function isAppJsonName(name: string): boolean {
-  return /^drafts\/AU\d{6,16}\.json$/.test(name) || /^codes\/[a-f0-9]{32}\.json$/.test(name);
+  return /^drafts\/AU\d{6,16}\.json$/.test(name) || /^codes\/[a-f0-9]{32}\.json$/.test(name) || /^links\/[a-f0-9]{40}\.json$/.test(name);
 }

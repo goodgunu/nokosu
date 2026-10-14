@@ -90,9 +90,11 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
 }
 
 function GoogleSignIn({ notice, onError }: { notice: string; onError: (message: string) => void }) {
+  const pathname = usePathname();
   const { signIn, fetchStatus } = useSignIn();
   const [busy, setBusy] = useState(false);
   const ready = fetchStatus !== "fetching";
+  const linking = pathname.startsWith("/line/connect");
 
   async function start() {
     if (!ready || busy) return;
@@ -119,9 +121,11 @@ function GoogleSignIn({ notice, onError }: { notice: string; onError: (message: 
   return (
     <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-4 py-16">
       <p className="font-heading text-stamp text-sm tracking-[0.2em]">のこす</p>
-      <h1 className="font-heading mt-3 text-4xl leading-tight">Googleで開く</h1>
+      <h1 className="font-heading mt-3 text-4xl leading-tight">{linking ? "LINEとつなぐ" : "Googleで開く"}</h1>
       <p className="text-muted-foreground mt-3 text-sm leading-7">
-        いつも使っているGoogleアカウントを選ぶと、スマホでもパソコンでも同じ車が見えます。最初に選んだアカウントが、こののこすの持ち主です。
+        {linking
+          ? "最初の1回だけ、このGoogleアカウントとLINEの「のこす」をつなぎます。次からは、車を送るだけで保存されます。"
+          : "いつも使っているGoogleアカウントを選ぶと、スマホでもパソコンでも同じ車が見えます。"}
       </p>
       <button
         type="button"
