@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ArchiveImage } from "@/components/archive-image";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,36 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
   }
   const activeIndex = photos.length === 0 ? 0 : Math.min(index, photos.length - 1);
   const photo = photos[activeIndex];
+  const touch = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
+  const stripRef = useRef<HTMLDivElement>(null);
+
+  const show = (next: number) => {
+    if (!photos.length) return;
+    setIndex((next + photos.length) % photos.length);
+  };
+
+  function onTouchStart(event: React.TouchEvent) {
+    const point = event.changedTouches[0];
+    touch.current = { x: point.clientX, y: point.clientY };
+    swiped.current = false;
+  }
+
+  function onTouchEnd(event: React.TouchEvent) {
+    if (!touch.current || photos.length < 2) return;
+    const point = event.changedTouches[0];
+    const dx = point.clientX - touch.current.x;
+    const dy = point.clientY - touch.current.y;
+    touch.current = null;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    swiped.current = true;
+    show(activeIndex + (dx < 0 ? 1 : -1));
+  }
+
+  useEffect(() => {
+    const thumb = stripRef.current?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`);
+    thumb?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+  }, [activeIndex]);
 
   useEffect(() => {
     if (!open) return;
@@ -56,17 +86,20 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
     );
   }
 
-  const show = (next: number) => {
-    if (!photos.length) return;
-    setIndex((next + photos.length) % photos.length);
-  };
-
   return (
     <div className="min-w-0">
       <button
         type="button"
-        className="bg-muted relative block aspect-[4/3] w-full min-w-0 max-w-full overflow-hidden rounded-xl border"
-        onClick={() => setOpen(true)}
+        className="bg-muted relative block aspect-[4/3] w-full min-w-0 max-w-full touch-pan-y overflow-hidden rounded-xl border"
+        onClick={() => {
+          if (swiped.current) {
+            swiped.current = false;
+            return;
+          }
+          setOpen(true);
+        }}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
         {/* blob URLs cannot go through next/image */}
         <ArchiveImage src={photo.url} alt={photo.caption || photo.category || title} className="size-full max-w-full object-cover" />
@@ -78,10 +111,11 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
       </button>
       <PhotoNote caption={photo.caption} category={photo.category} />
       {photos.length > 1 && (
-        <div className="mt-3 flex min-w-0 gap-2 overflow-x-auto pb-1">
+        <div ref={stripRef} className="mt-3 flex min-w-0 gap-2 overflow-x-auto pb-1">
           {photos.map((item, itemIndex) => (
             <button
               key={item.url}
+              data-index={itemIndex}
               type="button"
               className={`h-16 w-20 shrink-0 overflow-hidden rounded-md border ${
                 itemIndex === activeIndex ? "border-primary" : "border-transparent opacity-80"
@@ -97,7 +131,9 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-5xl sm:max-w-5xl">
           <DialogTitle className="sr-only">{title}の写真</DialogTitle>
-          <ArchiveImage src={photo.url} alt={photo.caption || title} className="max-h-[78vh] w-full object-contain" />
+          <div className="touch-pan-y" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+            <ArchiveImage src={photo.url} alt={photo.caption || title} className="max-h-[78vh] w-full object-contain" />
+          </div>
           <div className="flex items-start justify-between gap-3 px-2 pb-2">
             <PhotoNote caption={photo.caption} category={photo.category} />
             {photos.length > 1 && (
