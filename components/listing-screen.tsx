@@ -271,14 +271,15 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
               <div className={record.availability === "ended" ? "grayscale" : ""}>
                 <PhotoGallery photos={photos} title={name} />
               </div>
-              <button
+              <Button
                 type="button"
-                className="text-muted-foreground mt-3 text-sm underline-offset-4 hover:underline"
+                className="mt-3 h-12 w-full text-base font-bold text-white"
+                style={{ background: "#157A3A" }}
                 disabled={Boolean(busy)}
                 onClick={() => void refresh("update")}
               >
                 写真を選び直す
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="bg-muted text-muted-foreground flex aspect-[4/3] flex-col items-center justify-center gap-4 rounded-xl border px-6 text-center">
