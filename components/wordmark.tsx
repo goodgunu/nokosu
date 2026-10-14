@@ -1,18 +1,18 @@
-export function Wordmark({ height = 26 }: { height?: number }) {
-  return (
-    <span className="font-sans leading-none font-bold tracking-tight text-white" style={{ fontSize: Math.round(height * 0.78) }}>
-      のこす
-    </span>
-  );
+import Image from "next/image";
+
+export function Wordmark({ height = 28 }: { height?: number }) {
+  const width = Math.round(height * (925 / 361));
+  return <Image src="/wordmark.png" alt="のこす" width={width} height={height} priority />;
 }
 
-export function Mark({ size = 36 }: { size?: number }) {
+export function Mark({ size = 40 }: { size?: number }) {
+  const inner = Math.round(size * 0.78);
   return (
     <span
-      className="grid place-items-center rounded-lg font-sans font-bold text-white"
-      style={{ background: "#E4682C", width: size, height: size, fontSize: Math.round(size * 0.62) }}
+      className="grid shrink-0 place-items-center overflow-hidden rounded-xl"
+      style={{ width: size, height: size, background: "#E4682C" }}
     >
-      の
+      <Image src="/mark.png" alt="" width={inner} height={inner} />
     </span>
   );
 }

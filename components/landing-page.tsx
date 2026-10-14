@@ -73,10 +73,13 @@ export function LandingPage() {
         </div>
       </header>
 
-      <section style={{ background: "#E4682C", color: "#FFFFFF" }}>
-        <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 pt-4 pb-9 sm:px-7 sm:pt-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
+      <section style={{ background: "#F8D3B8", color: "#1C1917" }}>
+        <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
           <div>
-            <h1 className="text-[1.7rem] leading-snug font-bold tracking-tight sm:text-4xl">
+            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#157A3A" }}>
+              売約の前に
+            </p>
+            <h1 className="mt-2 text-[1.7rem] leading-snug font-bold tracking-tight sm:text-4xl">
               気になった車を、
               <br />
               消える前に残す。
@@ -84,7 +87,7 @@ export function LandingPage() {
             <p className="mt-3 max-w-xl text-sm leading-7 sm:text-base">
               カーセンサーの掲載は、売約や掲載期間が終わると開けなくなります。URLを残すと、価格も写真も、自分のアカウントに残ります。
             </p>
-            <p className="mt-3 text-xs leading-6 text-white/85 sm:text-sm">
+            <p className="mt-3 text-xs leading-6 sm:text-sm" style={{ color: "#9C3D12" }}>
               公式アプリの共有から、LINEの「のこす」に送っても残せます。
             </p>
           </div>
@@ -119,29 +122,36 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="how" className="px-4 pt-7 sm:px-7" style={{ background: "#F6F5F3" }}>
+      <section id="how" className="px-4 py-8 sm:px-7" style={{ background: "#FFFFFF" }}>
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: "#9C3D12" }}>使い方</h2>
-          <ol className="mt-4 grid gap-5 sm:grid-cols-3">
-            {steps.map(([n, title, body]) => (
-              <li key={n} className="pb-5">
-                <p className="text-xs font-bold" style={{ color: "#E4682C" }}>{n}</p>
+          <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: "#157A3A" }}>使い方</h2>
+          <ol className="mt-4 grid gap-4 sm:grid-cols-3">
+            {steps.map(([n, title, body], index) => (
+              <li
+                key={n}
+                className="rounded-2xl p-4"
+                style={{ background: index === 2 ? "#F8D3B8" : "#FFF6EF" }}
+              >
+                <p className="text-xs font-bold" style={{ color: "#157A3A" }}>{n}</p>
                 <p className="mt-1 text-base font-bold">{title}</p>
-                <p className="text-muted-foreground mt-1.5 text-sm leading-7">{body}</p>
+                <p className="mt-1.5 text-sm leading-7" style={{ color: "#6B6560" }}>{body}</p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      <section className="bg-card px-4 pt-7 sm:px-7">
+      <section className="px-4 py-8 sm:px-7" style={{ background: "#FFF6EF" }}>
         <div className="mx-auto max-w-6xl">
           <h2 className="text-lg font-bold">アカウントに残るもの</h2>
-          <ul className="mt-2 grid sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-3 grid sm:grid-cols-2 lg:grid-cols-3">
             {kept.map(([title, body]) => (
-              <li key={title} className="border-border border-t py-3.5 pr-4">
-                <p className="text-sm font-bold">{title}</p>
-                <p className="text-muted-foreground mt-1 text-xs">{body}</p>
+              <li key={title} className="border-t py-3.5 pr-4" style={{ borderColor: "#F0C8AE" }}>
+                <p className="text-sm font-bold">
+                  <span className="mr-1.5 inline-block size-1.5 rounded-full align-middle" style={{ background: "#157A3A" }} />
+                  {title}
+                </p>
+                <p className="mt-1 text-xs" style={{ color: "#6B6560" }}>{body}</p>
               </li>
             ))}
           </ul>
@@ -178,7 +188,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section style={{ background: "#F6F5F3" }}>
+      <section style={{ background: "#E7F6EC" }}>
         <div className="mx-auto grid max-w-6xl items-center gap-4 px-4 py-6 sm:px-7 lg:grid-cols-[1.2fr_0.8fr]">
           <div>
             <h2 className="text-lg font-bold">LINEに送ると、その場で残る</h2>
@@ -197,10 +207,10 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer className="bg-foreground text-white">
+      <footer style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-5 sm:px-7">
-          <Wordmark height={20} />
-          <p className="text-xs text-white/70">カーセンサーの掲載を、自分のアカウントに残す。</p>
+          <Wordmark height={22} />
+          <p className="text-xs text-white/80">カーセンサーの掲載を、自分のアカウントに残す。</p>
         </div>
       </footer>
     </div>
