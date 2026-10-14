@@ -26,6 +26,26 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="bg-background text-foreground min-h-full">
+        <style>{`
+          :root {
+            --orange: #E4682C;
+            --orange-ink: #9C3D12;
+            --live: #157A3A;
+            --background: #F6F5F3;
+            --foreground: #1C1917;
+            --card: #FFFFFF;
+            --card-foreground: #1C1917;
+            --primary: #E4682C;
+            --primary-foreground: #FFFFFF;
+            --secondary: #F6F5F3;
+            --secondary-foreground: #1C1917;
+            --muted: #F6F5F3;
+            --muted-foreground: #6B6560;
+            --border: #E7E2DC;
+            --input: #E7E2DC;
+            --ring: #E4682C;
+          }
+        `}</style>
         <ClerkProvider localization={jaJP}>
           <AccountProvider>{children}</AccountProvider>
         </ClerkProvider>

@@ -51,8 +51,8 @@ export function LandingPage() {
   }
 
   return (
-    <div className="bg-card text-foreground min-h-full">
-      <header className="bg-primary text-primary-foreground">
+    <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
+      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3.5 sm:px-7">
           <Wordmark height={26} />
           <span className="flex-1" />
@@ -64,7 +64,8 @@ export function LandingPage() {
           </button>
           <button
             type="button"
-            className="rounded-full bg-white px-3.5 py-1.5 text-sm font-bold text-primary"
+            className="rounded-full px-3.5 py-1.5 text-sm font-bold"
+            style={{ background: "#FFFFFF", color: "#E4682C" }}
             onClick={() => void login()}
           >
             掲載を残す
@@ -72,7 +73,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <section className="bg-primary text-primary-foreground">
+      <section style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 pt-4 pb-9 sm:px-7 sm:pt-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
           <div>
             <h1 className="text-[1.7rem] leading-snug font-bold tracking-tight sm:text-4xl">
@@ -107,7 +108,7 @@ export function LandingPage() {
               autoCapitalize="off"
               autoCorrect="off"
             />
-            <button type="submit" className="mt-2.5 w-full rounded-lg bg-primary py-3 text-[15px] font-bold text-white" disabled={!ready || busy}>
+            <button type="submit" className="mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#E4682C" }} disabled={!ready || busy}>
               {busy ? "Googleを開いています" : "掲載を残す"}
             </button>
             <p className="text-muted-foreground mt-2.5 text-[11px] leading-5">
@@ -118,13 +119,13 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="how" className="bg-background px-4 pt-7 sm:px-7">
+      <section id="how" className="px-4 pt-7 sm:px-7" style={{ background: "#F6F5F3" }}>
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-orange-ink text-sm font-bold tracking-[0.08em]">使い方</h2>
+          <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: "#9C3D12" }}>使い方</h2>
           <ol className="mt-4 grid gap-5 sm:grid-cols-3">
             {steps.map(([n, title, body]) => (
               <li key={n} className="pb-5">
-                <p className="text-xs font-bold text-primary">{n}</p>
+                <p className="text-xs font-bold" style={{ color: "#E4682C" }}>{n}</p>
                 <p className="mt-1 text-base font-bold">{title}</p>
                 <p className="text-muted-foreground mt-1.5 text-sm leading-7">{body}</p>
               </li>
@@ -152,10 +153,10 @@ export function LandingPage() {
           <div className="flex items-baseline gap-3">
             <h2 className="text-lg font-bold">残したあとの画面</h2>
             <span className="flex-1" />
-            <button type="button" className={`text-xs ${live ? "font-bold text-primary" : "text-muted-foreground"}`} onClick={() => setLive(true)}>
+            <button type="button" className={`text-xs ${live ? "font-bold" : ""}`} style={{ color: live ? "#E4682C" : "#6B6560" }} onClick={() => setLive(true)}>
               掲載中
             </button>
-            <button type="button" className={`text-xs ${live ? "text-muted-foreground" : "text-orange-ink font-bold"}`} onClick={() => setLive(false)}>
+            <button type="button" className={`text-xs ${live ? "" : "font-bold"}`} style={{ color: live ? "#6B6560" : "#9C3D12" }} onClick={() => setLive(false)}>
               掲載終了
             </button>
           </div>
@@ -169,15 +170,15 @@ export function LandingPage() {
               </p>
               <p className="text-muted-foreground mt-0.5 truncate text-xs">2007(H19) ・ 6.2万km ・ アルピンホワイト</p>
             </div>
-            <p className={`hidden items-center pr-2 text-sm font-bold sm:flex ${live ? "text-live" : "text-muted-foreground"}`}>
-              <span className={`mr-1.5 inline-block size-2 rounded-full ${live ? "bg-live" : "bg-[#b7b1aa]"}`} />
+            <p className="hidden items-center pr-2 text-sm font-bold sm:flex" style={{ color: live ? "#157A3A" : "#6B6560" }}>
+              <span className="mr-1.5 inline-block size-2 rounded-full" style={{ background: live ? "#157A3A" : "#B7B1AA" }} />
               {live ? "掲載中" : "掲載終了"}
             </p>
           </div>
         </div>
       </section>
 
-      <section className="bg-background">
+      <section style={{ background: "#F6F5F3" }}>
         <div className="mx-auto grid max-w-6xl items-center gap-4 px-4 py-6 sm:px-7 lg:grid-cols-[1.2fr_0.8fr]">
           <div>
             <h2 className="text-lg font-bold">LINEに送ると、その場で残る</h2>
@@ -188,7 +189,7 @@ export function LandingPage() {
           <div className="flex items-start gap-2">
             <Mark size={36} />
             <div className="border-border rounded-xl border bg-white px-3 py-2 text-xs leading-6">
-              <p className="text-live font-bold">保存しました</p>
+              <p className="font-bold" style={{ color: "#157A3A" }}>保存しました</p>
               <p className="font-bold">B5 リムジン</p>
               <p>488万円 ・ 掲載中</p>
             </div>
