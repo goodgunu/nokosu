@@ -52,13 +52,21 @@ export type MemoEntry = {
   text: string;
 };
 
+export type PricePoint = {
+  at: string;
+  priceYen: number | null;
+  totalPrice: string;
+};
+
 export type ArchiveRecord = {
   id: string;
   sourceUrl: string;
   savedAt: string;
   updatedAt: string;
   lastCheckedAt: string;
+  checkAttemptAt?: string;
   availability: Availability;
+  priceHistory?: PricePoint[];
   watchStatus: WatchStatus;
   memo: string;
   memoEntries?: MemoEntry[];

@@ -65,6 +65,14 @@ export function saveKept(listing: ParsedListing, photoIndexes: number[] | null) 
   });
 }
 
+export function checkListing(id: string) {
+  return requestJson<{
+    record: ArchiveRecord;
+    failed: boolean;
+    price: { kind: "down" | "up" | "same"; label: string; previous: string };
+  }>(`/api/library/${id}/check`, { method: "POST" });
+}
+
 export function patchListing(
   id: string,
   patch: Partial<Pick<ArchiveRecord, "memo" | "memoEntries" | "watchStatus" | "availability" | "lastCheckedAt">>,

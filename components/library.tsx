@@ -11,6 +11,7 @@ import { buildBackup, downloadBlob, readBackup } from "@/lib/backup";
 import { readCompare, writeCompare } from "@/lib/compare";
 import { deleteListing, getPhotos, listListings, storedPhotoBlob } from "@/lib/db";
 import { displayName, vehicleHeading, yearNumber } from "@/lib/format";
+import { priceChange } from "@/lib/price-history";
 import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
 import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type ParsedListing, type WatchStatus } from "@/lib/types";
@@ -355,6 +356,15 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
           <ul className="mt-2 min-w-0 max-w-2xl">
             {visible.map((listing) => {
               const heading = vehicleHeading(listing);
+              const change = priceChange(listing);
+              const ended = listing.availability === "ended";
+              const status = ended
+                ? "掲載終了"
+                : change.kind === "same"
+                  ? listing.availability === "live"
+                    ? "掲載中"
+                    : "未確認"
+                  : change.label;
               return (
               <li key={listing.id} className={`min-w-0 border-b py-4 ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
                 <Link href={`/listings/${listing.id}`} className="flex min-w-0 gap-3">
@@ -374,9 +384,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     </p>
                     {heading.subline && <p className="text-muted-foreground mt-1 truncate text-xs">{heading.subline}</p>}
                     <p className="mt-1 text-xs">
-                      <span className={listing.availability === "ended" ? "text-stamp" : "text-muted-foreground"}>
-                        {listing.availability === "ended" ? "掲載終了" : listing.availability === "live" ? "掲載中" : "未確認"}
-                      </span>
+                      <span className={ended || change.kind === "down" ? "text-stamp" : "text-muted-foreground"}>{status}</span>
                       <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
                     </p>
                   </div>
@@ -392,7 +400,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         )}
 
         <footer className="text-muted-foreground mt-12 border-t pt-5 text-xs leading-6">
-          のこすはカーセンサーとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店とカーセンサーにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。
+          のこすはカーセンサーとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店とカーセンサーにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。掲載が続いているかと価格は、毎日朝に自動で確認します。値下げと値上げは一覧に出ます。
         </footer>
       </main>
 

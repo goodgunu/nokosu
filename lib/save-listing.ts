@@ -1,6 +1,7 @@
 import { getListing, putListing, replacePhotos, type PhotoDraft } from "@/lib/db";
 import { finishPhotoJob, startPhotoJob, updatePhotoJob } from "@/lib/photo-jobs";
 import { unpackPhotos } from "@/lib/photo-pack";
+import { priceHistoryAfter } from "@/lib/price-history";
 import type { ArchiveRecord, Availability, ParsedListing, WatchStatus } from "@/lib/types";
 
 export type ArchiveResponse =
@@ -243,6 +244,11 @@ function toRecord(
     totalPrice: listing.totalPrice,
     basePrice: listing.basePrice,
     priceYen: listing.priceYen,
+    priceHistory: priceHistoryAfter(previous, {
+      at: now,
+      priceYen: listing.priceYen,
+      totalPrice: listing.totalPrice || listing.basePrice,
+    }),
     expenseNote: listing.expenseNote,
     highlights: listing.highlights,
     sections: listing.sections,

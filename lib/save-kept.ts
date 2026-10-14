@@ -1,6 +1,7 @@
 import { fetchCarsensorPhoto } from "@/lib/fetch-carsensor-photo";
 import { choosePhotoIndexes, PHOTO_KEEP_LIMIT } from "@/lib/keep-photos";
 import { appendPhotos, getRecord, isListingId, putRecord, replacePhotos, type StoredImage } from "@/lib/store";
+import { priceHistoryAfter, sanitizePriceHistory } from "@/lib/price-history";
 import type { ArchiveRecord, Availability, MemoEntry, ParsedListing, SavedPhoto, WatchStatus } from "@/lib/types";
 
 export function recordFromListing(
@@ -27,6 +28,11 @@ export function recordFromListing(
     totalPrice: listing.totalPrice,
     basePrice: listing.basePrice,
     priceYen: listing.priceYen,
+    priceHistory: priceHistoryAfter(previous, {
+      at: now,
+      priceYen: listing.priceYen,
+      totalPrice: listing.totalPrice || listing.basePrice,
+    }),
     expenseNote: listing.expenseNote,
     highlights: listing.highlights,
     sections: listing.sections,
@@ -132,6 +138,7 @@ export function sanitizeImportedRecord(input: unknown): ArchiveRecord | null {
     totalPrice: text(record.totalPrice, 40),
     basePrice: text(record.basePrice, 40),
     priceYen: typeof record.priceYen === "number" && Number.isFinite(record.priceYen) ? record.priceYen : null,
+    priceHistory: sanitizePriceHistory(record.priceHistory),
     expenseNote: text(record.expenseNote, 120),
     highlights: Array.isArray(record.highlights) ? record.highlights.slice(0, 20).flatMap(fact) : [],
     sections: Array.isArray(record.sections) ? record.sections.slice(0, 12).flatMap(section) : [],

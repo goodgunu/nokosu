@@ -326,6 +326,55 @@ export function isListingId(id: string): boolean {
   return /^AU\d{6,16}$/.test(id);
 }
 
+const STORED_RECORD_PATH = /^records\/(?:[a-f0-9]{20}\/)?AU\d{6,16}\.json$/;
+
+export function isStoredRecordPath(pathname: string): boolean {
+  return STORED_RECORD_PATH.test(pathname);
+}
+
+export type StoredRecord = {
+  pathname: string;
+  record: ArchiveRecord;
+};
+
+export async function listAllStoredRecords(): Promise<StoredRecord[]> {
+  const pathnames = fileStoreEnabled() ? await listFileRecordPaths() : await listBlobPathnames("records/");
+  const stored: StoredRecord[] = [];
+  for (const pathname of pathnames) {
+    if (!isStoredRecordPath(pathname)) continue;
+    const record = fileStoreEnabled()
+      ? await readJsonFile<ArchiveRecord>(path.join(dataDir(), pathname))
+      : await readBlobJson<ArchiveRecord>(pathname);
+    if (record?.id) stored.push({ pathname, record });
+  }
+  return stored;
+}
+
+export async function writeStoredRecord(pathname: string, record: ArchiveRecord): Promise<void> {
+  if (!isStoredRecordPath(pathname) || !isListingId(record.id)) throw new Error("保存先が不正です。");
+  if (fileStoreEnabled()) {
+    await ensureDir(path.dirname(path.join(dataDir(), pathname)));
+    await writeFile(path.join(dataDir(), pathname), JSON.stringify(record));
+    return;
+  }
+  await writeBlobJson(pathname, record);
+}
+
+async function listFileRecordPaths(): Promise<string[]> {
+  const root = path.join(dataDir(), "records");
+  const found: string[] = [];
+  async function walk(dir: string, prefix: string) {
+    const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+    for (const entry of entries) {
+      const relative = `${prefix}${entry.name}`;
+      if (entry.isDirectory()) await walk(path.join(dir, entry.name), `${relative}/`);
+      else if (entry.isFile()) found.push(relative);
+    }
+  }
+  await walk(root, "records/");
+  return found;
+}
+
 export async function readAppJson<T>(name: string): Promise<T | null> {
   if (!isAppJsonName(name)) return null;
   if (fileStoreEnabled()) return readJsonFile<T>(path.join(dataDir(), name));

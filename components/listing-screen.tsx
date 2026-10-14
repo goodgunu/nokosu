@@ -25,7 +25,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { buildBackup, downloadBlob } from "@/lib/backup";
 import { displayName, formatCheck, formatMonthDay, formatWhen, isBlankValue, ledgerFacts, vehicleHeading } from "@/lib/format";
-import { deleteRemoteListing, fetchListing, loadRemotePhotos, patchListing, photoSrc, saveKept } from "@/lib/remote";
+import { priceChange } from "@/lib/price-history";
+import { checkListing, deleteRemoteListing, fetchListing, loadRemotePhotos, patchListing, photoSrc, saveKept } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
 import { WATCH_STATUSES, type ArchiveRecord, type MemoEntry, type ParsedListing, type TableSection, type WatchStatus } from "@/lib/types";
 
@@ -103,6 +104,28 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
     setBusy(mode === "check" ? "掲載を確認しています" : "内容を取り直しています");
     setMessage("");
     try {
+      if (mode === "check") {
+        const checked = await checkListing(record.id);
+        setRecord(checked.record);
+        if (checked.failed) {
+          setMessage("掲載ページを確認できませんでした。明日の自動確認で、もう一度見ます。");
+          return;
+        }
+        if (checked.record.availability === "ended") {
+          setMessage("元の掲載は終了していました。保存してある内容はこのまま見られます。");
+          return;
+        }
+        if (checked.price.kind === "same") {
+          setMessage("まだ掲載されています。価格は変わっていません。");
+          return;
+        }
+        setMessage(
+          checked.price.previous
+            ? `${checked.price.label}でした。前回は${checked.price.previous}です。`
+            : `${checked.price.label}でした。`,
+        );
+        return;
+      }
       const result = await requestArchive(record.sourceUrl);
       if (result.status === "ended") {
         const next = await patchListing(record.id, {
@@ -115,15 +138,6 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
       }
       if (result.status === "error") {
         setMessage(result.message);
-        return;
-      }
-      if (mode === "check") {
-        const next = await patchListing(record.id, {
-          availability: "live",
-          lastCheckedAt: new Date().toISOString(),
-        });
-        setRecord(next.record);
-        setMessage("まだ掲載されています。内容を取り直すと、価格や写真も更新できます。");
         return;
       }
       setDraft(result.listing);
@@ -208,6 +222,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
     .filter((section): section is TableSection => Boolean(section));
   const price = priceParts(record.totalPrice || record.basePrice);
   const checked = record.lastCheckedAt ? formatCheck(record.lastCheckedAt) : "";
+  const change = priceChange(record);
   const notes: MemoEntry[] = record.memoEntries?.length
     ? record.memoEntries
     : record.memo.trim()
@@ -267,6 +282,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
             {record.availability === "ended" ? "掲載終了" : record.availability === "live" ? "掲載中" : "まだ確認していません"}
             {checked ? <span className="text-muted-foreground"> ・ {checked}に確認</span> : null}
           </span>
+          <span className={change.kind === "down" ? "text-stamp" : "text-muted-foreground"}>{change.label}</span>
         </div>
 
         <p className="text-muted-foreground mt-4 text-xs tracking-[0.16em]">{heading.maker}</p>
@@ -286,6 +302,9 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         </div>
         {record.basePrice && record.totalPrice && (
           <p className="text-muted-foreground mt-1 text-xs">本体 {record.basePrice}{record.expenseNote ? ` ${record.expenseNote}` : ""}</p>
+        )}
+        {change.kind !== "same" && change.previous && (
+          <p className={`mt-1 text-sm ${change.kind === "down" ? "text-stamp" : ""}`}>前回 {change.previous}</p>
         )}
 
         <div className="mt-4 flex rounded-full border p-1">
