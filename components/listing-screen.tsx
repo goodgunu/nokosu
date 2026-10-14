@@ -292,11 +292,11 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
 
         <div className="mt-3 flex items-center justify-between rounded-lg bg-secondary px-3 py-2 text-sm">
           <span>
-            <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${record.availability === "ended" ? "bg-stamp" : record.availability === "live" ? "bg-emerald-700" : "bg-muted-foreground"}`} />
+            <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${record.availability === "live" ? "bg-live" : "bg-[#b7b1aa]"}`} />
             {record.availability === "ended" ? "掲載終了" : record.availability === "live" ? "掲載中" : "まだ確認していません"}
             {checked ? <span className="text-muted-foreground"> ・ {checked}に確認</span> : null}
           </span>
-          <span className={change.kind === "down" ? "text-stamp" : "text-muted-foreground"}>{change.label}</span>
+          <span className={change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{change.label}</span>
         </div>
 
         <p className="text-muted-foreground mt-4 text-xs tracking-[0.16em]">{heading.maker}</p>
@@ -318,7 +318,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           <p className="text-muted-foreground mt-1 text-xs">本体 {record.basePrice}{record.expenseNote ? ` ${record.expenseNote}` : ""}</p>
         )}
         {change.kind !== "same" && change.previous && (
-          <p className={`mt-1 text-sm ${change.kind === "down" ? "text-stamp" : ""}`}>前回 {change.previous}</p>
+          <p className={`mt-1 text-sm ${change.kind === "down" ? "text-live" : ""}`}>前回 {change.previous}</p>
         )}
 
         <div className="mt-4 flex rounded-full border p-1">

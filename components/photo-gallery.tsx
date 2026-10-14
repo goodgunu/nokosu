@@ -84,7 +84,7 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
               key={item.url}
               type="button"
               className={`h-16 w-20 shrink-0 overflow-hidden rounded-md border ${
-                itemIndex === activeIndex ? "border-stamp" : "border-transparent opacity-80"
+                itemIndex === activeIndex ? "border-primary" : "border-transparent opacity-80"
               }`}
               onClick={() => setIndex(itemIndex)}
             >

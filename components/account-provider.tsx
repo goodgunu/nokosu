@@ -3,6 +3,7 @@
 import { useClerk, useSignIn, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
+import { LandingPage } from "@/components/landing-page";
 import { getSession } from "@/lib/remote";
 
 type AccountValue = {
@@ -83,7 +84,8 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
   }
 
   if (view !== "ready") {
-    return <GoogleSignIn notice={notice} onError={setNotice} />;
+    if (pathname.startsWith("/line/connect")) return <GoogleSignIn notice={notice} onError={setNotice} />;
+    return <LandingPage />;
   }
 
   return <AccountContext.Provider value={{ email, logout }}>{children}</AccountContext.Provider>;

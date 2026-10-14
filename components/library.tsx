@@ -22,7 +22,12 @@ type Sort = "new" | "price" | "year";
 export function Library({ lineReady = false }: { lineReady?: boolean }) {
   const [listings, setListings] = useState<ArchiveRecord[]>([]);
   const [ready, setReady] = useState(false);
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(() => {
+    if (typeof window === "undefined") return "";
+    const pending = sessionStorage.getItem("nokosu-pending-url") || "";
+    if (pending) sessionStorage.removeItem("nokosu-pending-url");
+    return pending;
+  });
   const [busy, setBusy] = useState("");
   const [notice, setNotice] = useState("");
   const [noticeError, setNoticeError] = useState(false);
@@ -384,7 +389,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     </p>
                     {heading.subline && <p className="text-muted-foreground mt-1 truncate text-xs">{heading.subline}</p>}
                     <p className="mt-1 text-xs">
-                      <span className={ended || change.kind === "down" ? "text-stamp" : "text-muted-foreground"}>{status}</span>
+                      <span className={change.kind === "down" && !ended ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
                       <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
                     </p>
                   </div>
@@ -459,7 +464,7 @@ function showsMan(display: string): boolean {
 function EmptyLibrary() {
   return (
     <div className="mt-8 rounded-2xl border border-dashed bg-card/60 px-5 py-10">
-      <p className="font-heading text-stamp text-sm tracking-[0.2em]">掲載終了の前に</p>
+      <p className="text-orange-ink text-sm font-bold tracking-[0.08em]">掲載終了の前に</p>
       <h2 className="font-heading mt-2 text-3xl">まだ一台も残っていません</h2>
       <ol className="text-muted-foreground mt-4 max-w-xl list-decimal space-y-2 pl-5 text-sm leading-7">
         <li>カーセンサーで気になる車の詳細ページを開く。</li>
