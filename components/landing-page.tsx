@@ -2,6 +2,7 @@
 
 import { useSignIn } from "@clerk/nextjs";
 import { useState } from "react";
+import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { Mark, Wordmark } from "@/components/wordmark";
 
 const steps = [
@@ -193,8 +194,11 @@ export function LandingPage() {
           <div>
             <h2 className="text-lg font-bold">LINEに送ると、その場で残る</h2>
             <p className="text-muted-foreground mt-2 text-sm leading-7">
-              カーセンサーの共有から「のこす」を選ぶと、アカウントに保存されます。返信は車のカードが1通だけ。番号や長いURLは返しません。
+              下のボタンで公式LINE「のこす」を友だち追加します。IDは {LINE_ACCOUNT_ID} です。追加したあと、カーセンサーの共有から「のこす」を選ぶと、アカウントに保存されます。
             </p>
+            <div className="mt-4">
+              <LineAddLink />
+            </div>
           </div>
           <div className="flex items-start gap-2">
             <Mark size={36} />

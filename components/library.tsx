@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArchiveImage } from "@/components/archive-image";
 import { PhotoPicker } from "@/components/photo-picker";
+import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -278,6 +279,12 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               {busy || "掲載を読み取る"}
             </Button>
           </form>
+          <div className="mt-4 flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm leading-6">
+              公式LINE「のこす」（{LINE_ACCOUNT_ID}）を友だち追加すると、カーセンサーの共有から車を送れます。
+            </p>
+            <LineAddLink compact />
+          </div>
           {notice && (
             <p className={`mt-3 text-sm leading-6 ${noticeError ? "text-destructive" : ""}`}>{notice}</p>
           )}
