@@ -139,6 +139,15 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
               {provider.label}
             </button>
           ))}
+          <a
+            href={`/api/auth/line-login?next=${encodeURIComponent(redirectUrl.startsWith("/sso-callback") ? "/" : redirectUrl)}`}
+            onClick={() => onBeforeStart?.()}
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-full text-base font-bold text-white shadow-sm"
+            style={{ background: "#06C755" }}
+          >
+            <LineMark />
+            LINEで続ける
+          </a>
           <button
             type="button"
             className="flex h-12 w-full items-center justify-center gap-3 rounded-full text-base font-bold text-white shadow-sm disabled:opacity-60"
@@ -230,6 +239,14 @@ function randomPassword(): string {
   const bytes = new Uint8Array(24);
   crypto.getRandomValues(bytes);
   return `Nk-${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function LineMark() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#fff" d="M12 3C6.5 3 2 6.6 2 11c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3 0 .7 0 1l-.1.9c0 .3-.2 1 .9.5s5.7-3.4 7.7-5.8C21 14.600 22 12.900 22 11c0-4.400-4.500-8-10-8Z" />
+    </svg>
+  );
 }
 
 function MailMark() {

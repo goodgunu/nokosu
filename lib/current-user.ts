@@ -1,5 +1,6 @@
 import { auth, currentUser as clerkCurrentUser } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
+import { normalizeEmail } from "@/lib/account";
 import { acceptGoogleAccount } from "@/lib/google-owner";
 import { readSession } from "@/lib/session";
 import { authSecret } from "@/lib/store";
@@ -20,6 +21,10 @@ export async function accountState(): Promise<AccountState> {
   const token = (await cookies()).get("nokosu_session")?.value || "";
   if (!token) return { status: "anonymous" };
   const session = readSession(token, await authSecret());
+  if (session?.email.startsWith("lineauth:")) {
+    const email = normalizeEmail(session.email.slice("lineauth:".length));
+    return email ? { status: "ready", email } : { status: "anonymous" };
+  }
   if (!session?.email.startsWith("line:")) return { status: "anonymous" };
   return { status: "ready", email: session.email };
 }
