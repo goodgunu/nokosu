@@ -2,7 +2,7 @@
 
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import type { OAuthStrategy } from "@clerk/shared/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type OAuthProvider = {
   id: string;
@@ -32,6 +32,16 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
   const [newUser, setNewUser] = useState(false);
   const ready = fetchStatus !== "fetching" && !busy;
 
+  // 外部ログインから「戻る」で戻ったとき（bfcache）や、遷移が進まないときに、ボタンを押せる状態へ戻す。
+  useEffect(() => {
+    const reset = () => setBusy("");
+    const onShow = (event: PageTransitionEvent) => {
+      if (event.persisted) reset();
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+
   async function oauth(provider: OAuthProvider) {
     if (!ready) return;
     setBusy(provider.id);
@@ -45,6 +55,7 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
         ...(provider.prompt ? { oidcPrompt: provider.prompt } : {}),
       });
       if (result.error) fail(result.error.message || "ログインを開始できませんでした。");
+      else window.setTimeout(() => setBusy(""), 15000);
     } catch (error) {
       fail(error instanceof Error ? error.message : "ログインを開始できませんでした。");
     }
@@ -62,19 +73,28 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
     setNotice("");
     onBeforeStart?.();
     try {
-      const created = await signIn.create({ identifier: address });
-      if (!created.error) {
+      let notFound = false;
+      let signInError: unknown = null;
+      try {
+        const created = await signIn.create({ identifier: address });
+        signInError = created.error;
+      } catch (error) {
+        signInError = error;
+      }
+      if (signInError) notFound = isNotFound(signInError);
+      if (!signInError) {
         const sent = await signIn.emailCode.sendCode();
         if (sent.error) return fail(sent.error.message || "コードを送れませんでした。");
         setNewUser(false);
-      } else {
-        const notFound = (created.error as { code?: string }).code === "form_identifier_not_found";
-        if (!notFound) return fail(created.error.message || "コードを送れませんでした。");
-        const made = await signUp.create({ emailAddress: address });
+      } else if (notFound) {
+        // 未登録のアドレスは、そのまま新規登録（メールコードで本人確認）する。
+        const made = await signUp.create({ emailAddress: address, password: randomPassword() });
         if (made.error) return fail(made.error.message || "コードを送れませんでした。");
         const sent = await signUp.verifications.sendEmailCode();
         if (sent.error) return fail(sent.error.message || "コードを送れませんでした。");
         setNewUser(true);
+      } else {
+        return fail(errorText(signInError) || "コードを送れませんでした。");
       }
       setBusy("");
       setCode("");
@@ -194,6 +214,22 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
       {notice && <p className="text-destructive mt-3 text-sm leading-6">{notice}</p>}
     </div>
   );
+}
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : "";
+}
+
+function isNotFound(error: unknown): boolean {
+  const code = (error as { code?: string } | null)?.code || "";
+  return code === "form_identifier_not_found" || /couldn.?t find your account/i.test(errorText(error));
+}
+
+// パスワードは使わない（コードで入る）。Clerk側でパスワードが必須の設定でも登録できるよう、本人も知らないランダム値を入れる。
+function randomPassword(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return `Nk-${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
 function MailMark() {
