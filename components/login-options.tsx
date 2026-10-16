@@ -130,23 +130,33 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
     }
   }
 
+  const next = encodeURIComponent(redirectUrl.startsWith("/sso-callback") ? "/" : redirectUrl);
+
+  function providerButton(id: string) {
+    const provider = OAUTH_PROVIDERS.find((item) => item.id === id);
+    if (!provider) return null;
+    return (
+      <button
+        key={provider.id}
+        type="button"
+        className={provider.dark ? "flex h-12 w-full items-center justify-center gap-3 rounded-full border border-black text-base font-medium text-white shadow-sm disabled:opacity-60" : BUTTON}
+        style={provider.dark ? { background: "#000000" } : undefined}
+        disabled={!ready}
+        onClick={() => void oauth(provider)}
+      >
+        {provider.icon}
+        {provider.label}
+      </button>
+    );
+  }
+
   return (
     <div className="w-full">
       {mode === "choose" && (
         <div className="space-y-2.5">
-          {OAUTH_PROVIDERS.map((provider) => (
-            <button
-              key={provider.id}
-              type="button"
-              className={provider.dark ? "flex h-12 w-full items-center justify-center gap-3 rounded-full border border-black text-base font-medium text-white shadow-sm disabled:opacity-60" : BUTTON}
-              style={provider.dark ? { background: "#000000" } : undefined}
-              disabled={!ready} onClick={() => void oauth(provider)}>
-              {provider.icon}
-              {provider.label}
-            </button>
-          ))}
+          {/* 並び順: LINE、X、Google、Yahoo! JAPAN、メール */}
           <a
-            href={`/api/auth/line-login?next=${encodeURIComponent(redirectUrl.startsWith("/sso-callback") ? "/" : redirectUrl)}`}
+            href={`${"/api/auth/line-login"}?next=${next}`}
             onClick={() => onBeforeStart?.()}
             className="flex h-12 w-full items-center justify-center gap-3 rounded-full text-base font-bold text-white shadow-sm"
             style={{ background: "#06C755" }}
@@ -154,8 +164,10 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
             <LineMark />
             LINEで続ける
           </a>
+          {providerButton("x")}
+          {providerButton("google")}
           <a
-            href={`/api/auth/yahoo-login?next=${encodeURIComponent(redirectUrl.startsWith("/sso-callback") ? "/" : redirectUrl)}`}
+            href={`${"/api/auth/yahoo-login"}?next=${next}`}
             onClick={() => onBeforeStart?.()}
             className="flex h-12 w-full items-center justify-center gap-3 rounded-full text-base font-bold text-white shadow-sm"
             style={{ background: "#FF0033" }}
