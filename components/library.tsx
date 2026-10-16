@@ -453,7 +453,7 @@ function FilterButton({
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-bold ${active ? "border-[#E4682C] bg-[#E4682C] text-[#111]" : "border-border bg-card text-muted-foreground"}`}
+      className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-bold ${active ? "border-[#E4682C] bg-[#E4682C] text-white" : "border-border bg-card text-muted-foreground"}`}
     >
       {children}
     </button>

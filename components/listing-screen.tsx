@@ -275,7 +275,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
               <Button
                 type="button"
                 className="mt-3 h-12 w-full text-base font-bold text-white"
-                style={{ background: "#C14F18" }}
+                style={{ background: "#E4682C" }}
                 disabled={Boolean(busy)}
                 onClick={() => void refresh("update")}
               >
@@ -330,7 +330,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
             <button
               key={status.id}
               type="button"
-              className={`flex-1 rounded-full px-1 py-2 text-xs ${record.watchStatus === status.id ? "bg-[#E4682C] font-bold text-[#111]" : "text-muted-foreground"}`}
+              className={`flex-1 rounded-full px-1 py-2 text-xs ${record.watchStatus === status.id ? "bg-[#E4682C] font-bold text-white" : "text-muted-foreground"}`}
               onClick={() => {
                 const next = status.id as WatchStatus;
                 setRecord({ ...record, watchStatus: next });

@@ -77,7 +77,7 @@ export function LandingPage() {
       <section style={{ background: "#F8D3B8", color: "#1C1917" }}>
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
           <div>
-            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#B94A12" }}>
+            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>
               売約の前に
             </p>
             <h1 className="mt-2 text-[1.7rem] leading-snug font-bold tracking-tight sm:text-4xl">
@@ -125,7 +125,7 @@ export function LandingPage() {
 
       <section id="how" className="px-4 py-8 sm:px-7" style={{ background: "#FFFFFF" }}>
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: "#B94A12" }}>使い方</h2>
+          <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: "#E4682C" }}>使い方</h2>
           <ol className="mt-4 grid gap-4 sm:grid-cols-3">
             {steps.map(([n, title, body], index) => (
               <li
@@ -133,7 +133,7 @@ export function LandingPage() {
                 className="rounded-2xl p-4"
                 style={{ background: index === 2 ? "#F8D3B8" : "#FFF6EF" }}
               >
-                <p className="text-xs font-bold" style={{ color: "#B94A12" }}>{n}</p>
+                <p className="text-xs font-bold" style={{ color: "#E4682C" }}>{n}</p>
                 <p className="mt-1 text-base font-bold">{title}</p>
                 <p className="mt-1.5 text-sm leading-7" style={{ color: "#6B6560" }}>{body}</p>
               </li>
@@ -149,7 +149,7 @@ export function LandingPage() {
             {kept.map(([title, body]) => (
               <li key={title} className="border-t py-3.5 pr-4" style={{ borderColor: "#F0C8AE" }}>
                 <p className="text-sm font-bold">
-                  <span className="mr-1.5 inline-block size-1.5 rounded-full align-middle" style={{ background: "#B94A12" }} />
+                  <span className="mr-1.5 inline-block size-1.5 rounded-full align-middle" style={{ background: "#E4682C" }} />
                   {title}
                 </p>
                 <p className="mt-1 text-xs" style={{ color: "#6B6560" }}>{body}</p>
@@ -181,8 +181,8 @@ export function LandingPage() {
               </p>
               <p className="text-muted-foreground mt-0.5 truncate text-xs">2007(H19) ・ 6.2万km ・ アルピンホワイト</p>
             </div>
-            <p className="hidden items-center pr-2 text-sm font-bold sm:flex" style={{ color: live ? "#B94A12" : "#6B6560" }}>
-              <span className="mr-1.5 inline-block size-2 rounded-full" style={{ background: live ? "#B94A12" : "#B7B1AA" }} />
+            <p className="hidden items-center pr-2 text-sm font-bold sm:flex" style={{ color: live ? "#E4682C" : "#6B6560" }}>
+              <span className="mr-1.5 inline-block size-2 rounded-full" style={{ background: live ? "#E4682C" : "#B7B1AA" }} />
               {live ? "掲載中" : "掲載終了"}
             </p>
           </div>
@@ -203,7 +203,7 @@ export function LandingPage() {
           <div className="flex items-start gap-2">
             <Mark size={36} />
             <div className="border-border rounded-xl border bg-white px-3 py-2 text-xs leading-6">
-              <p className="font-bold" style={{ color: "#B94A12" }}>保存しました</p>
+              <p className="font-bold" style={{ color: "#E4682C" }}>保存しました</p>
               <p className="font-bold">B5 リムジン</p>
               <p>488万円 ・ 掲載中</p>
             </div>

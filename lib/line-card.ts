@@ -3,7 +3,7 @@ import type { LineMessage } from "@/lib/line-picker";
 import type { ArchiveRecord, ParsedListing } from "@/lib/types";
 
 const ORANGE = "#E4682C";
-const BUTTON = "#C14F18";
+const BUTTON = "#E4682C";
 const OK = "#008A00";
 const ALERT = "#C62828";
 const MUTED = "#666666";
