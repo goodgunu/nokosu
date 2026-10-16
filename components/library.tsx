@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArchiveImage } from "@/components/archive-image";
 import { PhotoPicker } from "@/components/photo-picker";
-import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
+import { LineAddCard } from "@/components/line-add-link";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -252,41 +252,32 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        <section className="rounded-2xl border px-4 py-5 sm:px-6" style={{ background: "#FFF6EF", borderColor: "#F0C8AE" }}>
-          <h1 className="font-heading text-3xl leading-tight sm:text-4xl">気になった車を、消える前に残す</h1>
-          <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-7">
-            カーセンサーの詳細ページは、売約や掲載期間が終わると開けなくなります。URLを貼ると、価格、スペック、装備、販売店をアカウントに残します。写真は全部見てから、残したいものだけ選べます。
-            {lineReady
-              ? " 公式アプリの共有ボタンでは、LINEの「のこす」を選ぶと、その車がここに残ります。"
-              : ""}
-          </p>
-          <form onSubmit={save} className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <label className="sr-only" htmlFor="carsensor-url">
-              カーセンサーの詳細ページURL
-            </label>
+      <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+        <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+          <label htmlFor="carsensor-url" className="mb-2 block text-sm font-bold">
+            カーセンサーの詳細ページURL
+          </label>
+          <form onSubmit={save} className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <Input
               id="carsensor-url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder="https://www.carsensor.net/usedcar/detail/AU…/index.html"
-              className="h-11 bg-background text-base"
+              className="h-11 min-w-0 flex-1 bg-white text-base"
               inputMode="url"
               autoCapitalize="off"
               autoCorrect="off"
             />
-            <Button type="submit" className="h-11 px-5" disabled={Boolean(busy)}>
-              {busy || "掲載を読み取る"}
+            <Button type="submit" className="h-11 px-6 font-bold text-white" disabled={Boolean(busy)}>
+              {busy || "のこす"}
             </Button>
           </form>
-          <div className="mt-4 flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm leading-6">
-              公式LINE「のこす」（{LINE_ACCOUNT_ID}）を友だち追加すると、カーセンサーの共有から車を送れます。
-            </p>
-            <LineAddLink compact />
-          </div>
+          <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+            掲載が生きているうちにURLを貼ると、価格・スペック・装備・販売店・写真をメモとして残します。
+            {lineReady ? " 公式アプリの共有からLINEの「のこす」へ送ることもできます。" : ""}
+          </p>
           {notice && (
-            <p className={`mt-3 text-sm leading-6 ${noticeError ? "text-destructive" : ""}`}>{notice}</p>
+            <p className={`mt-3 text-sm font-medium leading-6 ${noticeError ? "text-destructive" : "text-live"}`}>{notice}</p>
           )}
           {draft && (
             <PhotoPicker
@@ -301,7 +292,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         </section>
 
         {localCount > 0 && (
-          <section className="mt-4 rounded-2xl border bg-card px-4 py-4 sm:px-6">
+          <section className="rounded-xl border bg-card px-4 py-4 shadow-sm sm:px-6">
             <p className="text-sm leading-7">
               このブラウザに、アカウントへまだ移していない車が{localCount}台あります。移すと、他の端末からも見られます。
             </p>
@@ -311,7 +302,11 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
           </section>
         )}
 
-        <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-baseline justify-between border-b-2 border-orange pb-2">
+          <h2 className="text-lg font-bold">ライブラリ</h2>
+          <span className="text-muted-foreground text-xs font-medium">{listings.length}件</span>
+        </div>
+        <div className="flex flex-col gap-3">
           <div className="flex gap-2 overflow-x-auto pb-1">
             <FilterButton active={filter === "all"} onClick={() => setFilter("all")}>
               すべて
@@ -359,13 +354,13 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         </div>
 
         {!ready ? (
-          <p className="text-muted-foreground mt-10 text-sm">保存を読み込んでいます</p>
+          <p className="text-muted-foreground text-sm">保存を読み込んでいます</p>
         ) : listings.length === 0 ? (
           <EmptyLibrary />
         ) : visible.length === 0 ? (
-          <p className="text-muted-foreground mt-10 text-sm">条件に合う車はありません。</p>
+          <p className="text-muted-foreground rounded-xl border border-dashed bg-card px-5 py-8 text-center text-sm">条件に合う車はありません。</p>
         ) : (
-          <ul className="mt-2 min-w-0 max-w-2xl">
+          <ul className="min-w-0 space-y-3">
             {visible.map((listing) => {
               const heading = vehicleHeading(listing);
               const change = priceChange(listing);
@@ -378,9 +373,9 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     : "未確認"
                   : change.label;
               return (
-              <li key={listing.id} className={`min-w-0 border-b py-4 ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
+              <li key={listing.id} className={`min-w-0 rounded-xl border bg-card p-3 shadow-sm sm:p-4 ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
                 <Link href={`/listings/${listing.id}`} className="flex min-w-0 gap-3">
-                  <div className={`bg-muted aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-md ${listing.availability === "ended" ? "grayscale" : ""}`}>
+                  <div className={`bg-muted aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-lg border sm:w-28 ${listing.availability === "ended" ? "grayscale" : ""}`}>
                     {listing.photoCount > 0 ? (
                       <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
                     ) : (
@@ -389,8 +384,8 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                   </div>
                   <div className="min-w-0 flex-1">
                     {heading.maker && <p className="text-muted-foreground text-[11px] tracking-[0.14em]">{heading.maker}</p>}
-                    <h2 className="truncate text-base">{heading.heading || displayName(listing)}</h2>
-                    <p className="font-heading mt-0.5 text-2xl leading-none tabular-nums">
+                    <h2 className="line-clamp-2 text-sm font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
+                    <p className="mt-1.5 text-xl font-bold leading-none tabular-nums">
                       {priceNumber(listing.totalPrice || listing.basePrice)}
                       {showsMan(listing.totalPrice || listing.basePrice) && <span className="ml-0.5 text-xs">万円</span>}
                     </p>
@@ -411,14 +406,16 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
           </ul>
         )}
 
-        <footer className="text-muted-foreground mt-12 border-t pt-5 text-xs leading-6">
+        <LineAddCard />
+
+        <footer className="text-muted-foreground border-t pt-5 text-xs leading-6">
           のこすはカーセンサーとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店とカーセンサーにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。掲載が続いているかと価格は、毎日朝に自動で確認します。値下げと値上げは一覧に出ます。
         </footer>
       </main>
 
       {compareIds.length > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 p-3 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
             <p className="text-sm">{compareIds.length}台を選択中</p>
             <div className="flex gap-2">
               <Button
@@ -453,9 +450,13 @@ function FilterButton({
   children: React.ReactNode;
 }) {
   return (
-    <Button size="sm" variant={active ? "default" : "outline"} onClick={onClick} className="shrink-0">
+    <button
+      type="button"
+      onClick={onClick}
+      className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-bold ${active ? "border-[#E4682C] bg-[#E4682C] text-[#111]" : "border-border bg-card text-muted-foreground"}`}
+    >
       {children}
-    </Button>
+    </button>
   );
 }
 
@@ -470,14 +471,8 @@ function showsMan(display: string): boolean {
 
 function EmptyLibrary() {
   return (
-    <div className="mt-8 rounded-2xl border border-dashed bg-card/60 px-5 py-10">
-      <p className="text-orange-ink text-sm font-bold tracking-[0.08em]">掲載終了の前に</p>
-      <h2 className="font-heading mt-2 text-3xl">まだ一台も残っていません</h2>
-      <ol className="text-muted-foreground mt-4 max-w-xl list-decimal space-y-2 pl-5 text-sm leading-7">
-        <li>カーセンサーで気になる車の詳細ページを開く。</li>
-        <li>アドレスバーのURLをコピーして、上の欄に貼る。</li>
-        <li>残したい写真を選ぶ。選んだ車は、別の端末からログインしても見られます。</li>
-      </ol>
+    <div className="rounded-xl border border-dashed border-border bg-card px-5 py-10 text-center text-sm leading-7 text-muted-foreground">
+      まだ何も残っていません。上のフォームにURLを貼るか、LINEから共有してください。
     </div>
   );
 }

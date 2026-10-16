@@ -2,9 +2,15 @@ import { factValue, vehicleHeading } from "@/lib/format";
 import type { LineMessage } from "@/lib/line-picker";
 import type { ArchiveRecord, ParsedListing } from "@/lib/types";
 
-const OK = "#3F6B4F";
-const ALERT = "#B23A2B";
-const MUTED = "#7A716A";
+const ORANGE = "#E4682C";
+const GREEN = "#06C755";
+const OK = "#008A00";
+const ALERT = "#C62828";
+const MUTED = "#666666";
+
+function stripe(): Record<string, unknown> {
+  return { type: "box", layout: "vertical", paddingAll: "4px", backgroundColor: ORANGE, contents: [{ type: "filler" }] };
+}
 
 export type LineCardInput = {
   origin: string;
@@ -59,8 +65,9 @@ export function flexCard(input: LineCardInput): LineMessage {
   ];
   const bubble: Record<string, unknown> = {
     type: "bubble",
+    header: stripe(),
     body: { type: "box", layout: "vertical", spacing: "none", contents: body },
-    footer: { type: "box", layout: "vertical", spacing: "none", contents: buttons },
+    footer: { type: "box", layout: "vertical", spacing: "sm", contents: buttons },
   };
   if (photoUrl.startsWith("https://")) {
     bubble.hero = {
@@ -83,6 +90,7 @@ export function textCard(altText: string, body: string, button?: { label: string
   const contents: Record<string, unknown>[] = [{ type: "text", text: body, wrap: true, size: "sm" }];
   const bubble: Record<string, unknown> = {
     type: "bubble",
+    header: stripe(),
     body: { type: "box", layout: "vertical", contents },
   };
   if (button?.uri || button?.data) {
@@ -90,14 +98,12 @@ export function textCard(altText: string, body: string, button?: { label: string
       type: "box",
       layout: "vertical",
       contents: [
-        {
-          type: "button",
-          style: "link",
-          height: "sm",
-          action: button.uri
+        filled(
+          button.label,
+          button.uri
             ? { type: "uri", label: button.label.slice(0, 40), uri: button.uri }
             : { type: "postback", label: button.label.slice(0, 40), data: button.data, displayText: button.label.slice(0, 40) },
-        },
+        ),
       ],
     };
   }
@@ -153,11 +159,19 @@ function tokyo(iso: string): { year: string; month: number; day: number; hour: s
 }
 
 function button(label: string, uri: string): Record<string, unknown> {
+  return filled(label, { type: "uri", label: label.slice(0, 40), uri });
+}
+
+function filled(label: string, action: Record<string, unknown>): Record<string, unknown> {
   return {
-    type: "button",
-    style: "link",
-    height: "sm",
-    action: { type: "uri", label: label.slice(0, 40), uri },
+    type: "box",
+    layout: "vertical",
+    backgroundColor: GREEN,
+    cornerRadius: "md",
+    paddingAll: "12px",
+    margin: "sm",
+    action,
+    contents: [{ type: "text", text: label.slice(0, 40), color: "#000000", weight: "bold", align: "center" }],
   };
 }
 

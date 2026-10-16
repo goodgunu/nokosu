@@ -16,34 +16,27 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ja" className="h-full antialiased">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Japanese faces are loaded in full. next/font only subsets Latin for these families. */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body className="bg-background text-foreground min-h-full">
         <style>{`
           :root {
             --orange: #E4682C;
             --orange-ink: #9C3D12;
-            --live: #157A3A;
-            --background: #F6F5F3;
-            --foreground: #1C1917;
+            --live: #008A00;
+            --green: #06A94D;
+            --background: #F7F7F7;
+            --foreground: #111111;
             --card: #FFFFFF;
-            --card-foreground: #1C1917;
-            --primary: #E4682C;
+            --card-foreground: #111111;
+            --primary: #06A94D;
             --primary-foreground: #FFFFFF;
-            --secondary: #F6F5F3;
-            --secondary-foreground: #1C1917;
-            --muted: #F6F5F3;
-            --muted-foreground: #6B6560;
-            --border: #E7E2DC;
-            --input: #E7E2DC;
-            --ring: #E4682C;
+            --secondary: #F7F7F7;
+            --secondary-foreground: #111111;
+            --muted: #F2F2F2;
+            --muted-foreground: #666666;
+            --border: #E5E5E5;
+            --input: #E5E5E5;
+            --ring: #06A94D;
           }
         `}</style>
         <ClerkProvider localization={jaJP}>

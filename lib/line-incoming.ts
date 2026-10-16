@@ -109,7 +109,7 @@ export async function saveAndReply(input: {
 export function savedMessage(origin: string, listing: ParsedListing, record: ArchiveRecord, shareName?: string): LineMessage {
   return cardMessage({
     origin,
-    head: "保存しました",
+    head: "保存したよ",
     tone: "ok",
     listing,
     record,

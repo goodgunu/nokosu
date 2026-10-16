@@ -19,11 +19,11 @@ test("the first save is one card without a raw url", () => {
   const message = savedMessage("https://fleet.example", listing(), savedRecord(), "メルセデスＡＭＧ ＧＴ");
   const raw = JSON.stringify(message);
   assert.equal(message.type, "flex");
-  assert.match(message.altText || "", /^保存しました：/);
+  assert.match(message.altText || "", /^保存したよ：/);
   assert.equal(raw.includes("from-line"), false);
   const texts = [...raw.matchAll(/"text":"([^"]*)"/g)].map((match) => match[1]);
   assert.ok(texts.every((text) => !text.includes("http") && !text.includes("%3A")));
-  assert.match(raw, /保存しました/);
+  assert.match(raw, /保存したよ/);
   assert.match(raw, /のこすで見る/);
   assert.equal(raw.includes("残す写真を選ぶ"), false);
   assert.equal(raw.includes("pick=1"), false);

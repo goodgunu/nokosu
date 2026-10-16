@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ExternalLink, MoreHorizontal, RefreshCw } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { LineAddCard } from "@/components/line-add-link";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { PhotoPicker } from "@/components/photo-picker";
 import { Button } from "@/components/ui/button";
@@ -187,7 +188,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
     return (
       <>
         <SiteHeader />
-        <main className="mx-auto max-w-6xl px-4 py-10 text-sm text-muted-foreground sm:px-6">読み込み中</main>
+        <main className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground sm:px-6">読み込み中</main>
       </>
     );
   }
@@ -233,9 +234,9 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 pt-4 pb-28 sm:px-6">
+      <main className="mx-auto max-w-3xl space-y-0 px-4 pt-5 pb-28 sm:px-6">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-muted-foreground inline-flex items-center gap-1 text-sm hover:text-foreground">
+          <Link href="/" className="text-muted-foreground inline-flex items-center gap-1 text-sm font-medium hover:text-foreground">
             <ArrowLeft className="size-4" />
             保存した車
           </Link>
@@ -274,7 +275,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
               <Button
                 type="button"
                 className="mt-3 h-12 w-full text-base font-bold text-white"
-                style={{ background: "#157A3A" }}
+                style={{ background: "#06A94D" }}
                 disabled={Boolean(busy)}
                 onClick={() => void refresh("update")}
               >
@@ -291,27 +292,28 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           )}
         </div>
 
-        <div className="mt-3 flex items-center justify-between rounded-lg bg-secondary px-3 py-2 text-sm">
+        <div className="mt-3 flex items-center justify-between rounded-xl border bg-card px-3 py-2 text-sm shadow-sm">
           <span>
-            <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${record.availability === "live" ? "bg-live" : "bg-[#b7b1aa]"}`} />
+            <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${record.availability === "live" ? "bg-live" : "bg-[#b5b5b5]"}`} />
             {record.availability === "ended" ? "掲載終了" : record.availability === "live" ? "掲載中" : "まだ確認していません"}
             {checked ? <span className="text-muted-foreground"> ・ {checked}に確認</span> : null}
           </span>
           <span className={change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{change.label}</span>
         </div>
 
-        <p className="text-muted-foreground mt-4 text-xs tracking-[0.16em]">{heading.maker}</p>
-        <h1 className="font-heading mt-1 text-3xl leading-tight">{name}</h1>
+        <div className="mt-4 rounded-xl border bg-card p-4 shadow-sm sm:p-5">
+        <p className="text-muted-foreground text-xs tracking-[0.1em]">{heading.maker}</p>
+        <h1 className="mt-1 text-xl font-bold leading-snug sm:text-2xl">{name}</h1>
         {heading.subline && <p className="text-muted-foreground mt-1 text-sm">{heading.subline}</p>}
 
         <div className="mt-4 flex items-baseline gap-1">
           {price ? (
             <>
-              <span className="font-heading text-5xl leading-none tabular-nums">{price.number}</span>
-              <span className="font-heading text-lg">{price.unit}</span>
+              <span className="text-4xl font-bold leading-none tabular-nums">{price.number}</span>
+              <span className="text-lg font-bold">{price.unit}</span>
             </>
           ) : (
-            <span className="font-heading text-4xl">{record.totalPrice || record.basePrice || "価格未記載"}</span>
+            <span className="text-3xl font-bold">{record.totalPrice || record.basePrice || "価格未記載"}</span>
           )}
           <span className="text-muted-foreground ml-2 text-xs">{record.totalPrice ? "支払総額" : "車両本体"}</span>
         </div>
@@ -321,13 +323,14 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         {change.kind !== "same" && change.previous && (
           <p className={`mt-1 text-sm ${change.kind === "down" ? "text-live" : ""}`}>前回 {change.previous}</p>
         )}
+        </div>
 
-        <div className="mt-4 flex rounded-full border p-1">
+        <div className="mt-4 flex rounded-full border bg-card p-1">
           {WATCH_STATUSES.map((status) => (
             <button
               key={status.id}
               type="button"
-              className={`flex-1 rounded-full px-1 py-2 text-xs ${record.watchStatus === status.id ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              className={`flex-1 rounded-full px-1 py-2 text-xs ${record.watchStatus === status.id ? "bg-[#E4682C] font-bold text-[#111]" : "text-muted-foreground"}`}
               onClick={() => {
                 const next = status.id as WatchStatus;
                 setRecord({ ...record, watchStatus: next });
@@ -341,8 +344,8 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
 
         {facts.length > 0 && (
           <section className="mt-8">
-            <h2 className="font-heading text-lg tracking-wide">要点</h2>
-            <dl className="mt-2 grid grid-cols-2 border-t">
+            <h2 className="border-b-2 border-orange pb-1 text-sm font-bold">要点</h2>
+            <dl className="mt-2 grid grid-cols-2 rounded-xl border bg-card px-4 shadow-sm">
               {facts.map((item, index) => (
                 <div key={item.label} className={`border-b py-2 ${index % 2 === 1 ? "border-l pl-3" : "pr-3"}`}>
                   <dt className="text-muted-foreground text-[11px]">{item.label}</dt>
@@ -353,9 +356,9 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           </section>
         )}
 
-        <section className="mt-8 rounded-xl border bg-card p-4">
+        <section className="mt-8 rounded-xl border bg-card p-4 shadow-sm">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-heading text-base">自分のメモ</h2>
+            <h2 className="text-sm font-bold">自分のメモ</h2>
             <span className="text-muted-foreground text-[11px]">{notes.length ? `${notes.length}件` : ""}</span>
           </div>
           {notes.map((entry, index) => (
@@ -383,7 +386,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           </form>
         </section>
 
-        <div className="mt-6 border-t">
+        <div className="mt-6 rounded-xl border bg-card px-4 shadow-sm">
           {equipped.length > 0 && (
             <details className="border-b py-3">
               <summary className="cursor-pointer text-sm">装備 <span className="text-muted-foreground">{equipped.length}</span></summary>
@@ -441,7 +444,8 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         </div>
 
         <section className="py-5">
-          <p className="text-muted-foreground text-[11px]">販売店</p>
+          <h2 className="border-b-2 border-orange pb-1 text-sm font-bold">販売店</h2>
+          <p className="text-muted-foreground mt-3 text-[11px]">店名</p>
           <p className="mt-1 text-sm">{record.shopName || "店名は保存されていません"}</p>
           {record.shopAddress && <p className="text-muted-foreground mt-1 text-sm">{record.shopAddress}</p>}
           {record.shopUrl && (
@@ -462,6 +466,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
             </p>
           )}
         </section>
+        <LineAddCard />
       </main>
 
       {!draft && (
@@ -470,7 +475,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           <Button variant="outline" className="h-11 flex-1 rounded-full" disabled={Boolean(busy)} onClick={() => void refresh("check")}>
             掲載を確認
           </Button>
-          <Button className="h-11 flex-[1.4] rounded-full" nativeButton={false} render={<a href={record.sourceUrl} target="_blank" rel="noreferrer" />}>
+          <Button className="h-11 flex-[1.4] rounded-full font-bold" nativeButton={false} render={<a href={record.sourceUrl} target="_blank" rel="noreferrer" />}>
             カーセンサーで開く
           </Button>
         </div>

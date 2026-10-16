@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArchiveImage } from "@/components/archive-image";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 export type GalleryPhoto = {
   url: string;
@@ -25,130 +22,142 @@ export function PhotoNote({ caption, category }: { caption: string; category: st
 }
 
 export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title: string }) {
-  const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
-  const firstUrl = photos[0]?.url ?? "";
-  const [trackedUrl, setTrackedUrl] = useState(firstUrl);
-  if (trackedUrl !== firstUrl) {
-    setTrackedUrl(firstUrl);
-    setIndex(0);
-  }
-  const activeIndex = photos.length === 0 ? 0 : Math.min(index, photos.length - 1);
-  const photo = photos[activeIndex];
-  const touch = useRef<{ x: number; y: number } | null>(null);
-  const swiped = useRef(false);
-  const stripRef = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const dragX = useRef(0);
 
-  const show = (next: number) => {
-    if (!photos.length) return;
-    setIndex((next + photos.length) % photos.length);
-  };
-
-  function onTouchStart(event: React.TouchEvent) {
-    const point = event.changedTouches[0];
-    touch.current = { x: point.clientX, y: point.clientY };
-    swiped.current = false;
-  }
-
-  function onTouchEnd(event: React.TouchEvent) {
-    if (!touch.current || photos.length < 2) return;
-    const point = event.changedTouches[0];
-    const dx = point.clientX - touch.current.x;
-    const dy = point.clientY - touch.current.y;
-    touch.current = null;
-    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
-    swiped.current = true;
-    show(activeIndex + (dx < 0 ? 1 : -1));
-  }
-
-  useEffect(() => {
-    const thumb = stripRef.current?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`);
-    thumb?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
-  }, [activeIndex]);
+  const close = useCallback(() => setOpen(false), []);
+  const go = useCallback(
+    (dir: 1 | -1) => {
+      setIndex((current) => {
+        const next = current + dir;
+        return next < 0 || next >= photos.length ? current : next;
+      });
+    },
+    [photos.length],
+  );
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight") setIndex((current) => (current + 1) % photos.length);
-      if (event.key === "ArrowLeft") {
-        setIndex((current) => (current - 1 + photos.length) % photos.length);
-      }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowRight") go(1);
+      if (e.key === "ArrowLeft") go(-1);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, photos.length]);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, close, go]);
 
-  if (!photo) {
+  function onTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+    dragX.current = 0;
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    if (!touchStart.current) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    if (Math.abs(dx) > Math.abs(dy)) dragX.current = dx;
+  }
+  function onTouchEnd() {
+    const dx = dragX.current;
+    touchStart.current = null;
+    if (dx < -60) go(1);
+    else if (dx > 60) go(-1);
+  }
+
+  if (!photos.length) {
     return (
       <div className="bg-muted text-muted-foreground grid aspect-[4/3] place-items-center rounded-xl border">
         写真は保存されていません
       </div>
     );
   }
+  const current = photos[Math.min(index, photos.length - 1)];
 
   return (
-    <div className="min-w-0">
-      <button
-        type="button"
-        className="bg-muted relative block aspect-[4/3] w-full min-w-0 max-w-full touch-pan-y overflow-hidden rounded-xl border"
-        onClick={() => {
-          if (swiped.current) {
-            swiped.current = false;
-            return;
-          }
-          setOpen(true);
-        }}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
-        {/* blob URLs cannot go through next/image */}
-        <ArchiveImage src={photo.url} alt={photo.caption || photo.category || title} className="size-full max-w-full object-cover" />
-        {photos.length > 1 && (
-          <span className="absolute right-3 bottom-3 rounded-full bg-black/70 px-2.5 py-1 text-xs text-white">
-            {activeIndex + 1} / {photos.length}
-          </span>
-        )}
-      </button>
-      <PhotoNote caption={photo.caption} category={photo.category} />
-      {photos.length > 1 && (
-        <div ref={stripRef} className="mt-3 flex min-w-0 gap-2 overflow-x-auto pb-1">
-          {photos.map((item, itemIndex) => (
-            <button
-              key={item.url}
-              data-index={itemIndex}
-              type="button"
-              className={`h-16 w-20 shrink-0 overflow-hidden rounded-md border ${
-                itemIndex === activeIndex ? "border-primary" : "border-transparent opacity-80"
-              }`}
-              onClick={() => setIndex(itemIndex)}
-            >
-              <ArchiveImage src={item.url} alt="" className="size-full object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
+    <>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {photos.map((photo, i) => (
+          <button
+            key={`${photo.url}-${i}`}
+            type="button"
+            onClick={() => {
+              setIndex(i);
+              setOpen(true);
+            }}
+            className="overflow-hidden rounded-lg border border-border bg-card shadow-sm"
+          >
+            <ArchiveImage src={photo.url} alt={photo.caption || photo.category || title} className="aspect-[4/3] w-full object-cover" />
+          </button>
+        ))}
+      </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-5xl sm:max-w-5xl">
-          <DialogTitle className="sr-only">{title}の写真</DialogTitle>
-          <div className="touch-pan-y" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-            <ArchiveImage src={photo.url} alt={photo.caption || title} className="max-h-[78vh] w-full object-contain" />
+      {open && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex flex-col bg-black/90" onClick={close}>
+          <div className="flex items-center justify-between px-4 py-3 text-white" onClick={(e) => e.stopPropagation()}>
+            <span className="text-sm font-medium">
+              {index + 1} / {photos.length}
+            </span>
+            <button
+              type="button"
+              aria-label="閉じる"
+              onClick={close}
+              className="rounded-full bg-white/10 px-3 py-1.5 text-lg leading-none hover:bg-white/20"
+            >
+              ×
+            </button>
           </div>
-          <div className="flex items-start justify-between gap-3 px-2 pb-2">
-            <PhotoNote caption={photo.caption} category={photo.category} />
+          <div
+            className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             {photos.length > 1 && (
-              <div className="flex gap-2">
-                <Button variant="secondary" size="icon" onClick={() => show(activeIndex - 1)} aria-label="前の写真">
-                  <ChevronLeft />
-                </Button>
-                <Button variant="secondary" size="icon" onClick={() => show(activeIndex + 1)} aria-label="次の写真">
-                  <ChevronRight />
-                </Button>
-              </div>
+              <button
+                type="button"
+                aria-label="前の写真"
+                onClick={() => go(-1)}
+                disabled={index === 0}
+                className="absolute left-2 z-10 hidden rounded-full bg-white/15 px-3 py-2 text-white hover:bg-white/25 disabled:opacity-30 sm:block"
+              >
+                ‹
+              </button>
+            )}
+            <ArchiveImage
+              src={current.url}
+              alt={current.caption || title}
+              className="max-h-[80vh] max-w-[100vw] object-contain select-none"
+              draggable={false}
+            />
+            {photos.length > 1 && (
+              <button
+                type="button"
+                aria-label="次の写真"
+                onClick={() => go(1)}
+                disabled={index === photos.length - 1}
+                className="absolute right-2 z-10 hidden rounded-full bg-white/15 px-3 py-2 text-white hover:bg-white/25 disabled:opacity-30 sm:block"
+              >
+                ›
+              </button>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+          {(current.caption || current.category) && (
+            <p className="px-4 py-3 text-center text-sm text-white/90" onClick={(e) => e.stopPropagation()}>
+              {[current.category, current.caption].filter((v, i, a) => v && a.indexOf(v) === i).join(" ・ ")}
+            </p>
+          )}
+        </div>
+      )}
+    </>
   );
 }
