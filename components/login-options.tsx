@@ -154,6 +154,14 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
             <LineMark />
             LINEで続ける
           </a>
+          <a
+            href={`/api/auth/yahoo-login?next=${encodeURIComponent(redirectUrl.startsWith("/sso-callback") ? "/" : redirectUrl)}`}
+            onClick={() => onBeforeStart?.()}
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-full text-base font-bold text-white shadow-sm"
+            style={{ background: "#FF0033" }}
+          >
+            Yahoo! JAPANで続ける
+          </a>
           <button
             type="button"
             className="flex h-12 w-full items-center justify-center gap-3 rounded-full text-base font-bold text-white shadow-sm disabled:opacity-60"

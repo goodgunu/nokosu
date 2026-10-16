@@ -25,6 +25,7 @@ export async function accountState(): Promise<AccountState> {
     const email = normalizeEmail(session.email.slice("lineauth:".length));
     return email ? { status: "ready", email } : { status: "anonymous" };
   }
+  if (session && /^yahoo:[A-Za-z0-9_-]{8,128}$/.test(session.email)) return { status: "ready", email: session.email };
   if (!session?.email.startsWith("line:")) return { status: "anonymous" };
   return { status: "ready", email: session.email };
 }
