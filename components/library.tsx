@@ -390,49 +390,52 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     : "未確認"
                   : change.label;
               return (
-              <li key={listing.id} className={`min-w-0 rounded-xl border bg-card p-3 shadow-sm sm:p-4 ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
-                <div className="flex min-w-0 gap-3">
-                    <Link href={`/listings/${listing.id}`} className="shrink-0">
-                      <div className="bg-muted aspect-[4/3] w-24 overflow-hidden rounded-lg border sm:w-28">
-                        {listing.photoCount > 0 ? (
-                          <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
-                        ) : (
-                          <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
-                        )}
-                      </div>
-                    </Link>
-                  <Link href={`/listings/${listing.id}`} className="min-w-0 flex-1">
-                    <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"><SourceBadge record={listing} />{heading.maker && <span className="font-medium tracking-wide">{heading.maker}</span>}</p>
-                    <h2 className="mt-1 line-clamp-2 text-[17px] font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
-                    <p className="mt-1.5 flex items-baseline gap-1 leading-none">
+              <li key={listing.id} className={`relative min-w-0 overflow-hidden rounded-2xl border bg-card shadow-sm ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
+                <div className="relative">
+                  <Link href={`/listings/${listing.id}`} className="block">
+                    <div className="bg-muted aspect-[16/10] w-full overflow-hidden">
+                      {listing.photoCount > 0 ? (
+                        <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
+                      ) : (
+                        <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
+                      )}
+                    </div>
+                  </Link>
+                  <div className="pointer-events-none absolute left-2 top-2 drop-shadow"><SourceBadge record={listing} /></div>
+                  <label className="absolute right-2 top-2 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold shadow">
+                    <input type="checkbox" checked={compareIds.includes(listing.id)} onChange={() => toggleCompare(listing.id)} />
+                    比べる
+                  </label>
+                </div>
+                <Link href={`/listings/${listing.id}`} className="block min-w-0 border-t-2 border-t-[#E4682C] p-3 sm:p-4">
+                  {heading.maker && <p className="text-muted-foreground text-xs font-medium tracking-wide">{heading.maker}</p>}
+                  <h2 className="line-clamp-2 break-words text-[17px] font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
+                  <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+                    <p className="flex items-baseline gap-1 leading-none">
                       <span className="text-muted-foreground text-[11px] font-bold">支払総額</span>
                       <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]" data-card="total">{priceNumber(listing.totalPrice || listing.basePrice)}</span>
                       {showsMan(listing.totalPrice || listing.basePrice) && <span className="text-sm font-bold">万円</span>}
                     </p>
                     {base && (
-                      <p className="text-muted-foreground mt-1 text-xs">車体 <span className="font-medium tabular-nums text-foreground">{base}</span></p>
+                      <p className="text-muted-foreground text-xs">車体 <span className="font-medium tabular-nums text-foreground">{base}</span></p>
                     )}
-                    <div className="mt-2 flex flex-wrap gap-1.5" data-card="chips">
-                      <SpecChip label="年式" value={info.year} />
-                      <SpecChip label="走行" value={info.distance} />
-                      <SpecChip label="色" value={info.color} />
-                      <SpecChip
-                        label="修復歴"
-                        value={info.repair === "has" ? "あり" : info.repair === "none" ? "なし" : info.repairText}
-                        tone={info.repair === "has" ? "warn" : info.repair === "none" ? "calm" : "plain"}
-                      />
-                    </div>
-                    <p className="mt-2 text-xs">
-                      <span className={ended ? "font-bold text-black" : status === "掲載中" ? "text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
-                      <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
-                      {info.region && <span className="text-muted-foreground"> ・ {info.region}</span>}
-                    </p>
-                  </Link>
-                </div>
-                <label className="mt-2 flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={compareIds.includes(listing.id)} onChange={() => toggleCompare(listing.id)} />
-                  比べる
-                </label>
+                  </div>
+                  <div className="mt-2.5 flex flex-wrap gap-1.5" data-card="chips">
+                    <SpecChip label="年式" value={info.year} />
+                    <SpecChip label="走行" value={info.distance} />
+                    <SpecChip label="色" value={info.color} />
+                    <SpecChip
+                      label="修復歴"
+                      value={info.repair === "has" ? "あり" : info.repair === "none" ? "なし" : info.repairText}
+                      tone={info.repair === "has" ? "warn" : info.repair === "none" ? "calm" : "plain"}
+                    />
+                  </div>
+                  <p className="mt-2.5 text-xs">
+                    <span className={ended ? "font-bold text-black" : status === "掲載中" ? "text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
+                    <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
+                    {info.region && <span className="text-muted-foreground"> ・ {info.region}</span>}
+                  </p>
+                </Link>
               </li>
               );
             })}
