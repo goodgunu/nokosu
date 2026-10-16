@@ -269,12 +269,13 @@ function randomPassword(): string {
   return `Nk-${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
+// 背景なしの白ロゴ（文字部分は透過）。ボタンの背景色がそのまま透けて見える。
 function LineMark() {
-  return <Image src="/icon-line.png" alt="" width={30} height={30} className="-ml-1 rounded-[7px]" />;
+  return <Image src="/icon-line.png" alt="" width={30} height={28} />;
 }
 
 function YahooMark() {
-  return <Image src="/icon-yahoo.png" alt="" width={26} height={26} className="rounded-[6px]" />;
+  return <Image src="/icon-yahoo.png" alt="" width={38} height={20} />;
 }
 
 function MailMark() {
