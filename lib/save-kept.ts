@@ -1,3 +1,4 @@
+import { sourceOf } from "@/lib/sites";
 import { fetchCarsensorPhoto } from "@/lib/fetch-carsensor-photo";
 import { choosePhotoIndexes, PHOTO_KEEP_LIMIT } from "@/lib/keep-photos";
 import { appendPhotos, getRecord, isListingId, putRecord, replacePhotos, type StoredImage } from "@/lib/store";
@@ -13,6 +14,7 @@ export function recordFromListing(
   const now = new Date().toISOString();
   return {
     id: listing.id,
+    source: listing.source ?? "carsensor",
     sourceUrl: listing.sourceUrl,
     savedAt: previous?.savedAt ?? now,
     updatedAt: now,
@@ -123,6 +125,7 @@ export function sanitizeImportedRecord(input: unknown): ArchiveRecord | null {
   const now = new Date().toISOString();
   return {
     id: record.id,
+    source: sourceOf(record),
     sourceUrl: typeof record.sourceUrl === "string" ? record.sourceUrl.slice(0, 300) : "",
     savedAt: typeof record.savedAt === "string" ? record.savedAt : now,
     updatedAt: now,

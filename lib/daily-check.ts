@@ -1,4 +1,4 @@
-import { fetchCarsensorListing } from "@/lib/fetch-listing";
+import { fetchListing } from "@/lib/fetch-listing";
 import { checkDue, priceHistoryAfter } from "@/lib/price-history";
 import { recordFromListing } from "@/lib/save-kept";
 import { listAllStoredRecords, writeStoredRecord, type StoredRecord } from "@/lib/store";
@@ -8,7 +8,7 @@ export async function refreshStoredCar(record: ArchiveRecord, now = new Date()):
   const iso = now.toISOString();
   let parsed;
   try {
-    parsed = (await fetchCarsensorListing(record.sourceUrl)).parsed;
+    parsed = (await fetchListing(record.sourceUrl)).parsed;
   } catch {
     return { ...record, checkAttemptAt: iso };
   }

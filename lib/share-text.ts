@@ -1,4 +1,4 @@
-import { canonicalCarsensorUrl } from "@/lib/carsensor-url";
+import { canonicalCarsensorUrl, canonicalListingUrl } from "@/lib/carsensor-url";
 
 const URL_PATTERN = /https?:\/\/[^\s<>"']+/gi;
 
@@ -8,11 +8,11 @@ export function shareCarName(text: string): string {
   return match[1].replace(/^[\s「」]+/u, "").trim().slice(0, 80);
 }
 
-export function carsensorTargetsFromText(text: string): string[] {
+export function listingTargetsFromText(text: string): string[] {
   const found = new Set<string>();
   for (const match of text.match(URL_PATTERN) ?? []) {
     const cleaned = match.replace(/[)）,。】]+$/u, "");
-    const direct = canonicalCarsensorUrl(cleaned);
+    const direct = canonicalListingUrl(cleaned);
     if (direct) found.add(direct.url);
   }
   for (const match of text.match(/\bAU\d{6,16}\b/gi) ?? []) {
@@ -21,6 +21,9 @@ export function carsensorTargetsFromText(text: string): string[] {
   }
   return [...found];
 }
+
+// 以前の名前のまま使っている箇所のための別名
+export const carsensorTargetsFromText = listingTargetsFromText;
 
 export function defaultKeepIndexes(photos: { caption: string; category: string }[], limit = 12): number[] {
   return photos

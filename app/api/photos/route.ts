@@ -1,4 +1,4 @@
-import { isCarsensorPhotoUrl } from "@/lib/carsensor-url";
+import { isListingPhotoUrl } from "@/lib/carsensor-url";
 import { currentUser } from "@/lib/current-user";
 import { fetchCarsensorPhoto } from "@/lib/fetch-carsensor-photo";
 import { packPhotos, type PackedPhoto } from "@/lib/photo-pack";
@@ -29,7 +29,7 @@ async function packListingPhotos(request: Request) {
     .flatMap((item) => {
       if (!item || typeof item !== "object") return [];
       const record = item as { url?: unknown; caption?: unknown; category?: unknown };
-      if (typeof record.url !== "string" || !isCarsensorPhotoUrl(record.url)) return [];
+      if (typeof record.url !== "string" || !isListingPhotoUrl(record.url)) return [];
       return [
         {
           url: record.url,

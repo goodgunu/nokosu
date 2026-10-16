@@ -11,7 +11,7 @@ export function SiteHeader() {
           <Wordmark height={30} />
         </Link>
         <div className="flex items-center gap-3">
-          <p className="hidden text-xs font-medium text-white/90 sm:block">カーセンサー個人メモ</p>
+          <p className="hidden text-xs font-medium text-white/90 sm:block">中古車の個人メモ</p>
           {account && (
             <button type="button" onClick={() => void account.logout()} className="text-sm font-medium text-white">
               ログアウト

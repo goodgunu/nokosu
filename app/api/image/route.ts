@@ -1,4 +1,5 @@
-import { isCarsensorPhotoUrl } from "@/lib/carsensor-url";
+import { isListingPhotoUrl } from "@/lib/carsensor-url";
+import { photoReferer } from "@/lib/sites";
 import { currentUser } from "@/lib/current-user";
 
 const USER_AGENT =
@@ -11,7 +12,7 @@ export async function GET(request: Request) {
     return new Response("ログインしてください。", { status: 401 });
   }
   const value = new URL(request.url).searchParams.get("url");
-  if (!value || !isCarsensorPhotoUrl(value)) {
+  if (!value || !isListingPhotoUrl(value)) {
     return new Response("この写真URLは保存できません。", { status: 400 });
   }
 
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
       headers: {
         "User-Agent": USER_AGENT,
         Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-        Referer: "https://www.carsensor.net/",
+        Referer: photoReferer(value) ?? "https://www.carsensor.net/",
       },
     });
   } catch {

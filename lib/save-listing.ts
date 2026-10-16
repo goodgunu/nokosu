@@ -229,6 +229,7 @@ function toRecord(
   const now = new Date().toISOString();
   return {
     id: listing.id,
+    source: listing.source ?? "carsensor",
     sourceUrl: listing.sourceUrl,
     savedAt: previous?.savedAt ?? now,
     updatedAt: now,

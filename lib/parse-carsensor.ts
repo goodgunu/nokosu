@@ -303,6 +303,7 @@ export function parseCarsensorHtml(html: string, sourceUrl: string): ParseResult
   const { photos, truncated } = parsePhotos($);
 
   const listing: ParsedListing = {
+    source: "carsensor",
     id: canonical.id,
     sourceUrl: canonical.url,
     title,

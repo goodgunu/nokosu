@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { buildBackup, downloadBlob } from "@/lib/backup";
+import { SourceBadge } from "@/components/source-badge";
+import { SOURCE_LABEL, sourceOf } from "@/lib/sites";
 import { displayName, formatCheck, formatMonthDay, formatWhen, isBlankValue, ledgerFacts, vehicleHeading } from "@/lib/format";
 import { priceChange } from "@/lib/price-history";
 import { checkListing, deleteRemoteListing, fetchListing, loadRemotePhotos, patchListing, photoSrc, saveKept } from "@/lib/remote";
@@ -302,7 +304,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         </div>
 
         <div className="mt-4 rounded-xl border bg-card p-4 shadow-sm sm:p-5">
-        <p className="text-muted-foreground text-xs tracking-[0.1em]">{heading.maker}</p>
+        <p className="text-muted-foreground flex items-center gap-2 text-xs tracking-[0.1em]">{heading.maker}<SourceBadge record={record} /></p>
         <h1 className="mt-1 text-xl font-bold leading-snug sm:text-2xl">{name}</h1>
         {heading.subline && <p className="text-muted-foreground mt-1 text-sm">{heading.subline}</p>}
 
@@ -476,7 +478,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
             掲載を確認
           </Button>
           <Button className="h-11 flex-[1.4] rounded-full font-bold" nativeButton={false} render={<a href={record.sourceUrl} target="_blank" rel="noreferrer" />}>
-            カーセンサーで開く
+            {SOURCE_LABEL[sourceOf(record)]}で開く
           </Button>
         </div>
       </div>

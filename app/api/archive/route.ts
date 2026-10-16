@@ -1,4 +1,4 @@
-import { fetchCarsensorListing } from "@/lib/fetch-listing";
+import { fetchListing } from "@/lib/fetch-listing";
 import { currentUser, unauthorized } from "@/lib/current-user";
 
 export const maxDuration = 60;
@@ -30,6 +30,6 @@ async function archiveListing(request: Request) {
     );
   }
 
-  const { parsed, httpStatus } = await fetchCarsensorListing(body.url);
+  const { parsed, httpStatus } = await fetchListing(body.url);
   return Response.json(parsed, { status: parsed.status === "ok" || parsed.status === "ended" ? 200 : httpStatus });
 }

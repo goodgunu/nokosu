@@ -20,7 +20,7 @@ export function LineAddCard() {
     <section className="rounded-2xl border p-3" style={{ borderColor: "#E4682C", background: "#FFF1E8" }}>
       <div className="space-y-3 rounded-xl bg-white p-4">
         <p className="text-sm leading-relaxed text-[#111]">
-          公式LINE「のこす」（{LINE_ACCOUNT_ID}）を友だち追加すると、カーセンサーの共有から車を送れます。
+          公式LINE「のこす」（{LINE_ACCOUNT_ID}）を友だち追加すると、カーセンサー・グーネット・カババの共有から車を送れます。
         </p>
         <a
           href={LINE_ADD_FRIEND_URL}

@@ -1,3 +1,4 @@
+import { LISTING_ID_SOURCE } from "@/lib/sites";
 import { PHOTO_KEEP_LIMIT } from "@/lib/keep-photos";
 import type { ParsedListing } from "@/lib/types";
 
@@ -20,11 +21,11 @@ const REPLY_CAROUSELS = 4;
 const PUSH_CAROUSELS = 5;
 
 export function parseLineAction(data: string): LineAction | null {
-  const pick = data.match(/^pick=(AU\d{6,16}):(\d+)$/);
+  const pick = data.match(new RegExp(`^pick=(${LISTING_ID_SOURCE}):(\\d+)$`));
   if (pick) return { type: "pick", id: pick[1], index: Number(pick[2]) };
-  const save = data.match(/^save=(AU\d{6,16})$/);
+  const save = data.match(new RegExp(`^save=(${LISTING_ID_SOURCE})$`));
   if (save) return { type: "save", id: save[1] };
-  const clear = data.match(/^clear=(AU\d{6,16})$/);
+  const clear = data.match(new RegExp(`^clear=(${LISTING_ID_SOURCE})$`));
   if (clear) return { type: "clear", id: clear[1] };
   return null;
 }

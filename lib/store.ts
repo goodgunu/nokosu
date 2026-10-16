@@ -1,3 +1,4 @@
+import { LISTING_ID_SOURCE } from "@/lib/sites";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -236,7 +237,7 @@ async function listLegacyRecords(): Promise<ArchiveRecord[]> {
     const names = await readdir(dir, { withFileTypes: true }).catch(() => []);
     const records: ArchiveRecord[] = [];
     for (const name of names) {
-      if (!name.isFile() || !/^AU\d{6,16}\.json$/.test(name.name)) continue;
+      if (!name.isFile() || !new RegExp(`^${LISTING_ID_SOURCE}\\.json$`).test(name.name)) continue;
       const record = await readJsonFile<ArchiveRecord>(path.join(dir, name.name));
       if (record?.id) records.push(record);
     }
@@ -245,7 +246,7 @@ async function listLegacyRecords(): Promise<ArchiveRecord[]> {
   const pathnames = await listBlobPathnames("records/");
   const records: ArchiveRecord[] = [];
   for (const pathname of pathnames) {
-    if (!/^records\/AU\d{6,16}\.json$/.test(pathname)) continue;
+    if (!new RegExp(`^records/${LISTING_ID_SOURCE}\\.json$`).test(pathname)) continue;
     const record = await readBlobJson<ArchiveRecord>(pathname);
     if (record?.id) records.push(record);
   }
@@ -351,10 +352,10 @@ async function listBlobPathnames(prefix: string): Promise<string[]> {
 }
 
 export function isListingId(id: string): boolean {
-  return /^AU\d{6,16}$/.test(id);
+  return new RegExp(`^${LISTING_ID_SOURCE}$`).test(id);
 }
 
-const STORED_RECORD_PATH = /^records\/(?:[a-f0-9]{20}\/)?AU\d{6,16}\.json$/;
+const STORED_RECORD_PATH = new RegExp(`^records/(?:[a-f0-9]{20}/)?${LISTING_ID_SOURCE}\\.json$`);
 
 export function isStoredRecordPath(pathname: string): boolean {
   return STORED_RECORD_PATH.test(pathname);
@@ -420,5 +421,5 @@ export async function writeAppJson(name: string, value: unknown): Promise<void> 
 }
 
 function isAppJsonName(name: string): boolean {
-  return /^drafts\/AU\d{6,16}\.json$/.test(name) || /^codes\/[a-f0-9]{32}\.json$/.test(name) || /^links\/[a-f0-9]{40}\.json$/.test(name);
+  return new RegExp(`^drafts/${LISTING_ID_SOURCE}\\.json$`).test(name) || /^codes\/[a-f0-9]{32}\.json$/.test(name) || /^links\/[a-f0-9]{40}\.json$/.test(name);
 }

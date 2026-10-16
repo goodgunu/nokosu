@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { SourceBadge } from "@/components/source-badge";
 import { ArchiveImage } from "@/components/archive-image";
 import { PhotoPicker } from "@/components/photo-picker";
 import { LineAddCard } from "@/components/line-add-link";
@@ -255,14 +256,14 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
       <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
         <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <label htmlFor="carsensor-url" className="mb-2 block text-sm font-bold">
-            カーセンサーの詳細ページURL
+            中古車の詳細ページURL（カーセンサー・グーネット・カババ）
           </label>
           <form onSubmit={save} className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <Input
               id="carsensor-url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
-              placeholder="https://www.carsensor.net/usedcar/detail/AU…/index.html"
+              placeholder="カーセンサー・グーネット・カババのURL"
               className="h-11 min-w-0 flex-1 bg-white text-base"
               inputMode="url"
               autoCapitalize="off"
@@ -383,7 +384,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    {heading.maker && <p className="text-muted-foreground text-[11px] tracking-[0.14em]">{heading.maker}</p>}
+                    <p className="text-muted-foreground flex items-center gap-1.5 text-[11px] tracking-[0.14em]">{heading.maker}<SourceBadge record={listing} /></p>
                     <h2 className="line-clamp-2 text-sm font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
                     <p className="mt-1.5 text-xl font-bold leading-none tabular-nums">
                       {priceNumber(listing.totalPrice || listing.basePrice)}
@@ -409,7 +410,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         <LineAddCard />
 
         <footer className="text-muted-foreground border-t pt-5 text-xs leading-6">
-          のこすはカーセンサーとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店とカーセンサーにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。掲載が続いているかと価格は、毎日朝に自動で確認します。値下げと値上げは一覧に出ます。
+          のこすは各掲載サイトとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店・出品者と各サイトにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。掲載が続いているかと価格は、毎日朝に自動で確認します。値下げと値上げは一覧に出ます。
         </footer>
       </main>
 

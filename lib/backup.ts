@@ -1,3 +1,4 @@
+import { LISTING_ID_SOURCE } from "@/lib/sites";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import type { ArchiveRecord } from "@/lib/types";
 
@@ -77,7 +78,7 @@ export async function readBackup(file: File): Promise<{ record: ArchiveRecord; p
 
   const entries: { record: ArchiveRecord; photos: BackupPhoto[] }[] = [];
   for (const record of manifest.listings) {
-    if (!record || typeof record.id !== "string" || !/^AU\d{6,16}$/.test(record.id)) continue;
+    if (!record || typeof record.id !== "string" || !new RegExp(`^${LISTING_ID_SOURCE}$`).test(record.id)) continue;
     const prefix = `photos/${record.id}/`;
     const slots = new Map<number, { bytes?: Uint8Array; meta?: PhotoMeta }>();
     for (const [path, data] of Object.entries(unzipped)) {

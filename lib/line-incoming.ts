@@ -1,5 +1,5 @@
-import { canonicalCarsensorUrl } from "@/lib/carsensor-url";
-import { fetchCarsensorListing } from "@/lib/fetch-listing";
+import { canonicalListingUrl } from "@/lib/carsensor-url";
+import { fetchListing } from "@/lib/fetch-listing";
 import { flexCard, listingMeta, signedMan, textCard, tokyoStamp } from "@/lib/line-card";
 import { textOnly, type LineReply } from "@/lib/line-archive";
 import { linkedEmail } from "@/lib/line-link";
@@ -7,7 +7,7 @@ import { createLineConnectLink } from "@/lib/line-login";
 import type { LineMessage } from "@/lib/line-picker";
 import { priceChange } from "@/lib/price-history";
 import { recordFromListing, saveKeptListing } from "@/lib/save-kept";
-import { carsensorTargetsFromText, shareCarName } from "@/lib/share-text";
+import { listingTargetsFromText, shareCarName } from "@/lib/share-text";
 import { getRecord, putRecord } from "@/lib/store";
 import type { ArchiveRecord, ParsedListing } from "@/lib/types";
 
@@ -15,7 +15,7 @@ export const AUTO_PHOTO_KEEP = 12;
 
 export function welcomeReply(): LineReply {
   return textOnly(
-    "友だち追加ありがとうございます。\n\nカーセンサー公式アプリで気になる車を開いたら、共有からこの「のこす」を選んでください。最初の1回だけアカウントをつなぐと、次からは送るだけで保存されます。",
+    "友だち追加ありがとうございます。\n\nカーセンサー・グーネット・カババで気になる車を開いたら、共有からこの「のこす」を選んでください。最初の1回だけアカウントをつなぐと、次からは送るだけで保存されます。",
   );
 }
 
@@ -28,8 +28,8 @@ export async function replyForIncoming(input: {
 }): Promise<LineReply> {
   const retry = input.postback?.startsWith("retry=") ? input.postback.slice("retry=".length) : "";
   const text = retry || input.text || "";
-  const targets = carsensorTargetsFromText(text).slice(0, 1);
-  if (!targets.length) return one(textCard("カーセンサーの車の詳細ページを送ってください", "カーセンサーの車の詳細ページを送ってください。"));
+  const targets = listingTargetsFromText(text).slice(0, 1);
+  if (!targets.length) return one(textCard("カーセンサーの車の詳細ページを送ってください", "カーセンサーの車の詳細ページを送ってください。\nグーネット・カババの詳細ページも保存できます。"));
   const url = targets[0];
   const shareName = shareCarName(text);
   if (!input.lineUserId) {
@@ -57,7 +57,7 @@ export async function saveAndReply(input: {
   now?: Date;
 }): Promise<LineReply> {
   const now = input.now ?? new Date();
-  const { parsed } = await fetchCarsensorListing(input.url);
+  const { parsed } = await fetchListing(input.url);
   if (parsed.status === "error") {
     return one(
       textCard("読み込めませんでした", "読み込めませんでした。少し待ってからもう一度送ってください。", {
@@ -67,13 +67,13 @@ export async function saveAndReply(input: {
     );
   }
   if (parsed.status === "ended") {
-    const id = canonicalCarsensorUrl(input.url)?.id || parsed.id;
+    const id = canonicalListingUrl(input.url)?.id || parsed.id;
     const existing = await getRecord(input.email, id);
     if (!existing) {
       return one(
         textCard(
           "保存できませんでした",
-          "保存できませんでした。\nこの車はカーセンサーで掲載が終わっています。掲載中の車の詳細ページから送ってください。",
+          "保存できませんでした。\nこの車は掲載が終わっています。掲載中の車の詳細ページから送ってください。",
         ),
       );
     }

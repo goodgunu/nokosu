@@ -1,9 +1,9 @@
 import { fetchCarsensorPhoto } from "@/lib/fetch-carsensor-photo";
-import { isCarsensorPhotoUrl } from "@/lib/carsensor-url";
+import { isListingPhotoUrl } from "@/lib/carsensor-url";
 
 export async function GET(request: Request) {
   const value = new URL(request.url).searchParams.get("url");
-  if (!value || !isCarsensorPhotoUrl(value)) {
+  if (!value || !isListingPhotoUrl(value)) {
     return new Response("この写真URLは表示できません。", { status: 400 });
   }
   const photo = await fetchCarsensorPhoto(value);

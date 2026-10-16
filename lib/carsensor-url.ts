@@ -1,3 +1,4 @@
+import { canonicalGoonetUrl, canonicalKabahaUrl, isListingPhotoUrl, type CanonicalListing } from "@/lib/sites";
 const PHOTO_HOSTS = new Set([
   "ccsrpcma.carsensor.net",
   "ccsrpcml.carsensor.net",
@@ -38,3 +39,18 @@ export function isCarsensorPhotoUrl(value: string): boolean {
     return false;
   }
 }
+
+
+// 3サイト対応: URL（または共有テキストの一部）から、サイトとIDと正規URLを決める
+export function canonicalListingUrl(input: string): CanonicalListing | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  const goo = canonicalGoonetUrl(trimmed);
+  if (goo) return goo;
+  const kaba = canonicalKabahaUrl(trimmed);
+  if (kaba) return kaba;
+  const cs = canonicalCarsensorUrl(trimmed);
+  return cs ? { source: "carsensor", id: cs.id, url: cs.url } : null;
+}
+
+export { isListingPhotoUrl };

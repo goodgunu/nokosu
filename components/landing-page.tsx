@@ -6,7 +6,7 @@ import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { Mark, Wordmark } from "@/components/wordmark";
 
 const steps = [
-  ["01", "送る", "URLを貼る。またはカーセンサーの共有から、LINEの「のこす」へ送る。"],
+  ["01", "送る", "URLを貼る。またはカーセンサー・グーネット・カババの共有から、LINEの「のこす」へ送る。"],
   ["02", "読み取る", "支払総額、写真、スペック、装備、販売店を取り込む。"],
   ["03", "残る", "売約して掲載が終わっても、アカウントに残る。メモも書ける。"],
 ];
@@ -86,7 +86,7 @@ export function LandingPage() {
               消える前に残す。
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-7 sm:text-base">
-              カーセンサーの掲載は、売約や掲載期間が終わると開けなくなります。URLを残すと、価格も写真も、自分のアカウントに残ります。
+              中古車の掲載は、売約や掲載期間が終わると開けなくなります。URLを残すと、価格も写真も、自分のアカウントに残ります。
             </p>
             <p className="mt-3 text-xs leading-6 sm:text-sm" style={{ color: "#9C3D12" }}>
               公式アプリの共有から、LINEの「のこす」に送っても残せます。
@@ -100,13 +100,13 @@ export function LandingPage() {
             }}
           >
             <label htmlFor="landing-url" className="text-muted-foreground text-xs">
-              カーセンサーのURL
+              中古車の詳細ページURL
             </label>
             <input
               id="landing-url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
-              placeholder="https://www.carsensor.net/usedcar/detail/…"
+              placeholder="カーセンサー・グーネット・カババのURL"
               className="border-border mt-2 w-full rounded-lg border px-3 py-3 text-sm"
               inputMode="url"
               autoCapitalize="off"
@@ -194,7 +194,7 @@ export function LandingPage() {
           <div>
             <h2 className="text-lg font-bold">LINEに送ると、その場で残る</h2>
             <p className="text-muted-foreground mt-2 text-sm leading-7">
-              下のボタンで公式LINE「のこす」を友だち追加します。IDは {LINE_ACCOUNT_ID} です。追加したあと、カーセンサーの共有から「のこす」を選ぶと、アカウントに保存されます。
+              下のボタンで公式LINE「のこす」を友だち追加します。IDは {LINE_ACCOUNT_ID} です。追加したあと、各サイトの共有から「のこす」を選ぶと、アカウントに保存されます。
             </p>
             <div className="mt-4">
               <LineAddLink />
@@ -214,7 +214,7 @@ export function LandingPage() {
       <footer style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-5 sm:px-7">
           <Wordmark height={22} />
-          <p className="text-xs text-white/80">カーセンサーの掲載を、自分のアカウントに残す。</p>
+          <p className="text-xs text-white/80">中古車の掲載を、自分のアカウントに残す。</p>
         </div>
       </footer>
     </div>

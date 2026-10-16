@@ -1,3 +1,5 @@
+import type { Source } from "@/lib/sites";
+
 export type Fact = {
   label: string;
   value: string;
@@ -22,6 +24,7 @@ export type ParsedPhoto = {
 };
 
 export type ParsedListing = {
+  source?: Source;
   id: string;
   sourceUrl: string;
   title: string;
@@ -60,6 +63,7 @@ export type PricePoint = {
 
 export type ArchiveRecord = {
   id: string;
+  source?: Source;
   sourceUrl: string;
   savedAt: string;
   updatedAt: string;
