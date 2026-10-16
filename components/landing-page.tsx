@@ -44,16 +44,13 @@ export function LandingPage() {
           <a href="#how" className="hidden text-sm sm:inline">
             使い方
           </a>
-          <button type="button" className="text-sm" onClick={() => openLogin()}>
-            ログイン
-          </button>
           <button
             type="button"
             className="rounded-full px-3.5 py-1.5 text-sm font-bold"
             style={{ background: "#FFFFFF", color: "#E4682C" }}
             onClick={() => openLogin()}
           >
-            掲載を残す
+            はじめる
           </button>
         </div>
       </header>
@@ -129,9 +126,9 @@ export function LandingPage() {
           }}
         >
           <div className="w-full max-w-sm rounded-2xl bg-white p-5">
-            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>ログイン</p>
-            <h2 className="mt-1 text-lg font-bold">どれで開きますか</h2>
-            <p className="text-muted-foreground mt-1 mb-4 text-xs leading-5">はじめての方は、そのまま登録されます。</p>
+            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>ログイン・新規登録</p>
+            <h2 className="mt-1 text-lg font-bold">はじめる</h2>
+            <p className="text-muted-foreground mt-1 mb-4 text-xs leading-5">はじめての方は、そのまま登録されます。登録済みの方はそのままログインできます。</p>
             <LoginOptions />
             <button type="button" className="text-muted-foreground mt-3 w-full text-xs" onClick={() => setShowLogin(false)}>
               閉じる

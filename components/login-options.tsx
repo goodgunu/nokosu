@@ -136,7 +136,7 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
           {OAUTH_PROVIDERS.map((provider) => (
             <button key={provider.id} type="button" className={BUTTON} disabled={!ready} onClick={() => void oauth(provider)}>
               {provider.icon}
-              {busy === provider.id ? "開いています" : provider.label}
+              {provider.label}
             </button>
           ))}
           <button
@@ -203,7 +203,7 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
             className="border-border w-full rounded-lg border px-3 py-3 text-center text-lg tracking-[0.3em]"
           />
           <button type="submit" className="h-12 w-full rounded-full text-base font-bold text-white disabled:opacity-60" style={{ background: ORANGE }} disabled={!ready || !code.trim()}>
-            {busy === "email" ? "確認しています" : "ログイン"}
+            {busy === "email" ? "確認しています" : "はじめる"}
           </button>
           <button type="button" className="text-muted-foreground w-full text-xs" onClick={() => { setMode("email"); setNotice(""); }}>
             メールアドレスを直す
