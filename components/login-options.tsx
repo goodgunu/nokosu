@@ -271,11 +271,11 @@ function randomPassword(): string {
 
 // 背景なしの白ロゴ（文字部分は透過）。ボタンの背景色がそのまま透けて見える。
 function LineMark() {
-  return <Image src="/icon-line.png" alt="" width={26} height={24} />;
+  return <Image src="/icon-line.png" alt="" width={23} height={22} />;
 }
 
 function YahooMark() {
-  return <Image src="/icon-yahoo.png" alt="" width={32} height={17} />;
+  return <Image src="/icon-yahoo.png" alt="" width={29} height={15} />;
 }
 
 function MailMark() {
