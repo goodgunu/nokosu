@@ -12,6 +12,12 @@ export type TableSection = {
   rows: { label: string; values: string[] }[];
 };
 
+// 見出し付きの長文（カババの「車両のポイント」など）。任意項目
+export type TextSection = {
+  title: string;
+  text: string;
+};
+
 export type EquipmentGroup = {
   category: string;
   items: { name: string; equipped: boolean }[];
@@ -44,6 +50,7 @@ export type ParsedListing = {
   shopAddress: string;
   shopUrl: string;
   qualityComment: string;
+  textSections?: TextSection[];
   // 成約済み・掲載終了のページから読み取った場合 true（保存すると「掲載終了」扱い）
   ended?: boolean;
 };
@@ -91,6 +98,7 @@ export type ArchiveRecord = {
   shopAddress: string;
   shopUrl: string;
   qualityComment: string;
+  textSections?: TextSection[];
   photoCount: number;
   photoTotal: number;
   photosTruncated: boolean;

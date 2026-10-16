@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { buildBackup, downloadBlob } from "@/lib/backup";
 import { SpecChips, priceNumber, showsMan } from "@/components/spec-chip";
 import { cardInfo } from "@/lib/card-info";
+import { EquipmentTags, TextSections } from "@/components/detail-blocks";
 import { SourceBadge } from "@/components/source-badge";
 import { SOURCE_LABEL, sourceOf } from "@/lib/sites";
 import { displayName, formatCheck, formatMonthDay, formatWhen, isBlankValue, ledgerFacts, vehicleHeading } from "@/lib/format";
@@ -366,6 +367,9 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           </section>
         )}
 
+        <EquipmentTags items={equipped} />
+        <TextSections sections={record.textSections} />
+
         <section className="mt-8 rounded-xl border bg-card p-4 shadow-sm">
           <div className="flex items-baseline justify-between">
             <h2 className="text-sm font-bold">自分のメモ</h2>
@@ -397,16 +401,6 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         </section>
 
         <div className="mt-6 rounded-xl border bg-card px-4 shadow-sm">
-          {equipped.length > 0 && (
-            <details className="border-b py-3">
-              <summary className="cursor-pointer text-sm">装備 <span className="text-muted-foreground">{equipped.length}</span></summary>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {equipped.map((item) => (
-                  <li key={item} className="rounded-full border px-3 py-1 text-sm">{item}</li>
-                ))}
-              </ul>
-            </details>
-          )}
           {detailSections.map((section) => (
             <details key={section.id} className="border-b py-3">
               <summary className="cursor-pointer text-sm">{section.title}</summary>

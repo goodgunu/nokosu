@@ -137,3 +137,41 @@ test("ids and records stay backward compatible", () => {
   const kb = sanitizeImportedRecord({ id: "KB38340", source: "kabaha", sourceUrl: KABA });
   assert.equal(kb?.source, "kabaha");
 });
+
+test("kabaha: vehicle points / owner story / equipment tags", () => {
+  const live = parseKabahaHtml(fixture("kabaha-equip-live.html"), KABA);
+  assert.equal(live.status, "ok");
+  if (live.status !== "ok") return;
+  const sections = live.listing.textSections ?? [];
+  assert.deepEqual(sections.map((s) => s.title), ["車両のポイント", "オーナーと愛車の出会いと乗り方"]);
+  assert.match(sections[0].text, /Honda SENSING/);
+  assert.match(sections[0].text, /【車両概要】/);
+  assert.ok(sections[0].text.includes("\n"), "改行を保持");
+  assert.match(sections[1].text, /【出会い】/);
+  const group = live.listing.equipment[0];
+  assert.equal(group.category, "車両装備");
+  assert.ok(group.items.length >= 20);
+  assert.equal(group.items.find((i) => i.name === "ETC")?.equipped, true);
+  assert.equal(group.items.find((i) => i.name === "全方位カメラ")?.equipped, false);
+
+  const sold = parseKabahaHtml(fixture("kabaha-equip-sold.html"), "https://www.car-byebuy.com/Trade/Cars/Details/38286");
+  assert.equal(sold.status, "ok");
+  if (sold.status !== "ok") return;
+  assert.equal(sold.listing.ended, true);
+  assert.equal(sold.listing.textSections?.length, 2);
+  assert.ok(sold.listing.equipment[0].items.some((i) => i.equipped));
+});
+
+test("old fixtures without those sections still parse (optional fields)", () => {
+  const old = parseKabahaHtml(fixture("kabaha-live.html"), KABA);
+  assert.equal(old.status, "ok");
+});
+
+test("sanitizeImportedRecord keeps textSections and tolerates absence", () => {
+  const withText = sanitizeImportedRecord({
+    id: "KB38340", source: "kabaha", sourceUrl: KABA,
+    textSections: [{ title: "車両のポイント", text: "a\nb" }, { title: 1, text: "x" }],
+  });
+  assert.deepEqual(withText?.textSections, [{ title: "車両のポイント", text: "a\nb" }]);
+  assert.equal(sanitizeImportedRecord({ id: "KB38340", source: "kabaha", sourceUrl: KABA })?.textSections, undefined);
+});

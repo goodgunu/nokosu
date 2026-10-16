@@ -43,6 +43,7 @@ export function recordFromListing(
     shopAddress: listing.shopAddress,
     shopUrl: listing.shopUrl,
     qualityComment: listing.qualityComment,
+    textSections: listing.textSections,
     photoCount: photos.length,
     photoTotal: listing.photos.length,
     photosTruncated: listing.photosTruncated,
@@ -150,6 +151,7 @@ export function sanitizeImportedRecord(input: unknown): ArchiveRecord | null {
     shopAddress: text(record.shopAddress, 160),
     shopUrl: text(record.shopUrl, 300),
     qualityComment: text(record.qualityComment, 2000),
+    textSections: sanitizeTextSections(record.textSections),
     photoCount: savedPhotos.length,
     photoTotal: typeof record.photoTotal === "number" ? record.photoTotal : savedPhotos.length,
     photosTruncated: Boolean(record.photosTruncated),
@@ -245,4 +247,15 @@ function group(value: unknown): ArchiveRecord["equipment"] {
 
 function isWatchStatus(value: unknown): value is WatchStatus {
   return value === "watching" || value === "contacted" || value === "passed" || value === "bought";
+}
+
+function sanitizeTextSections(input: unknown): ArchiveRecord["textSections"] {
+  if (!Array.isArray(input)) return undefined;
+  const sections = input.slice(0, 6).flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const { title, text: body } = entry as { title?: unknown; text?: unknown };
+    if (typeof title !== "string" || typeof body !== "string" || !body.trim()) return [];
+    return [{ title: title.slice(0, 80), text: body.slice(0, 8000) }];
+  });
+  return sections.length ? sections : undefined;
 }

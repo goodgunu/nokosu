@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 import { canonicalKabahaUrl } from "@/lib/sites";
 import { yenFromManDisplay } from "@/lib/format";
 import type { ParseResult } from "@/lib/parse-carsensor";
-import type { ParsedListing, ParsedPhoto, TableSection } from "@/lib/types";
+import type { EquipmentGroup, ParsedListing, ParsedPhoto, TableSection, TextSection } from "@/lib/types";
 
 const PHOTO_LIMIT = 120;
 
@@ -39,6 +39,69 @@ function readProduct($: cheerio.CheerioAPI): LdProduct | null {
     }
   });
   return product;
+}
+
+// 改行は保ったまま、行末の空白と3連続以上の空行だけ整える
+function multiline(value: string): string {
+  return value
+    .replace(/\u00a0/g, " ")
+    .replace(/[ \t\u3000]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function ownText($: cheerio.CheerioAPI, el: Parameters<cheerio.CheerioAPI>[0]): string {
+  const clone = $(el).clone();
+  clone.children().remove();
+  return clean(clone.text());
+}
+
+// 見出し（h3）の文字は、ページ上の表記そのまま。末尾の（車名）の span は含めない
+function parseTextSections($: cheerio.CheerioAPI): TextSection[] {
+  const wanted = ["車両のポイント", "オーナーと愛車の出会いと乗り方"];
+  const sections: TextSection[] = [];
+  $("section").each((_, section) => {
+    const h3 = $(section).children("h3").first();
+    if (!h3.length) return;
+    const title = ownText($, h3.get(0)!);
+    if (!wanted.includes(title) || sections.some((s) => s.title === title)) return;
+    const parts: string[] = [];
+    $(section)
+      .children("ul")
+      .children("li")
+      .each((__, li) => {
+        const t = clean($(li).text());
+        if (t) parts.push(t);
+      });
+    $(section)
+      .find("p")
+      .each((__, p) => {
+        const t = multiline($(p).text());
+        if (t) parts.push(t);
+      });
+    const text = parts.join("\n\n");
+    if (text) sections.push({ title, text });
+  });
+  return sections;
+}
+
+// 「車両装備」は、各項目が aria-label="名称: 有り/無し" の形で並ぶ
+function parseEquipment($: cheerio.CheerioAPI): EquipmentGroup[] {
+  const items: EquipmentGroup["items"] = [];
+  $("section").each((_, section) => {
+    const h3 = $(section).children("h3").first();
+    if (!h3.length || ownText($, h3.get(0)!) !== "車両装備") return;
+    $(section)
+      .find("li > span[aria-label]")
+      .each((__, span) => {
+        const label = ($(span).attr("aria-label") || "").trim();
+        const match = label.match(/^([\s\S]+?):\s*(有り|無し)$/);
+        if (!match) return;
+        const name = clean(match[1]);
+        if (name && !items.some((item) => item.name === name)) items.push({ name, equipped: match[2] === "有り" });
+      });
+  });
+  return items.length ? [{ category: "車両装備", items }] : [];
 }
 
 function manText(text: string, label: string): string {
@@ -141,13 +204,14 @@ export function parseKabahaHtml(html: string, sourceUrl: string): ParseResult {
     expenseNote: "",
     highlights,
     sections,
-    equipment: [],
+    equipment: parseEquipment($),
     photos: all.slice(0, PHOTO_LIMIT),
     photosTruncated: all.length > PHOTO_LIMIT,
     shopName: "個人出品（カババ）",
     shopAddress: area,
     shopUrl: "",
     qualityComment: [commentHead, comment].filter(Boolean).join("\n"),
+    ...(parseTextSections($).length ? { textSections: parseTextSections($) } : {}),
     ...(ended ? { ended: true } : {}),
   };
   return { status: "ok", listing };

@@ -258,6 +258,7 @@ function toRecord(
     shopAddress: listing.shopAddress,
     shopUrl: listing.shopUrl,
     qualityComment: listing.qualityComment,
+    textSections: listing.textSections,
     photoCount,
     photoTotal: listing.photos.length,
     photosTruncated: listing.photosTruncated,
