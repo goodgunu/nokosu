@@ -23,12 +23,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             --orange: #E4682C;
             --orange-ink: #9C3D12;
             --live: #008A00;
-            --green: #06A94D;
+            --green: #C14F18;
             --background: #F7F7F7;
             --foreground: #111111;
             --card: #FFFFFF;
             --card-foreground: #111111;
-            --primary: #06A94D;
+            --primary: #C14F18;
             --primary-foreground: #FFFFFF;
             --secondary: #F7F7F7;
             --secondary-foreground: #111111;
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             --muted-foreground: #666666;
             --border: #E5E5E5;
             --input: #E5E5E5;
-            --ring: #06A94D;
+            --ring: #C14F18;
           }
         `}</style>
         <ClerkProvider localization={jaJP}>

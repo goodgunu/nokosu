@@ -52,14 +52,14 @@
   --orange: #e4682c;
   --orange-ink: #9c3d12;
   --live: #008a00;
-  --green: #06a94d;
+  --green: #C14F18;
   --background: #f7f7f7;
   --foreground: #111111;
   --card: #ffffff;
   --card-foreground: #111111;
   --popover: #ffffff;
   --popover-foreground: #111111;
-  --primary: #06a94d;
+  --primary: #C14F18;
   --primary-foreground: #ffffff;
   --secondary: #f7f7f7;
   --secondary-foreground: #111111;
@@ -70,7 +70,7 @@
   --destructive: #b23a2b;
   --border: #e5e5e5;
   --input: #e5e5e5;
-  --ring: #06a94d;
+  --ring: #C14F18;
   --stamp: #e4682c;
   --ink: #111111;
   --chart-1: oklch(0.87 0 0);

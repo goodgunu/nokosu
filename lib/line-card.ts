@@ -3,7 +3,7 @@ import type { LineMessage } from "@/lib/line-picker";
 import type { ArchiveRecord, ParsedListing } from "@/lib/types";
 
 const ORANGE = "#E4682C";
-const GREEN = "#06C755";
+const BUTTON = "#C14F18";
 const OK = "#008A00";
 const ALERT = "#C62828";
 const MUTED = "#666666";
@@ -166,12 +166,12 @@ function filled(label: string, action: Record<string, unknown>): Record<string, 
   return {
     type: "box",
     layout: "vertical",
-    backgroundColor: GREEN,
+    backgroundColor: BUTTON,
     cornerRadius: "md",
     paddingAll: "12px",
     margin: "sm",
     action,
-    contents: [{ type: "text", text: label.slice(0, 40), color: "#000000", weight: "bold", align: "center" }],
+    contents: [{ type: "text", text: label.slice(0, 40), color: "#FFFFFF", weight: "bold", align: "center" }],
   };
 }
 

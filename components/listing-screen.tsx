@@ -275,7 +275,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
               <Button
                 type="button"
                 className="mt-3 h-12 w-full text-base font-bold text-white"
-                style={{ background: "#06A94D" }}
+                style={{ background: "#C14F18" }}
                 disabled={Boolean(busy)}
                 onClick={() => void refresh("update")}
               >
