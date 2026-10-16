@@ -3,7 +3,10 @@ import { NextResponse } from "next/server";
 
 export default clerkMiddleware((auth, request) => {
   void auth;
-  if (new URL(request.url).pathname.startsWith("/api/cron")) return NextResponse.next();
+  const pathname = new URL(request.url).pathname;
+  // 公開ページ（ログイン不要）: /privacy /terms
+  if (pathname === "/privacy" || pathname === "/terms") return NextResponse.next();
+  if (pathname.startsWith("/api/cron")) return NextResponse.next();
 });
 
 export const config = {

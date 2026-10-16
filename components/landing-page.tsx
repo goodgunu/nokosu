@@ -230,6 +230,9 @@ export function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-5 sm:px-7">
           <Wordmark height={22} />
           <p className="text-xs text-white/80">中古車の掲載を、自分のアカウントに残す。</p>
+          <span className="flex-1" />
+          <a href="/privacy" className="text-xs">プライバシーポリシー</a>
+          <a href="/terms" className="text-xs">利用規約</a>
         </div>
       </footer>
     </div>
