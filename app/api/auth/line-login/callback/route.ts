@@ -1,5 +1,5 @@
 import { lineAccountId } from "@/lib/line-login";
-import { linkLineUser } from "@/lib/line-link";
+import { linkedEmail } from "@/lib/line-link";
 import { callbackUrl, exchangeCode, lineLoginConfig, LINE_STATE_COOKIE, readPending } from "@/lib/line-oauth";
 import { readCookie, sessionCookie, signSession } from "@/lib/session";
 import { authSecret } from "@/lib/store";
@@ -20,9 +20,10 @@ export async function GET(request: Request) {
   const profile = await exchangeCode(code, callbackUrl(request), pending.nonce, config).catch(() => null);
   if (!profile) return fail("LINEのログインを確認できませんでした。もう一度お試しください。");
 
-  // メールが取れたら、メールを本人のデータ領域にする（Google等で同じメールなら同じデータ）。取れなければ line:<sub>。
-  const account = profile.email ? `lineauth:${profile.email}` : lineAccountId(profile.sub);
-  if (profile.email) await linkLineUser(profile.sub, profile.email).catch(() => undefined);
+  // LINEのメールは未確認の可能性があるため、データ領域の決定には使わない。
+  // 公式アカウント連携（Googleなどでログイン済みの本人が結びつけたもの）があればそのメール、なければ line:<sub>。
+  const linked = await linkedEmail(profile.sub).catch(() => null);
+  const account = linked ? `lineauth:${linked}` : lineAccountId(profile.sub);
   const token = signSession(account, await authSecret());
   const headers = new Headers({ Location: pending.next });
   headers.append("Set-Cookie", sessionCookie(token, true));

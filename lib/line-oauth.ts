@@ -1,5 +1,4 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { normalizeEmail } from "@/lib/account";
 import { safeNext } from "@/lib/line-login";
 
 export const LINE_STATE_COOKIE = "nokosu_line_oauth";
@@ -44,7 +43,7 @@ export function startLogin(request: Request, secret: string, channelId: string, 
   url.searchParams.set("redirect_uri", callbackUrl(request));
   url.searchParams.set("state", pending.state);
   url.searchParams.set("nonce", pending.nonce);
-  url.searchParams.set("scope", "profile openid email");
+  url.searchParams.set("scope", "profile openid");
   return { location: url.toString(), cookieValue };
 }
 
@@ -67,7 +66,7 @@ export async function exchangeCode(
   redirectUri: string,
   nonce: string,
   config: { id: string; secret: string },
-): Promise<{ sub: string; email: string | null } | null> {
+): Promise<{ sub: string } | null> {
   const tokenResponse = await fetch(TOKEN, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -88,7 +87,7 @@ export async function exchangeCode(
     body: new URLSearchParams({ id_token: tokens.id_token, client_id: config.id }),
   });
   if (!verifyResponse.ok) return null;
-  const claims = (await verifyResponse.json()) as { sub?: string; nonce?: string; email?: string };
+  const claims = (await verifyResponse.json()) as { sub?: string; nonce?: string };
   if (!claims.sub || claims.nonce !== nonce) return null;
-  return { sub: claims.sub, email: claims.email ? normalizeEmail(claims.email) : null };
+  return { sub: claims.sub };
 }
