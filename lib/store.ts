@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { del, get, list, put } from "@vercel/blob";
+import { DeleteObjectsCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import type { ArchiveRecord, SavedPhoto } from "@/lib/types";
 
 export type OwnerRecord = {
@@ -25,7 +25,7 @@ function dataDir(): string {
 
 function fileStoreEnabled(): boolean {
   if (process.env.NOKOSU_DATA_DIR) return true;
-  if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) return false;
+  if (r2Enabled()) return false;
   if (process.env.VERCEL) {
     throw new Error("保存先がまだ接続されていません。");
   }
@@ -133,12 +133,7 @@ export async function replacePhotos(email: string, listingId: string, photos: St
       await ensureDir(path.dirname(path.join(dataDir(), file)));
       await writeFile(path.join(dataDir(), file), photo.bytes);
     } else {
-      await put(photoFile(email, listingId, index), Buffer.from(photo.bytes), {
-        access: "private",
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: photo.type || "image/jpeg",
-      });
+      await r2Put(photoFile(email, listingId, index), Buffer.from(photo.bytes), photo.type || "image/jpeg");
     }
     meta.push({ caption: photo.caption, category: photo.category, type: photo.type || "image/jpeg" });
   }
@@ -154,12 +149,7 @@ export async function appendPhotos(email: string, listingId: string, photos: Sto
       await ensureDir(path.dirname(path.join(dataDir(), file)));
       await writeFile(path.join(dataDir(), file), photo.bytes);
     } else {
-      await put(photoFile(email, listingId, index), Buffer.from(photo.bytes), {
-        access: "private",
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: photo.type || "image/jpeg",
-      });
+      await r2Put(photoFile(email, listingId, index), Buffer.from(photo.bytes), photo.type || "image/jpeg");
     }
     meta.push({ caption: photo.caption, category: photo.category, type: photo.type || "image/jpeg" });
   }
@@ -175,7 +165,7 @@ export async function deleteRecord(email: string, id: string): Promise<void> {
     await rm(path.join(dataDir(), file), { force: true });
     return;
   }
-  await del(file).catch(() => undefined);
+  await r2Delete([file]).catch(() => undefined);
 }
 
 export async function adoptLegacyLibrary(email: string): Promise<void> {
@@ -221,7 +211,7 @@ async function clearPhotos(email: string, listingId: string): Promise<void> {
     return;
   }
   const pathnames = await listBlobPathnames(`${dir}/`);
-  if (pathnames.length) await del(pathnames).catch(() => undefined);
+  if (pathnames.length) await r2Delete(pathnames).catch(() => undefined);
 }
 
 function userFolder(email: string): string {
@@ -281,18 +271,49 @@ async function deleteLegacyRecord(id: string): Promise<void> {
     await rm(path.join(dataDir(), "photos", id), { recursive: true, force: true });
     return;
   }
-  await del(`records/${id}.json`).catch(() => undefined);
+  await r2Delete([`records/${id}.json`]).catch(() => undefined);
   const pathnames = await listBlobPathnames(`photos/${id}/`);
-  if (pathnames.length) await del(pathnames).catch(() => undefined);
+  if (pathnames.length) await r2Delete(pathnames).catch(() => undefined);
+}
+
+function r2Enabled(): boolean {
+  const e = process.env;
+  return Boolean(e.R2_ACCOUNT_ID && e.R2_BUCKET && e.R2_ACCESS_KEY_ID && e.R2_SECRET_ACCESS_KEY);
+}
+
+let r2Client: S3Client | null = null;
+function s3(): S3Client {
+  if (!r2Client) {
+    r2Client = new S3Client({
+      region: "auto",
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY as string,
+      },
+    });
+  }
+  return r2Client;
+}
+
+function r2Bucket(): string {
+  return process.env.R2_BUCKET as string;
+}
+
+async function r2Put(key: string, body: Uint8Array | string, contentType: string): Promise<void> {
+  await s3().send(new PutObjectCommand({ Bucket: r2Bucket(), Key: key, Body: body, ContentType: contentType }));
+}
+
+async function r2Delete(keys: string[]): Promise<void> {
+  for (let i = 0; i < keys.length; i += 1000) {
+    await s3().send(
+      new DeleteObjectsCommand({ Bucket: r2Bucket(), Delete: { Objects: keys.slice(i, i + 1000).map((Key) => ({ Key })) } }),
+    );
+  }
 }
 
 async function writeBlobJson(pathname: string, value: unknown): Promise<void> {
-  await put(pathname, JSON.stringify(value), {
-    access: "private",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    contentType: "application/json",
-  });
+  await r2Put(pathname, JSON.stringify(value), "application/json");
 }
 
 async function readBlobJson<T>(pathname: string): Promise<T | null> {
@@ -306,20 +327,27 @@ async function readBlobJson<T>(pathname: string): Promise<T | null> {
 }
 
 async function readBlobBytes(pathname: string): Promise<Uint8Array | null> {
-  const result = await get(pathname, { access: "private", useCache: false });
-  if (!result || result.statusCode !== 200 || !result.stream) return null;
-  return new Uint8Array(await new Response(result.stream).arrayBuffer());
+  try {
+    const res = await s3().send(new GetObjectCommand({ Bucket: r2Bucket(), Key: pathname }));
+    return res.Body ? await res.Body.transformToByteArray() : null;
+  } catch {
+    return null;
+  }
 }
 
 async function listBlobPathnames(prefix: string): Promise<string[]> {
-  const pathnames: string[] = [];
-  let cursor: string | undefined;
-  do {
-    const page = await list({ prefix, cursor, limit: 100 });
-    pathnames.push(...page.blobs.map((blob) => blob.pathname));
-    cursor = page.hasMore ? page.cursor : undefined;
-  } while (cursor);
-  return pathnames;
+  const keys: string[] = [];
+  let token: string | undefined;
+  try {
+    do {
+      const res = await s3().send(new ListObjectsV2Command({ Bucket: r2Bucket(), Prefix: prefix, ContinuationToken: token }));
+      for (const o of res.Contents ?? []) if (o.Key) keys.push(o.Key);
+      token = res.IsTruncated ? res.NextContinuationToken : undefined;
+    } while (token);
+  } catch {
+    return keys;
+  }
+  return keys;
 }
 
 export function isListingId(id: string): boolean {

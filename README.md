@@ -28,4 +28,4 @@ npm run dev
 
 公式アプリの共有ボタンから残すときは、LINE公式アカウント「のこす」に共有します。最初の1回だけGoogleアカウントとつなぐと、次からは送った時点で保存され、結果は車のカード1通で返ります。接続には `LINE_CHANNEL_SECRET` と `LINE_CHANNEL_ACCESS_TOKEN` が必要で、Webhook URL は `/api/line` です。
 
-公開先は Vercel です。車の文章と選んだ写真は、ログインしたアカウントの保存先に残ります。写真の保存には Vercel Blob（`BLOB_READ_WRITE_TOKEN`）と、ログイン用の `AUTH_SECRET` が必要です。この二つが無いローカル実行では、`.data` フォルダに保存します。
+公開先は Vercel です。車の文章と選んだ写真は、ログインしたアカウントの保存先に残ります。写真の保存には Cloudflare R2（`R2_ACCOUNT_ID` `R2_BUCKET` `R2_ACCESS_KEY_ID` `R2_SECRET_ACCESS_KEY`）と、ログイン用の `AUTH_SECRET` が必要です。この二つが無いローカル実行では、`.data` フォルダに保存します。
