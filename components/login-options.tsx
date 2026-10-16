@@ -2,6 +2,7 @@
 
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import type { OAuthStrategy } from "@clerk/shared/types";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 type OAuthProvider = {
@@ -269,28 +270,11 @@ function randomPassword(): string {
 }
 
 function LineMark() {
-  // 白い角丸の吹き出しに、緑の「LINE」文字（公式ロゴ風）
-  return (
-    <svg width="26" height="24" viewBox="0 0 26 24" aria-hidden="true">
-      <path
-        fill="#fff"
-        d="M13 1C6.4 1 1 5.2 1 10.4c0 4.600 4.100 8.400 9.700 9.200.4.100.9.300 1 .6.1.300.1.800 0 1.100l-.2 1c0 .300-.2 1.100 1 .6 1.200-.5 6.400-3.800 8.700-6.500C22.900 14.600 25 12.600 25 10.400 25 5.200 19.600 1 13 1Z"
-      />
-      <text x="13" y="12.800" textAnchor="middle" fontSize="7.200" fontWeight="800" fill="#06C755" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="0.2">
-        LINE
-      </text>
-    </svg>
-  );
+  return <Image src="/icon-line.png" alt="" width={30} height={30} className="-ml-1 rounded-[7px]" />;
 }
 
 function YahooMark() {
-  return (
-    <svg width="24" height="20" viewBox="0 0 24 20" aria-hidden="true">
-      <text x="12" y="16" textAnchor="middle" fontSize="18" fontWeight="900" fontStyle="italic" fill="#fff" fontFamily="Arial Black, Arial, Helvetica, sans-serif">
-        Y!
-      </text>
-    </svg>
-  );
+  return <Image src="/icon-yahoo.png" alt="" width={26} height={26} className="rounded-[6px]" />;
 }
 
 function MailMark() {
