@@ -1,7 +1,7 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs";
 import { useState } from "react";
+import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { Mark, Wordmark } from "@/components/wordmark";
 
@@ -21,34 +21,14 @@ const kept = [
 ];
 
 export function LandingPage() {
-  const { signIn, fetchStatus } = useSignIn();
   const [url, setUrl] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
   const [live, setLive] = useState(true);
-  const ready = fetchStatus !== "fetching";
 
-  async function login(nextUrl?: string) {
-    if (!ready || busy) return;
-    setBusy(true);
-    setNotice("");
+  function openLogin(nextUrl?: string) {
     const pending = (nextUrl ?? url).trim();
     if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
-    try {
-      const result = await signIn.sso({
-        strategy: "oauth_google",
-        redirectUrl: "/",
-        redirectCallbackUrl: "/sso-callback",
-        oidcPrompt: "select_account",
-      });
-      if (result.error) {
-        setBusy(false);
-        setNotice(result.error.message || "Googleのログインを開始できませんでした。");
-      }
-    } catch (error) {
-      setBusy(false);
-      setNotice(error instanceof Error ? error.message : "Googleのログインを開始できませんでした。");
-    }
+    setShowLogin(true);
   }
 
   return (
@@ -60,14 +40,14 @@ export function LandingPage() {
           <a href="#how" className="hidden text-sm sm:inline">
             使い方
           </a>
-          <button type="button" className="text-sm" onClick={() => void login()}>
+          <button type="button" className="text-sm" onClick={() => openLogin()}>
             ログイン
           </button>
           <button
             type="button"
             className="rounded-full px-3.5 py-1.5 text-sm font-bold"
             style={{ background: "#FFFFFF", color: "#E4682C" }}
-            onClick={() => void login()}
+            onClick={() => openLogin()}
           >
             掲載を残す
           </button>
@@ -96,7 +76,7 @@ export function LandingPage() {
             className="text-foreground rounded-xl bg-white p-4"
             onSubmit={(event) => {
               event.preventDefault();
-              void login(url);
+              openLogin(url);
             }}
           >
             <label htmlFor="landing-url" className="text-muted-foreground text-xs">
@@ -112,16 +92,36 @@ export function LandingPage() {
               autoCapitalize="off"
               autoCorrect="off"
             />
-            <button type="submit" className="mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#E4682C" }} disabled={!ready || busy}>
-              {busy ? "Googleを開いています" : "掲載を残す"}
+            <button type="submit" className="mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#E4682C" }} >
+              掲載を残す
             </button>
             <p className="text-muted-foreground mt-2.5 text-[11px] leading-5">
               価格、写真、装備、販売店を読み取ります。写真はあとから選べます。
             </p>
-            {notice && <p className="text-destructive mt-2 text-sm">{notice}</p>}
           </form>
         </div>
       </section>
+
+      {showLogin && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setShowLogin(false);
+          }}
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5">
+            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>ログイン</p>
+            <h2 className="mt-1 text-lg font-bold">どれで開きますか</h2>
+            <p className="text-muted-foreground mt-1 mb-4 text-xs leading-5">はじめての方は、そのまま登録されます。</p>
+            <LoginOptions />
+            <button type="button" className="text-muted-foreground mt-3 w-full text-xs" onClick={() => setShowLogin(false)}>
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
 
       <section id="how" className="px-4 py-8 sm:px-7" style={{ background: "#FFFFFF" }}>
         <div className="mx-auto max-w-6xl">
