@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { buildBackup, downloadBlob } from "@/lib/backup";
+import { SpecChips, priceNumber, showsMan } from "@/components/spec-chip";
+import { cardInfo } from "@/lib/card-info";
 import { SourceBadge } from "@/components/source-badge";
 import { SOURCE_LABEL, sourceOf } from "@/lib/sites";
 import { displayName, formatCheck, formatMonthDay, formatWhen, isBlankValue, ledgerFacts, vehicleHeading } from "@/lib/format";
@@ -220,11 +222,12 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
     category: photo.category,
   }));
   const facts = ledgerFacts(record);
+  const keyFacts = facts.filter((item) => item.label !== "修復歴");
   const equipped = record.equipment.flatMap((group) => group.items.filter((item) => item.equipped).map((item) => item.name));
   const detailSections = record.sections
     .map(visibleSection)
     .filter((section): section is TableSection => Boolean(section));
-  const price = priceParts(record.totalPrice || record.basePrice);
+  const info = cardInfo(record);
   const checked = record.lastCheckedAt ? formatCheck(record.lastCheckedAt) : "";
   const change = priceChange(record);
   const notes: MemoEntry[] = record.memoEntries?.length
@@ -304,24 +307,29 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         </div>
 
         <div className="mt-4 rounded-xl border bg-card p-4 shadow-sm sm:p-5">
-        <p className="text-muted-foreground flex items-center gap-2 text-xs tracking-[0.1em]">{heading.maker}<SourceBadge record={record} /></p>
-        <h1 className="mt-1 text-xl font-bold leading-snug sm:text-2xl">{name}</h1>
-        {heading.subline && <p className="text-muted-foreground mt-1 text-sm">{heading.subline}</p>}
-
-        <div className="mt-4 flex items-baseline gap-1">
-          {price ? (
-            <>
-              <span className="text-4xl font-bold leading-none tabular-nums">{price.number}</span>
-              <span className="text-lg font-bold">{price.unit}</span>
-            </>
-          ) : (
-            <span className="text-3xl font-bold">{record.totalPrice || record.basePrice || "価格未記載"}</span>
+        {heading.maker && <p className="text-muted-foreground text-xs font-medium tracking-wide">{heading.maker}</p>}
+        <h1 className="break-words text-[19px] font-bold leading-snug">{name}</h1>
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+          <p className="flex items-baseline gap-1 leading-none">
+            <span className="text-muted-foreground text-[11px] font-bold">{record.totalPrice ? "支払総額" : "車両本体"}</span>
+            <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]">{priceNumber(record.totalPrice || record.basePrice)}</span>
+            {showsMan(record.totalPrice || record.basePrice) && <span className="text-sm font-bold">万円</span>}
+          </p>
+          {record.basePrice && record.totalPrice && record.basePrice !== record.totalPrice && (
+            <p className="text-muted-foreground text-[15px]">
+              車体価格 <span className="font-medium tabular-nums text-foreground">{record.basePrice}</span>
+              {record.expenseNote ? <span className="text-xs"> {record.expenseNote}</span> : null}
+            </p>
           )}
-          <span className="text-muted-foreground ml-2 text-xs">{record.totalPrice ? "支払総額" : "車両本体"}</span>
         </div>
-        {record.basePrice && record.totalPrice && (
-          <p className="text-muted-foreground mt-1 text-xs">本体 {record.basePrice}{record.expenseNote ? ` ${record.expenseNote}` : ""}</p>
-        )}
+        <div className="mt-2.5"><SpecChips info={info} /></div>
+        <p className="mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs">
+          <span className="mr-1 inline-flex"><SourceBadge record={record} /></span>
+          <span className={record.availability === "ended" ? "font-bold text-black" : record.availability === "live" ? "text-live" : "text-muted-foreground"}>
+            {record.availability === "ended" ? "掲載終了" : record.availability === "live" ? "掲載中" : "未確認"}
+          </span>
+          {info.region && <span className="text-muted-foreground"> ・ {info.region}</span>}
+        </p>
         {change.kind !== "same" && change.previous && (
           <p className={`mt-1 text-sm ${change.kind === "down" ? "text-live" : ""}`}>前回 {change.previous}</p>
         )}
@@ -344,11 +352,11 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           ))}
         </div>
 
-        {facts.length > 0 && (
+        {keyFacts.length > 0 && (
           <section className="mt-8">
             <h2 className="border-b-2 border-orange pb-1 text-sm font-bold">要点</h2>
             <dl className="mt-2 grid grid-cols-2 rounded-xl border bg-card px-4 shadow-sm">
-              {facts.map((item, index) => (
+              {keyFacts.map((item, index) => (
                 <div key={item.label} className={`border-b py-2 ${index % 2 === 1 ? "border-l pl-3" : "pr-3"}`}>
                   <dt className="text-muted-foreground text-[11px]">{item.label}</dt>
                   <dd className="mt-0.5 text-sm">{item.value}</dd>
@@ -520,8 +528,3 @@ function visibleSection(section: TableSection): TableSection | null {
   };
 }
 
-function priceParts(display: string): { number: string; unit: string } | null {
-  const match = display.match(/([\d,.]+)\s*万円/);
-  if (!match) return null;
-  return { number: match[1], unit: "万円" };
-}
