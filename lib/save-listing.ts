@@ -234,7 +234,7 @@ function toRecord(
     savedAt: previous?.savedAt ?? now,
     updatedAt: now,
     lastCheckedAt: now,
-    availability,
+    availability: listing.ended ? "ended" : availability,
     watchStatus: previous?.watchStatus ?? "watching",
     memo: previous?.memo ?? "",
     memoEntries: previous?.memoEntries,

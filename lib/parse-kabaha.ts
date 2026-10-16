@@ -66,13 +66,13 @@ export function parseKabahaHtml(html: string, sourceUrl: string): ParseResult {
   })();
   const ended =
     /OutOfStock/.test(product?.offers?.availability || "") || /掲載終了|成約済/.test(statusZone);
-  if (ended) return { status: "ended", id: canonical.id, title };
 
   const priceZone = body.slice(Math.max(0, body.indexOf("出品地域")));
-  const totalPrice = manText(priceZone, "支払総額");
+  // 成約済みのページは「買取価格」（成約価格）だけが載っている
+  const totalPrice = manText(priceZone, "支払総額") || (ended ? manText(priceZone, "買取価格") : "");
   const basePrice = manText(priceZone, "本体価格");
   const priceYen = yenFromManDisplay(totalPrice) ?? yenFromManDisplay(basePrice);
-  if (!title || (!totalPrice && !basePrice)) {
+  if (!title || (!totalPrice && !basePrice && !ended)) {
     return {
       status: "error",
       message: "掲載の中身を読み取れませんでした。詳細ページのURLか確認してください。",
@@ -148,6 +148,7 @@ export function parseKabahaHtml(html: string, sourceUrl: string): ParseResult {
     shopAddress: area,
     shopUrl: "",
     qualityComment: [commentHead, comment].filter(Boolean).join("\n"),
+    ...(ended ? { ended: true } : {}),
   };
   return { status: "ok", listing };
 }

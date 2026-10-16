@@ -1,4 +1,5 @@
 import { isListingPhotoUrl } from "@/lib/carsensor-url";
+import { resolveImageType } from "@/lib/image-type";
 import { photoReferer } from "@/lib/sites";
 
 const USER_AGENT =
@@ -18,10 +19,10 @@ export async function fetchCarsensorPhoto(url: string): Promise<{ bytes: Uint8Ar
     });
     if (upstream.status >= 300 && upstream.status < 400) return null;
     if (!upstream.ok) return null;
-    const type = (upstream.headers.get("content-type") || "").split(";")[0].trim();
-    if (!type.startsWith("image/")) return null;
     const bytes = new Uint8Array(await upstream.arrayBuffer());
     if (bytes.byteLength < 80) return null;
+    const type = resolveImageType(upstream.headers.get("content-type") || "", bytes);
+    if (!type) return null;
     return { bytes, type };
   } catch {
     return null;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { SourceBadge } from "@/components/source-badge";
+import { SOURCE_BADGE_CLASS, SourceBadge } from "@/components/source-badge";
 import { ArchiveImage } from "@/components/archive-image";
 import { PhotoPicker } from "@/components/photo-picker";
 import { LineAddCard } from "@/components/line-add-link";
@@ -13,12 +13,14 @@ import { buildBackup, downloadBlob, readBackup } from "@/lib/backup";
 import { readCompare, writeCompare } from "@/lib/compare";
 import { deleteListing, getPhotos, listListings, storedPhotoBlob } from "@/lib/db";
 import { displayName, vehicleHeading, yearNumber } from "@/lib/format";
+import { filterListings, type StatusFilter, sourceCounts, type SourceFilter } from "@/lib/library-filter";
+import { SOURCE_LABEL, type Source } from "@/lib/sites";
 import { priceChange } from "@/lib/price-history";
 import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
-import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type ParsedListing, type WatchStatus } from "@/lib/types";
+import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type ParsedListing } from "@/lib/types";
 
-type Filter = "all" | WatchStatus | "ended";
+type Filter = StatusFilter;
 type Sort = "new" | "price" | "year";
 
 export function Library({ lineReady = false }: { lineReady?: boolean }) {
@@ -35,6 +37,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   const [noticeError, setNoticeError] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [sort, setSort] = useState<Sort>("new");
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<ParsedListing | null>(null);
@@ -70,16 +73,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   }, []);
 
   const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    const filtered = listings.filter((listing) => {
-      if (filter === "ended" && listing.availability !== "ended") return false;
-      if (filter !== "all" && filter !== "ended" && listing.watchStatus !== filter) return false;
-      if (!needle) return true;
-      const haystack = [listing.title, listing.maker, listing.model, listing.shopName, listing.memo, listing.color, listing.totalPrice, ...(listing.memoEntries ?? []).map((entry) => entry.text)]
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(needle);
-    });
+    const filtered = filterListings(listings, filter, sourceFilter, query);
     const sorted = [...filtered];
     if (sort === "price") {
       sorted.sort((a, b) => (a.priceYen ?? Number.MAX_SAFE_INTEGER) - (b.priceYen ?? Number.MAX_SAFE_INTEGER));
@@ -89,7 +83,8 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
       sorted.sort((a, b) => (a.savedAt < b.savedAt ? 1 : -1));
     }
     return sorted;
-  }, [listings, query, filter, sort]);
+  }, [listings, query, filter, sourceFilter, sort]);
+  const counts = useMemo(() => sourceCounts(listings, filter, query), [listings, filter, query]);
 
   function toggleCompare(id: string) {
     setCompareIds((current) => {
@@ -321,6 +316,21 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               掲載終了
             </FilterButton>
           </div>
+          <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="サイトで絞る">
+            <SourceFilterButton active={sourceFilter === "all"} onClick={() => setSourceFilter("all")}>
+              すべてのサイト（{counts.all}）
+            </SourceFilterButton>
+            {(["carsensor", "goonet", "kabaha"] as Source[]).map((source) => (
+              <SourceFilterButton
+                key={source}
+                source={source}
+                active={sourceFilter === source}
+                onClick={() => setSourceFilter(source)}
+              >
+                {SOURCE_LABEL[source]}（{counts[source]}）
+              </SourceFilterButton>
+            ))}
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <Input
               value={query}
@@ -438,6 +448,31 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         </div>
       )}
     </>
+  );
+}
+
+function SourceFilterButton({
+  active,
+  onClick,
+  source,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  source?: Source;
+  children: React.ReactNode;
+}) {
+  const tone = source ? SOURCE_BADGE_CLASS[source] : "border-border bg-card text-foreground";
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      data-source-filter={source ?? "all"}
+      onClick={onClick}
+      className={`shrink-0 rounded-full border px-3 py-1 text-xs font-bold ${tone} ${active ? "ring-2 ring-current" : "opacity-70"}`}
+    >
+      {children}
+    </button>
   );
 }
 

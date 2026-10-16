@@ -1,4 +1,5 @@
 import { isListingPhotoUrl } from "@/lib/carsensor-url";
+import { resolveImageType } from "@/lib/image-type";
 import { photoReferer } from "@/lib/sites";
 import { currentUser } from "@/lib/current-user";
 
@@ -34,16 +35,23 @@ export async function GET(request: Request) {
   if (upstream.status >= 300 && upstream.status < 400) {
     return new Response("写真の取得先が変わりました。", { status: 502 });
   }
-  if (!upstream.ok || !upstream.body) {
+  if (!upstream.ok) {
     return new Response("写真を取得できませんでした。", { status: 502 });
   }
 
-  const type = upstream.headers.get("content-type") || "";
-  if (!type.startsWith("image/")) {
+  // 写真は数百KB。中身を読んで種類を確かめてから返す（octet-streamで返るサイトがあるため）
+  let bytes: Uint8Array;
+  try {
+    bytes = new Uint8Array(await upstream.arrayBuffer());
+  } catch {
+    return new Response("写真を取得できませんでした。", { status: 502 });
+  }
+  const type = resolveImageType(upstream.headers.get("content-type") || "", bytes);
+  if (!type) {
     return new Response("写真ではありませんでした。", { status: 502 });
   }
 
-  return new Response(upstream.body, {
+  return new Response(Buffer.from(bytes), {
     headers: {
       "Content-Type": type,
       "Cache-Control": "private, max-age=86400",

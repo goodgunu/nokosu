@@ -44,6 +44,8 @@ export type ParsedListing = {
   shopAddress: string;
   shopUrl: string;
   qualityComment: string;
+  // 成約済み・掲載終了のページから読み取った場合 true（保存すると「掲載終了」扱い）
+  ended?: boolean;
 };
 
 export type WatchStatus = "watching" | "contacted" | "passed" | "bought";

@@ -8,7 +8,10 @@ import { isListingId, isStoredRecordPath } from "../lib/store";
 import { listingTargetsFromText } from "../lib/share-text";
 import { parseLineAction } from "../lib/line-picker";
 import { photoReferer, sourceOf } from "../lib/sites";
-import { sanitizeImportedRecord } from "../lib/save-kept";
+import { resolveImageType } from "../lib/image-type";
+import { filterListings, sourceCounts } from "../lib/library-filter";
+import type { ArchiveRecord } from "../lib/types";
+import { recordFromListing, sanitizeImportedRecord } from "../lib/save-kept";
 
 const fixture = (name: string) => fs.readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
 const GOO = "https://www.goo-net.com/usedcar/spread/goo/10/700030081330260830001.html";
@@ -73,7 +76,49 @@ test("kabaha page parses; sold page is ended", () => {
     assert.ok(live.listing.photos.every((p) => p.url.includes("/38340/")));
   }
   const sold = parseKabahaHtml(fixture("kabaha-sold.html"), "https://www.car-byebuy.com/Trade/Cars/Details/38286");
-  assert.equal(sold.status, "ended");
+  // 成約済み・掲載終了のページも、中身を読み取って「掲載終了」として保存できる
+  assert.equal(sold.status, "ok");
+  if (sold.status === "ok") {
+    assert.equal(sold.listing.ended, true);
+    assert.equal(sold.listing.id, "KB38286");
+    assert.ok(sold.listing.title.length > 0);
+    assert.ok(sold.listing.photos.length > 10 && sold.listing.photos.every((p) => p.url.includes("/38286/")));
+    assert.ok(sold.listing.priceYen && sold.listing.totalPrice.endsWith("万円"));
+    const record = recordFromListing(sold.listing, undefined, [], "live");
+    assert.equal(record.availability, "ended");
+  }
+  if (live.status === "ok") {
+    assert.equal(live.listing.ended, undefined);
+    assert.equal(recordFromListing(live.listing, undefined, [], "live").availability, "live");
+  }
+});
+
+test("octet-stream photos are accepted by content sniffing", () => {
+  const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 16, 0x4a, 0x46]);
+  const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  const html = new TextEncoder().encode("<html>error</html>");
+  assert.equal(resolveImageType("application/octet-stream", jpeg), "image/jpeg");
+  assert.equal(resolveImageType("application/octet-stream", png), "image/png");
+  assert.equal(resolveImageType("", jpeg), "image/jpeg");
+  assert.equal(resolveImageType("image/jpeg", jpeg), "image/jpeg");
+  assert.equal(resolveImageType("application/octet-stream", html), null);
+  assert.equal(resolveImageType("text/html; charset=utf-8", jpeg), null);
+});
+
+test("library source filter combines with status and search, with counts", () => {
+  const base = { watchStatus: "watching", availability: "live", title: "", maker: "", model: "", shopName: "", memo: "", color: "", totalPrice: "" };
+  const rows = [
+    { ...base, id: "AU1", title: "プリウス" },
+    { ...base, id: "GN100000000000000", title: "プリウス", availability: "ended" },
+    { ...base, id: "KB1", source: "kabaha", title: "GT-R", watchStatus: "passed" },
+    { ...base, id: "KB2", source: "kabaha", title: "プリウス" },
+  ] as unknown as ArchiveRecord[];
+  assert.deepEqual(sourceCounts(rows, "all", ""), { all: 4, carsensor: 1, goonet: 1, kabaha: 2 });
+  assert.deepEqual(sourceCounts(rows, "watching", "プリウス"), { all: 3, carsensor: 1, goonet: 1, kabaha: 1 });
+  assert.deepEqual(filterListings(rows, "all", "kabaha", "").map((r) => r.id), ["KB1", "KB2"]);
+  assert.deepEqual(filterListings(rows, "watching", "kabaha", "").map((r) => r.id), ["KB2"]);
+  assert.deepEqual(filterListings(rows, "ended", "goonet", "").map((r) => r.id), ["GN100000000000000"]);
+  assert.equal(filterListings(rows, "all", "all", "").length, 4);
 });
 
 test("ids and records stay backward compatible", () => {
