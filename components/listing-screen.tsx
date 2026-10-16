@@ -297,7 +297,9 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         <div className="mt-3 flex items-center justify-between rounded-xl border bg-card px-3 py-2 text-sm shadow-sm">
           <span>
             <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${record.availability === "live" ? "bg-live" : "bg-[#b5b5b5]"}`} />
-            {record.availability === "ended" ? "掲載終了" : record.availability === "live" ? "掲載中" : "まだ確認していません"}
+            <span className={record.availability === "ended" ? "font-bold text-black" : record.availability === "live" ? "text-live" : ""}>
+              {record.availability === "ended" ? "掲載終了" : record.availability === "live" ? "掲載中" : "まだ確認していません"}
+            </span>
             {checked ? <span className="text-muted-foreground"> ・ {checked}に確認</span> : null}
           </span>
           <span className={change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{change.label}</span>

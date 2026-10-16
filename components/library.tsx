@@ -316,7 +316,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               掲載終了
             </FilterButton>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="サイトで絞る">
+          <div className="flex flex-wrap gap-2" role="group" aria-label="サイトで絞る">
             <SourceFilterButton active={sourceFilter === "all"} onClick={() => setSourceFilter("all")}>
               すべてのサイト（{counts.all}）
             </SourceFilterButton>
@@ -385,15 +385,27 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                   : change.label;
               return (
               <li key={listing.id} className={`min-w-0 rounded-xl border bg-card p-3 shadow-sm sm:p-4 ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
-                <Link href={`/listings/${listing.id}`} className="flex min-w-0 gap-3">
-                  <div className={`bg-muted aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-lg border sm:w-28 ${listing.availability === "ended" ? "grayscale" : ""}`}>
-                    {listing.photoCount > 0 ? (
-                      <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
-                    ) : (
-                      <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 gap-3">
+                  {ended ? (
+                    <div aria-hidden="true" className="bg-muted pointer-events-none aspect-[4/3] w-24 shrink-0 select-none overflow-hidden rounded-lg border grayscale sm:w-28">
+                      {listing.photoCount > 0 ? (
+                        <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
+                      ) : (
+                        <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
+                      )}
+                    </div>
+                  ) : (
+                    <Link href={`/listings/${listing.id}`} className="shrink-0">
+                      <div className="bg-muted aspect-[4/3] w-24 overflow-hidden rounded-lg border sm:w-28">
+                        {listing.photoCount > 0 ? (
+                          <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
+                        ) : (
+                          <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
+                        )}
+                      </div>
+                    </Link>
+                  )}
+                  <Link href={`/listings/${listing.id}`} className="min-w-0 flex-1">
                     <p className="text-muted-foreground flex items-center gap-1.5 text-[11px] tracking-[0.14em]">{heading.maker}<SourceBadge record={listing} /></p>
                     <h2 className="line-clamp-2 text-sm font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
                     <p className="mt-1.5 text-xl font-bold leading-none tabular-nums">
@@ -402,11 +414,11 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     </p>
                     {heading.subline && <p className="text-muted-foreground mt-1 truncate text-xs">{heading.subline}</p>}
                     <p className="mt-1 text-xs">
-                      <span className={change.kind === "down" && !ended ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
+                      <span className={ended ? "font-bold text-black" : status === "掲載中" ? "text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
                       <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
                     </p>
-                  </div>
-                </Link>
+                  </Link>
+                </div>
                 <label className="mt-2 flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={compareIds.includes(listing.id)} onChange={() => toggleCompare(listing.id)} />
                   比べる
@@ -462,14 +474,15 @@ function SourceFilterButton({
   source?: Source;
   children: React.ReactNode;
 }) {
-  const tone = source ? SOURCE_BADGE_CLASS[source] : "border-border bg-card text-foreground";
+  const activeTone = source ? SOURCE_BADGE_CLASS[source] : "border-[#4B5563] bg-[#4B5563] text-white";
+  const tone = active ? activeTone : "border-border bg-card text-muted-foreground";
   return (
     <button
       type="button"
       aria-pressed={active}
       data-source-filter={source ?? "all"}
       onClick={onClick}
-      className={`shrink-0 rounded-full border px-3 py-1 text-xs font-bold ${tone} ${active ? "ring-2 ring-current" : "opacity-70"}`}
+      className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-bold ${tone}`}
     >
       {children}
     </button>
