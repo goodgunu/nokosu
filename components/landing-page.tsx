@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import { MockDetail, MockList, MockSend } from "@/components/landing-mocks";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { Mark, Wordmark } from "@/components/wordmark";
+
+const mocks = [<MockSend key="send" />, <MockDetail key="detail" />, <MockList key="list" />];
 
 const steps = [
   ["01", "送る", "URLを貼る。またはカーセンサー・グーネット・カババの共有から、LINEの「のこす」へ送る。"],
@@ -55,6 +59,19 @@ export function LandingPage() {
       </header>
 
       <section style={{ background: "#F8D3B8", color: "#1C1917" }}>
+        <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-7 sm:pt-8">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl sm:aspect-[16/7]">
+            <Image
+              src="/gtr-hero.jpg"
+              alt="白いGT-Rの写真"
+              fill
+              priority
+              sizes="(min-width: 1152px) 1100px, 100vw"
+              className="object-cover"
+              style={{ objectPosition: "50% 55%" }}
+            />
+          </div>
+        </div>
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
           <div>
             <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>
@@ -136,6 +153,7 @@ export function LandingPage() {
                 <p className="text-xs font-bold" style={{ color: "#E4682C" }}>{n}</p>
                 <p className="mt-1 text-base font-bold">{title}</p>
                 <p className="mt-1.5 text-sm leading-7" style={{ color: "#6B6560" }}>{body}</p>
+                {mocks[index]}
               </li>
             ))}
           </ol>
