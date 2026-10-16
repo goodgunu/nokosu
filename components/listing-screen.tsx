@@ -271,9 +271,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
             />
           ) : photos.length > 0 ? (
             <div>
-              <div className={record.availability === "ended" ? "grayscale" : ""}>
-                <PhotoGallery photos={photos} title={name} />
-              </div>
+              <PhotoGallery photos={photos} title={name} />
               <Button
                 type="button"
                 className="mt-3 h-12 w-full text-base font-bold text-white"

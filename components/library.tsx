@@ -386,15 +386,6 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               return (
               <li key={listing.id} className={`min-w-0 rounded-xl border bg-card p-3 shadow-sm sm:p-4 ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
                 <div className="flex min-w-0 gap-3">
-                  {ended ? (
-                    <div aria-hidden="true" className="bg-muted pointer-events-none aspect-[4/3] w-24 shrink-0 select-none overflow-hidden rounded-lg border grayscale sm:w-28">
-                      {listing.photoCount > 0 ? (
-                        <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
-                      ) : (
-                        <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
-                      )}
-                    </div>
-                  ) : (
                     <Link href={`/listings/${listing.id}`} className="shrink-0">
                       <div className="bg-muted aspect-[4/3] w-24 overflow-hidden rounded-lg border sm:w-28">
                         {listing.photoCount > 0 ? (
@@ -404,7 +395,6 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                         )}
                       </div>
                     </Link>
-                  )}
                   <Link href={`/listings/${listing.id}`} className="min-w-0 flex-1">
                     <p className="text-muted-foreground flex items-center gap-1.5 text-[11px] tracking-[0.14em]">{heading.maker}<SourceBadge record={listing} /></p>
                     <h2 className="line-clamp-2 text-sm font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
