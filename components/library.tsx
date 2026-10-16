@@ -403,10 +403,10 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     </Link>
                   <Link href={`/listings/${listing.id}`} className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"><SourceBadge record={listing} />{heading.maker && <span className="font-medium tracking-wide">{heading.maker}</span>}</p>
-                    <h2 className="mt-1 line-clamp-2 text-sm font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
+                    <h2 className="mt-1 line-clamp-2 text-[17px] font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
                     <p className="mt-1.5 flex items-baseline gap-1 leading-none">
                       <span className="text-muted-foreground text-[11px] font-bold">支払総額</span>
-                      <span className="text-3xl font-extrabold tabular-nums text-[#E4682C]" data-card="total">{priceNumber(listing.totalPrice || listing.basePrice)}</span>
+                      <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]" data-card="total">{priceNumber(listing.totalPrice || listing.basePrice)}</span>
                       {showsMan(listing.totalPrice || listing.basePrice) && <span className="text-sm font-bold">万円</span>}
                     </p>
                     {base && (
