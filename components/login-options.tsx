@@ -155,7 +155,7 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
     <div className="w-full">
       {mode === "choose" && (
         <div className="space-y-2.5">
-          {/* 並び順: LINE、X、Google、Yahoo! JAPAN、メール */}
+          {/* 並び順: LINE、X、Google、Yahoo!、メール */}
           <a
             href={`${"/api/auth/line-login"}?next=${next}`}
             onClick={() => onBeforeStart?.()}
@@ -174,7 +174,7 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
             style={{ background: "#FF0033" }}
           >
             <YahooMark />
-            Yahoo! JAPANで続ける
+            Yahoo!で続ける
           </a>
           <button
             type="button"
