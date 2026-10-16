@@ -9,13 +9,14 @@ type OAuthProvider = {
   label: string;
   strategy: OAuthStrategy;
   icon: React.ReactNode;
+  dark?: boolean;
   prompt?: "select_account";
 };
 
 // プロバイダーを足すときは、この配列に1件追加する（例: Yahoo! は strategy: "oauth_yahoo"）。
 export const OAUTH_PROVIDERS: OAuthProvider[] = [
   { id: "google", label: "Googleで続ける", strategy: "oauth_google", icon: <GoogleMark />, prompt: "select_account" },
-  { id: "x", label: "Xで続ける", strategy: "oauth_x", icon: <XMark /> },
+  { id: "x", label: "Xで続ける", strategy: "oauth_x", icon: <XMark />, dark: true },
 ];
 
 const BUTTON = "flex h-12 w-full items-center justify-center gap-3 rounded-full border bg-card text-base font-medium shadow-sm disabled:opacity-60";
@@ -134,7 +135,12 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
       {mode === "choose" && (
         <div className="space-y-2.5">
           {OAUTH_PROVIDERS.map((provider) => (
-            <button key={provider.id} type="button" className={BUTTON} disabled={!ready} onClick={() => void oauth(provider)}>
+            <button
+              key={provider.id}
+              type="button"
+              className={provider.dark ? "flex h-12 w-full items-center justify-center gap-3 rounded-full border border-black text-base font-medium text-white shadow-sm disabled:opacity-60" : BUTTON}
+              style={provider.dark ? { background: "#000000" } : undefined}
+              disabled={!ready} onClick={() => void oauth(provider)}>
               {provider.icon}
               {provider.label}
             </button>
@@ -261,7 +267,7 @@ function MailMark() {
 function XMark() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#000" d="M18.9 2H22l-7.2 8.2L23 22h-6.6l-5.2-6.8L5.2 22H2l7.7-8.8L1.5 2h6.8l4.7 6.2L18.9 2Zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20Z" />
+      <path fill="#fff" d="M18.9 2H22l-7.2 8.2L23 22h-6.6l-5.2-6.8L5.2 22H2l7.7-8.8L1.5 2h6.8l4.7 6.2L18.9 2Zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20Z" />
     </svg>
   );
 }
