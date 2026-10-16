@@ -1,10 +1,10 @@
 import { SOURCE_LABEL, sourceOf, type Source } from "@/lib/sites";
 
-// サイトごとの色（白背景で読めるコントラスト）。カーセンサー=オレンジ、グーネット=青、カババ=緑
+// サイトごとの色（濃色背景+白文字、コントラスト比4.5以上）。カーセンサー=オレンジ、グーネット=赤、カババ=紺
 export const SOURCE_BADGE_CLASS: Record<Source, string> = {
-  carsensor: "border-[#E4682C]/60 bg-[#E4682C]/10 text-[#A8470F]",
-  goonet: "border-[#1D5FD1]/60 bg-[#1D5FD1]/10 text-[#164AA3]",
-  kabaha: "border-[#1E8E4A]/60 bg-[#1E8E4A]/10 text-[#13652F]",
+  carsensor: "border-[#B5470F] bg-[#B5470F] text-white",
+  goonet: "border-[#D32F2F] bg-[#D32F2F] text-white",
+  kabaha: "border-[#1F3A6B] bg-[#1F3A6B] text-white",
 };
 
 export function SourceBadge({ record }: { record: { source?: string; id?: string } }) {
