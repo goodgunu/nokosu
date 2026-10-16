@@ -401,16 +401,11 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                       )}
                     </div>
                   </Link>
-                  <div className="pointer-events-none absolute left-2 top-2 drop-shadow"><SourceBadge record={listing} /></div>
-                  <label className="absolute right-2 top-2 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold shadow">
-                    <input type="checkbox" checked={compareIds.includes(listing.id)} onChange={() => toggleCompare(listing.id)} />
-                    比べる
-                  </label>
                 </div>
                 <Link href={`/listings/${listing.id}`} className="block min-w-0 border-t-2 border-t-[#E4682C] p-3 sm:p-4">
                   {heading.maker && <p className="text-muted-foreground text-xs font-medium tracking-wide">{heading.maker}</p>}
                   <h2 className="line-clamp-2 break-words text-[17px] font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
-                  <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+                  <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                     <p className="flex items-baseline gap-1 leading-none">
                       <span className="text-muted-foreground text-[11px] font-bold">支払総額</span>
                       <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]" data-card="total">{priceNumber(listing.totalPrice || listing.basePrice)}</span>
@@ -430,12 +425,17 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                       tone={info.repair === "has" ? "warn" : info.repair === "none" ? "calm" : "plain"}
                     />
                   </div>
-                  <p className="mt-2.5 text-xs">
+                  <p className="mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-1 pr-24 text-xs">
+                    <span className="mr-1 inline-flex"><SourceBadge record={listing} /></span>
                     <span className={ended ? "font-bold text-black" : status === "掲載中" ? "text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
                     <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
                     {info.region && <span className="text-muted-foreground"> ・ {info.region}</span>}
                   </p>
                 </Link>
+                <label className="absolute bottom-2 right-2 flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg border bg-card px-3 text-xs font-medium text-muted-foreground">
+                  <input type="checkbox" className="size-4" checked={compareIds.includes(listing.id)} onChange={() => toggleCompare(listing.id)} />
+                  比べる
+                </label>
               </li>
               );
             })}
