@@ -12,16 +12,16 @@ import { Input } from "@/components/ui/input";
 import { buildBackup, downloadBlob, readBackup } from "@/lib/backup";
 import { readCompare, writeCompare } from "@/lib/compare";
 import { deleteListing, getPhotos, listListings, storedPhotoBlob } from "@/lib/db";
-import { displayName, vehicleHeading, yearNumber } from "@/lib/format";
-import { filterListings, type StatusFilter, sourceCounts, type SourceFilter } from "@/lib/library-filter";
+import { displayName, vehicleHeading } from "@/lib/format";
+import { cardInfo } from "@/lib/card-info";
+import { SORT_OPTIONS, sortLabel, sortListings, type SortState } from "@/lib/library-sort";
+import { filterListings, sourceCounts, type SourceFilter } from "@/lib/library-filter";
 import { SOURCE_LABEL, type Source } from "@/lib/sites";
 import { priceChange } from "@/lib/price-history";
 import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
-import { WATCH_STATUSES, watchLabel, type ArchiveRecord, type ParsedListing } from "@/lib/types";
+import { watchLabel, type ArchiveRecord, type ParsedListing } from "@/lib/types";
 
-type Filter = StatusFilter;
-type Sort = "new" | "price" | "year";
 
 export function Library({ lineReady = false }: { lineReady?: boolean }) {
   const [listings, setListings] = useState<ArchiveRecord[]>([]);
@@ -36,9 +36,9 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   const [notice, setNotice] = useState("");
   const [noticeError, setNoticeError] = useState(false);
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<Filter>("all");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
-  const [sort, setSort] = useState<Sort>("new");
+  const [sort, setSort] = useState<SortState>(null);
+  const [sortOpen, setSortOpen] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<ParsedListing | null>(null);
   const [localCount, setLocalCount] = useState(0);
@@ -73,18 +73,9 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   }, []);
 
   const visible = useMemo(() => {
-    const filtered = filterListings(listings, filter, sourceFilter, query);
-    const sorted = [...filtered];
-    if (sort === "price") {
-      sorted.sort((a, b) => (a.priceYen ?? Number.MAX_SAFE_INTEGER) - (b.priceYen ?? Number.MAX_SAFE_INTEGER));
-    } else if (sort === "year") {
-      sorted.sort((a, b) => (yearNumber(b) ?? 0) - (yearNumber(a) ?? 0));
-    } else {
-      sorted.sort((a, b) => (a.savedAt < b.savedAt ? 1 : -1));
-    }
-    return sorted;
-  }, [listings, query, filter, sourceFilter, sort]);
-  const counts = useMemo(() => sourceCounts(listings, filter, query), [listings, filter, query]);
+    return sortListings(filterListings(listings, "all", sourceFilter, query), sort);
+  }, [listings, query, sourceFilter, sort]);
+  const counts = useMemo(() => sourceCounts(listings, "all", query), [listings, query]);
 
   function toggleCompare(id: string) {
     setCompareIds((current) => {
@@ -303,19 +294,6 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
           <span className="text-muted-foreground text-xs font-medium">{listings.length}件</span>
         </div>
         <div className="flex flex-col gap-3">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            <FilterButton active={filter === "all"} onClick={() => setFilter("all")}>
-              すべて
-            </FilterButton>
-            {WATCH_STATUSES.map((status) => (
-              <FilterButton key={status.id} active={filter === status.id} onClick={() => setFilter(status.id)}>
-                {status.label}
-              </FilterButton>
-            ))}
-            <FilterButton active={filter === "ended"} onClick={() => setFilter("ended")}>
-              掲載終了
-            </FilterButton>
-          </div>
           <div className="flex flex-wrap gap-2" role="group" aria-label="サイトで絞る">
             <SourceFilterButton active={sourceFilter === "all"} onClick={() => setSourceFilter("all")}>
               すべてのサイト（{counts.all}）
@@ -338,16 +316,15 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               placeholder="車名、店、メモ"
               className="h-9 w-full bg-card sm:w-48"
             />
-            <select
-              value={sort}
-              onChange={(event) => setSort(event.target.value as Sort)}
-              className="border-input h-9 rounded-lg border bg-card px-2 text-sm"
-              aria-label="並び順"
+            <Button
+              variant="outline"
+              aria-expanded={sortOpen}
+              aria-controls="sort-panel"
+              onClick={() => setSortOpen((open) => !open)}
+              className={sort ? "border-[#E4682C] text-[#E4682C]" : ""}
             >
-              <option value="new">保存が新しい順</option>
-              <option value="price">支払総額が安い順</option>
-              <option value="year">年式が新しい順</option>
-            </select>
+              並べ替え{sort ? `（${sortLabel(sort)}）` : ""} {sortOpen ? "−" : "＋"}
+            </Button>
             <Button variant="outline" onClick={() => void exportAll()}>
               書き出す
             </Button>
@@ -362,6 +339,33 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               onChange={(event) => void onImport(event.target.files?.[0])}
             />
           </div>
+          {sortOpen && (
+            <div id="sort-panel" className="space-y-2.5 rounded-xl border bg-card p-3 shadow-sm sm:p-4">
+              {SORT_OPTIONS.map((opt) => (
+                <div key={opt.key} className="flex items-center gap-3">
+                  <span className="w-[4.5rem] shrink-0 text-sm font-bold sm:w-24">{opt.label}</span>
+                  <div className="grid min-w-0 flex-1 grid-cols-2 overflow-hidden rounded-lg border border-border shadow-sm">
+                    {(["asc", "desc"] as const).map((dir) => {
+                      const active = sort?.key === opt.key && sort.dir === dir;
+                      return (
+                        <button
+                          key={dir}
+                          type="button"
+                          aria-pressed={active}
+                          data-sort={`${opt.key}-${dir}`}
+                          onClick={() => setSort(active ? null : { key: opt.key, dir })}
+                          className={`h-10 text-sm font-bold ${dir === "desc" ? "border-l border-border" : ""} ${active ? "bg-[#E4682C] text-white" : "bg-card text-muted-foreground"}`}
+                        >
+                          {dir === "asc" ? opt.asc : opt.desc}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              <p className="text-muted-foreground text-xs">もう一度押すと解除します（解除すると保存が新しい順）。データのない車は最後に並びます。</p>
+            </div>
+          )}
         </div>
 
         {!ready ? (
@@ -375,6 +379,8 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
             {visible.map((listing) => {
               const heading = vehicleHeading(listing);
               const change = priceChange(listing);
+              const info = cardInfo(listing);
+              const base = listing.totalPrice && listing.basePrice && listing.basePrice !== listing.totalPrice ? listing.basePrice : "";
               const ended = listing.availability === "ended";
               const status = ended
                 ? "掲載終了"
@@ -396,16 +402,30 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                       </div>
                     </Link>
                   <Link href={`/listings/${listing.id}`} className="min-w-0 flex-1">
-                    <p className="text-muted-foreground flex items-center gap-1.5 text-[11px] tracking-[0.14em]">{heading.maker}<SourceBadge record={listing} /></p>
-                    <h2 className="line-clamp-2 text-sm font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
-                    <p className="mt-1.5 text-xl font-bold leading-none tabular-nums">
-                      {priceNumber(listing.totalPrice || listing.basePrice)}
-                      {showsMan(listing.totalPrice || listing.basePrice) && <span className="ml-0.5 text-xs">万円</span>}
+                    <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"><SourceBadge record={listing} />{heading.maker && <span className="font-medium tracking-wide">{heading.maker}</span>}</p>
+                    <h2 className="mt-1 line-clamp-2 text-sm font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
+                    <p className="mt-1.5 flex items-baseline gap-1 leading-none">
+                      <span className="text-muted-foreground text-[11px] font-bold">支払総額</span>
+                      <span className="text-3xl font-extrabold tabular-nums text-[#E4682C]" data-card="total">{priceNumber(listing.totalPrice || listing.basePrice)}</span>
+                      {showsMan(listing.totalPrice || listing.basePrice) && <span className="text-sm font-bold">万円</span>}
                     </p>
-                    {heading.subline && <p className="text-muted-foreground mt-1 truncate text-xs">{heading.subline}</p>}
-                    <p className="mt-1 text-xs">
+                    {base && (
+                      <p className="text-muted-foreground mt-1 text-xs">車体 <span className="font-medium tabular-nums text-foreground">{base}</span></p>
+                    )}
+                    <div className="mt-2 flex flex-wrap gap-1.5" data-card="chips">
+                      <SpecChip label="年式" value={info.year} />
+                      <SpecChip label="走行" value={info.distance} />
+                      <SpecChip label="色" value={info.color} />
+                      <SpecChip
+                        label="修復歴"
+                        value={info.repair === "has" ? "あり" : info.repair === "none" ? "なし" : info.repairText}
+                        tone={info.repair === "has" ? "warn" : info.repair === "none" ? "calm" : "plain"}
+                      />
+                    </div>
+                    <p className="mt-2 text-xs">
                       <span className={ended ? "font-bold text-black" : status === "掲載中" ? "text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
                       <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
+                      {info.region && <span className="text-muted-foreground"> ・ {info.region}</span>}
                     </p>
                   </Link>
                 </div>
@@ -496,6 +516,21 @@ function FilterButton({
     >
       {children}
     </button>
+  );
+}
+
+function SpecChip({ label, value, tone = "plain" }: { label: string; value: string; tone?: "plain" | "warn" | "calm" }) {
+  const toneClass =
+    tone === "warn"
+      ? "border-red-300 bg-red-50 text-red-700 font-bold"
+      : tone === "calm"
+        ? "border-border bg-muted text-muted-foreground font-medium"
+        : "border-border bg-card text-foreground font-bold";
+  return (
+    <span className={`inline-flex max-w-full items-center gap-1 rounded-md border px-2 py-1 text-xs ${toneClass}`}>
+      <span className="text-[10px] font-medium opacity-70">{label}</span>
+      <span className="truncate text-sm">{value || "—"}</span>
+    </span>
   );
 }
 
