@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Camera, Check, ChevronLeft, ImageIcon, Mic, Plus, Search, Phone as PhoneIcon, Menu, X } from "lucide-react";
-import { MiniCard } from "@/components/landing-mocks";
+import { AppCard } from "@/components/landing-mocks";
 
 const ORANGE = "#E4682C";
 
@@ -207,7 +207,7 @@ function Forward() {
   );
 }
 
-const makeSteps = (onStart: () => void) => [
+const steps = [
   { title: "中古車サイトで、共有ボタンを押す", body: "気になった車のページで共有。友だちの並びに「のこす」が出ます。", mock: <ShareSheet /> },
   { title: "「のこす」を選んで、転送", body: "LINEの転送画面で「のこす」にチェックして、転送を押します。", mock: <Forward /> },
   { title: "のこすが、自動で保存", body: "数秒で「保存しました」の返信が届きます。写真と価格も一緒に残ります。", mock: <div className="mt-3"><LineChatPhone maxWidth={250} /></div> },
@@ -215,17 +215,14 @@ const makeSteps = (onStart: () => void) => [
     title: "あとからアプリで見る",
     body: "保存した車は、一覧にカードで並びます。掲載が終わっても残ります。",
     mock: (
-      <div className="mx-auto mt-3 w-full max-w-[260px]">
-        <MiniCard ended={false} />
-        <button type="button" onClick={onStart} className="mt-3 block w-full rounded-full px-4 py-2.5 text-center text-xs font-bold text-white" style={{ background: ORANGE }}>
-          残したあとの画面を見る
-        </button>
+      <div className="mx-auto mt-3 w-full max-w-[320px]">
+        <AppCard />
       </div>
     ),
   },
 ];
 
-export function LandingLineFlow({ onStart }: { onStart: () => void }) {
+export function LandingLineFlow() {
   return (
     <section id="line-flow" className="px-4 py-8 sm:px-7" style={{ background: "#FFFFFF" }}>
       <div className="mx-auto max-w-6xl">
@@ -235,7 +232,7 @@ export function LandingLineFlow({ onStart }: { onStart: () => void }) {
           iPhoneは共有ボタンから「LINE」→「のこす」を選ぶだけ。Androidも共有メニューから同じように送れます。
         </p>
         <ol className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {makeSteps(onStart).map((step, i) => (
+          {steps.map((step, i) => (
             <li key={step.title} className="rounded-2xl p-4" style={{ background: "#FFF6EF" }}>
               <p className="flex items-center gap-2">
                 <span className="grid size-6 place-items-center rounded-full text-xs font-bold text-white" style={{ background: ORANGE }}>{i + 1}</span>

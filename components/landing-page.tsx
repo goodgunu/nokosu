@@ -141,7 +141,7 @@ export function LandingPage() {
         </div>
       )}
 
-      <LandingLineFlow onStart={() => openLogin()} />
+      <LandingLineFlow />
 
       <section className="px-4 py-8 sm:px-7" style={{ background: "#FFF6EF" }}>
         <div className="mx-auto max-w-6xl">
