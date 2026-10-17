@@ -189,9 +189,9 @@ function Forward() {
   return (
     <Frame label="LINEの転送画面で「のこす」を選び、転送を押す（サンプル）" bg="#FFFFFF">
       <div className="flex items-center justify-between px-3 pt-3">
-        <span className="grid size-7 place-items-center rounded-full border"><X className="size-3.5" aria-hidden /></span>
-        <span className="text-[11px] font-bold">選択中 1</span>
-        <span className="rounded-full px-3 py-1 text-[11px] font-bold text-white" style={{ background: ORANGE }}>転送</span>
+        <span className="grid size-7 place-items-center rounded-full" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.12)", border: "1px solid #E3E3E6", background: "linear-gradient(180deg,#FFFFFF,#F4F4F6)" }}><X className="size-3.5" aria-hidden /></span>
+        <span className="text-[11px] font-extrabold text-black">選択中 1</span>
+        <span className="rounded-full px-3 py-1 text-[11px] font-bold" style={{ color: "#4A6CF7", boxShadow: "0 1px 4px rgba(0,0,0,0.12)", border: "1px solid #E3E3E6", background: "linear-gradient(180deg,#FFFFFF,#F4F4F6)" }}>転送</span>
       </div>
       <p className="px-3 pt-3 text-[10px] font-bold" style={{ color: "#666" }}>最近の履歴</p>
       {[true, false, false, false].map((checked, i) => (
