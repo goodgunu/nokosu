@@ -71,9 +71,10 @@ export function LandingPage() {
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
       <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
-        <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3.5 sm:gap-4 sm:px-7">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-2 gap-y-1.5 px-4 py-3.5 sm:flex-nowrap sm:gap-4 sm:px-7">
           <Wordmark height={26} />
-          <p className="min-w-0 flex-1 text-[10px] leading-3 font-medium text-white/90 max-[370px]:text-[9px] sm:text-xs sm:leading-4">気になる車を見返せるように</p>
+          <span className="flex-1 sm:hidden" />
+          <p className="order-last w-full text-[11px] leading-4 font-medium text-white/90 sm:order-none sm:w-auto sm:min-w-0 sm:flex-1 sm:text-xs">気になる車を、いつでも見返せる場所。</p>
           <a href="#line-flow" className="hidden text-sm sm:inline">
             使い方
           </a>
