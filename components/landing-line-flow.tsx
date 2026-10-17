@@ -47,20 +47,34 @@ function ShareSheet() {
           <span className="grid size-8 place-items-center rounded-lg text-[10px] font-extrabold text-white" style={{ background: "#3B6FD4" }}>車</span>
           <span className="text-[11px] font-bold">中古車サイト</span>
         </div>
-        <div className="grid grid-cols-3 gap-y-2.5 pt-2.5">
-          {Array.from({ length: 9 }, (_, i) => {
-            const colors = ["", "", "", "#3B82F6", "#4CD964", "#3B82F6", "#E4E1DD", "#E4E1DD", "#E4E1DD"];
-            const names = ["のこす", "友だち", "友だち", "アプリ", "アプリ", "アプリ", "操作", "操作", "操作"];
+        <div className="grid grid-cols-4 gap-y-2.5 pt-2.5">
+          {Array.from({ length: 12 }, (_, i) => {
+            const apps: Record<number, [string, string, string, string]> = {
+              4: ["AirDrop", "#3B82F6", "rounded-[10px]", ""],
+              5: ["メッセージ", "#4CD964", "rounded-[10px]", ""],
+              6: ["メール", "#3B82F6", "rounded-[10px]", ""],
+              7: ["LINE", "#06C755", "rounded-[10px]", "LINE"],
+              8: ["コピー", "#E4E1DD", "rounded-full", ""],
+              9: ["メモ", "#FFD54A", "rounded-[10px]", ""],
+              10: ["リマインダー", "#FFFFFF", "rounded-[10px]", "dots"],
+              11: ["Safari", "#5AA9F5", "rounded-full", ""],
+            };
+            const app = apps[i];
             return (
               <div key={i} className="flex flex-col items-center gap-1">
                 {i === 0 ? (
-                  <NokosuIcon size={40} ring />
-                ) : i < 3 ? (
-                  <Dummy size={40} />
+                  <NokosuIcon size={38} ring />
+                ) : i < 4 ? (
+                  <Dummy size={38} />
                 ) : (
-                  <span className={`size-10 ${i >= 6 ? "rounded-full" : "rounded-[10px]"}`} style={{ background: colors[i] }} />
+                  <span
+                    className={`grid size-[38px] place-items-center text-[9px] font-extrabold text-white ${app[2]}`}
+                    style={{ background: app[1], boxShadow: i === 7 ? "0 0 0 2px #fff, 0 0 0 4px #06C755" : undefined }}
+                  >
+                    {app[3] === "LINE" ? "LINE" : app[3] === "dots" ? <span className="flex flex-col gap-0.5"><span className="h-0.5 w-4 rounded bg-[#FF9500]" /><span className="h-0.5 w-4 rounded bg-[#FF3B30]" /><span className="h-0.5 w-4 rounded bg-[#3B82F6]" /></span> : null}
+                  </span>
                 )}
-                <span className="text-[9px]">{names[i]}</span>
+                <span className="text-center text-[8px] leading-3 whitespace-nowrap">{i === 0 ? "のこす" : i < 4 ? "友だち" : app[0]}</span>
               </div>
             );
           })}

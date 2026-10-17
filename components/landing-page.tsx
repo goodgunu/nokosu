@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
 import { LandingLineFlow } from "@/components/landing-line-flow";
-import { MockDetail, MockList, MockSend } from "@/components/landing-mocks";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { Mark, Wordmark } from "@/components/wordmark";
@@ -49,14 +48,6 @@ function SampleCard({ live }: { live: boolean }) {
   );
 }
 
-const mocks = [<MockSend key="send" />, <MockDetail key="detail" />, <MockList key="list" />];
-
-const steps = [
-  ["01", "送る", "URLを貼る。またはカーセンサー・グーネット・カババ・ヤフオクの共有から、LINEの「のこす」へ送る。"],
-  ["02", "読み取る", "支払総額、写真、スペック、装備、販売店・出品者を取り込む。"],
-  ["03", "残る", "売約して掲載が終わっても、アカウントに残る。メモも書ける。"],
-];
-
 const kept = [
   ["写真", "掲載の写真を選んで残す", Camera],
   ["支払総額", "本体価格と諸費用も", JapaneseYen],
@@ -83,7 +74,7 @@ export function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3.5 sm:px-7">
           <Wordmark height={26} />
           <span className="flex-1" />
-          <a href="#how" className="hidden text-sm sm:inline">
+          <a href="#line-flow" className="hidden text-sm sm:inline">
             使い方
           </a>
           <button
@@ -178,26 +169,6 @@ export function LandingPage() {
           </div>
         </div>
       )}
-
-      <section id="how" className="px-4 py-8 sm:px-7" style={{ background: "#FFFFFF" }}>
-        <div className="mx-auto max-w-6xl">
-          <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: "#E4682C" }}>使い方</h2>
-          <ol className="mt-4 grid gap-4 sm:grid-cols-3">
-            {steps.map(([n, title, body], index) => (
-              <li
-                key={n}
-                className="rounded-2xl p-4"
-                style={{ background: index === 2 ? "#F8D3B8" : "#FFF6EF" }}
-              >
-                <p className="text-xs font-bold" style={{ color: "#E4682C" }}>{n}</p>
-                <p className="mt-1 text-base font-bold">{title}</p>
-                <p className="mt-1.5 text-sm leading-7" style={{ color: "#6B6560" }}>{body}</p>
-                {mocks[index]}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
 
       <LandingLineFlow />
 
