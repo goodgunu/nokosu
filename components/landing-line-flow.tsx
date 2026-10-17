@@ -144,7 +144,7 @@ export function LandingLineFlow() {
   return (
     <section id="line-flow" className="px-4 py-8 sm:px-7" style={{ background: "#FFFFFF" }}>
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: ORANGE }}>LINEで共有して残す</h2>
+        <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: ORANGE }}>使い方</h2>
         <p className="mt-1 text-lg font-bold">LINEで共有するだけ</p>
         <p className="mt-1.5 text-sm leading-7" style={{ color: "#6B6560" }}>
           iPhoneは共有ボタンから「LINE」→「のこす」を選ぶだけ。Androidも共有メニューから同じように送れます。
