@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ArrowDown } from "lucide-react";
 import { SOURCE_BADGE_CLASS } from "@/components/source-badge";
 import { SOURCE_LABEL } from "@/lib/sites";
 
@@ -38,6 +39,24 @@ export function MiniCard({ ended }: { ended: boolean }) {
           <span className="text-muted-foreground"> ・ 検討中</span>
         </p>
       </div>
+    </div>
+  );
+}
+
+// 掲載中と掲載終了を並べて、終わっても残ることを見せる
+export function MockList() {
+  return (
+    <div role="img" aria-label="掲載中の車と、掲載が終わっても残る車（サンプル）" className="mt-4">
+      <MiniCard ended={false} />
+      <div className="flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-bold" style={{ color: "#9C3D12" }}>
+        <ArrowDown className="size-3.5" aria-hidden />
+        売約・掲載終了
+      </div>
+      <MiniCard ended />
+      <p className="mt-2 rounded-xl px-3 py-2 text-center text-[12px] leading-5 font-bold" style={{ background: "#FFFFFF", color: ORANGE, border: "1px solid #F0C8AE" }}>
+        写真もメモも残ります
+        <span className="block text-[10px] font-normal" style={{ color: "#6B6560" }}>メモ「電話した。試乗OK」もそのまま</span>
+      </p>
     </div>
   );
 }

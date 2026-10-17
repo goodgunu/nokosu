@@ -3,50 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
+import { MockList } from "@/components/landing-mocks";
 import { LandingLineFlow } from "@/components/landing-line-flow";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { Wordmark } from "@/components/wordmark";
-import { SpecChip } from "@/components/spec-chip";
-import { SOURCE_BADGE_CLASS } from "@/components/source-badge";
-import { SOURCE_LABEL } from "@/lib/sites";
-
-// 実際の一覧カードに近い見た目のサンプル（ゆうがさんの車）
-function SampleCard({ live = true }: { live?: boolean }) {
-  return (
-    <div className="border-border overflow-hidden rounded-2xl border bg-white shadow-sm">
-      <div className="bg-muted relative aspect-[16/10] w-full overflow-hidden">
-        <Image src="/86-card.jpg" alt="" fill sizes="(max-width: 640px) 100vw, 448px" className={`object-cover ${live ? "" : "grayscale"}`} />
-      </div>
-      <div className="border-t-2 p-3 pb-3.5 sm:p-4" style={{ borderColor: "#E4682C" }}>
-        <p className="text-muted-foreground text-xs font-medium tracking-wide">トヨタ</p>
-        <p className="text-[17px] leading-snug font-bold">86 GT</p>
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-          <p className="flex items-baseline gap-1 leading-none">
-            <span className="text-muted-foreground text-[11px] font-bold">支払総額</span>
-            <span className="text-[26px] font-extrabold tabular-nums" style={{ color: "#E4682C" }}>238.6</span>
-            <span className="text-sm font-bold">万円</span>
-          </p>
-          <p className="text-muted-foreground text-[15px]">
-            車体価格 <span className="text-foreground font-medium tabular-nums">229万円</span>
-          </p>
-        </div>
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
-          <SpecChip label="年式" value="2017年" />
-          <SpecChip label="走行" value="5.2万km" />
-          <SpecChip label="色" value="ブラック" />
-        </div>
-        <p className="mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs">
-          <span className={`mr-1 inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-bold ${SOURCE_BADGE_CLASS.kabaha}`}>
-            {SOURCE_LABEL.kabaha}
-          </span>
-          <span className={live ? "text-live font-bold" : "font-bold text-black"}>{live ? "掲載中" : "掲載終了"}</span>
-          <span className="text-muted-foreground"> ・ 検討中 ・ 愛知県</span>
-        </p>
-      </div>
-    </div>
-  );
-}
 
 const kept = [
   ["写真", "掲載の写真を選んで残す", Camera],
@@ -199,16 +160,13 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="after" className="bg-card px-4 pt-5 pb-7 sm:px-7">
+      <section id="after" className="px-4 pt-5 pb-7 sm:px-7" style={{ background: "#F9E3D0" }}>
         <div className="mx-auto max-w-6xl">
-          <div className="flex items-baseline gap-3">
-            <h2 className="text-lg font-bold">残したあとの画面</h2>
+          <div className="max-w-md">
+            <h2 className="text-lg font-bold">残る</h2>
+            <p className="text-muted-foreground mt-1 text-sm leading-6">売約して掲載が終わっても、アカウントに残る。メモも書ける。</p>
+            <MockList />
           </div>
-          <div className="mt-3 flex max-w-md flex-col gap-3">
-            <SampleCard />
-            <SampleCard live={false} />
-          </div>
-          <p className="text-muted-foreground mt-4 max-w-md text-sm">掲載が終わっても見られる。メモも残る。</p>
         </div>
       </section>
 
