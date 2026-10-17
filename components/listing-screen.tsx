@@ -312,8 +312,8 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         <h1 className="break-words text-[19px] font-bold leading-snug">{name}</h1>
         <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
           <p className="flex items-baseline gap-1 leading-none">
-            <span className="text-muted-foreground text-[11px] font-bold">{sourceOf(record) === "yahoo-auction" && record.availability !== "ended" ? "現在の" : ""}{record.totalPrice ? "支払総額" : "車両本体"}</span>
-            <span className={`${sourceOf(record) === "yahoo-auction" && record.availability !== "ended" ? "text-[28px]" : "text-[26px]"} font-extrabold tabular-nums text-[#E4682C]`}>{priceNumber(record.totalPrice || record.basePrice)}</span>
+            <span className={`text-muted-foreground font-bold ${sourceOf(record) === "yahoo-auction" && record.availability !== "ended" ? "text-[15px]" : "text-[11px]"}`}>{sourceOf(record) === "yahoo-auction" && record.availability !== "ended" ? "現在の" : ""}{record.totalPrice ? "支払総額" : "車両本体"}</span>
+            <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]">{priceNumber(record.totalPrice || record.basePrice)}</span>
             {showsMan(record.totalPrice || record.basePrice) && <span className="text-sm font-bold">万円</span>}
           </p>
           {record.basePrice && record.totalPrice && record.basePrice !== record.totalPrice && (
