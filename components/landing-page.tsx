@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
 import { MockDetail, MockList, MockSend } from "@/components/landing-mocks";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
@@ -51,18 +52,18 @@ const mocks = [<MockSend key="send" />, <MockDetail key="detail" />, <MockList k
 
 const steps = [
   ["01", "送る", "URLを貼る。またはカーセンサー・グーネット・カババ・ヤフオクの共有から、LINEの「のこす」へ送る。"],
-  ["02", "読み取る", "支払総額、写真、スペック、装備、販売店を取り込む。"],
+  ["02", "読み取る", "支払総額、写真、スペック、装備、販売店・出品者を取り込む。"],
   ["03", "残る", "売約して掲載が終わっても、アカウントに残る。メモも書ける。"],
 ];
 
 const kept = [
-  ["写真", "掲載の写真を選んで残す"],
-  ["支払総額", "本体価格と諸費用も"],
-  ["状態", "年式、距離、修復歴、車検"],
-  ["装備", "ナビ、ETC、スマートキー"],
-  ["販売店", "店名と所在地"],
-  ["メモ", "電話した日、見た傷"],
-];
+  ["写真", "掲載の写真を選んで残す", Camera],
+  ["支払総額", "本体価格と諸費用も", JapaneseYen],
+  ["状態", "年式、距離、修復歴、車検", BadgeCheck],
+  ["装備", "ナビ、ETC、スマートキー", ListChecks],
+  ["販売店・出品者", "店名・出品者名と所在地", Store],
+  ["メモ", "電話した日、見た傷", NotebookPen],
+] as const;
 
 export function LandingPage() {
   const [url, setUrl] = useState("");
@@ -200,14 +201,14 @@ export function LandingPage() {
       <section className="px-4 py-8 sm:px-7" style={{ background: "#FFF6EF" }}>
         <div className="mx-auto max-w-6xl">
           <h2 className="text-lg font-bold">アカウントに残るもの</h2>
-          <ul className="mt-3 grid sm:grid-cols-2 lg:grid-cols-3">
-            {kept.map(([title, body]) => (
-              <li key={title} className="border-t py-3.5 pr-4" style={{ borderColor: "#F0C8AE" }}>
-                <p className="text-sm font-bold">
-                  <span className="mr-1.5 inline-block size-1.5 rounded-full align-middle" style={{ background: "#E4682C" }} />
-                  {title}
-                </p>
-                <p className="mt-1 text-xs" style={{ color: "#6B6560" }}>{body}</p>
+          <ul className="mt-3 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
+            {kept.map(([title, body, Icon]) => (
+              <li key={title} className="rounded-2xl border bg-white p-3.5 shadow-sm sm:p-4" style={{ borderColor: "#F0C8AE" }}>
+                <span className="grid size-9 place-items-center rounded-xl text-white" style={{ background: "#E4682C" }}>
+                  <Icon className="size-[18px]" aria-hidden />
+                </span>
+                <p className="mt-2.5 text-sm font-bold">{title}</p>
+                <p className="mt-1 text-xs leading-5" style={{ color: "#6B6560" }}>{body}</p>
               </li>
             ))}
           </ul>
