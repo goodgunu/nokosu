@@ -207,7 +207,7 @@ function Forward() {
   );
 }
 
-const steps = [
+const makeSteps = (onStart: () => void) => [
   { title: "中古車サイトで、共有ボタンを押す", body: "気になった車のページで共有。友だちの並びに「のこす」が出ます。", mock: <ShareSheet /> },
   { title: "「のこす」を選んで、転送", body: "LINEの転送画面で「のこす」にチェックして、転送を押します。", mock: <Forward /> },
   { title: "のこすが、自動で保存", body: "数秒で「保存しました」の返信が届きます。写真と価格も一緒に残ります。", mock: <div className="mt-3"><LineChatPhone maxWidth={250} /></div> },
@@ -217,15 +217,15 @@ const steps = [
     mock: (
       <div className="mx-auto mt-3 w-full max-w-[260px]">
         <MiniCard ended={false} />
-        <a href="#after" className="mt-3 block text-center text-xs font-bold underline underline-offset-4" style={{ color: ORANGE }}>
-          残したあとの画面を見る ↓
-        </a>
+        <button type="button" onClick={onStart} className="mt-3 block w-full rounded-full px-4 py-2.5 text-center text-xs font-bold text-white" style={{ background: ORANGE }}>
+          残したあとの画面を見る
+        </button>
       </div>
     ),
   },
 ];
 
-export function LandingLineFlow() {
+export function LandingLineFlow({ onStart }: { onStart: () => void }) {
   return (
     <section id="line-flow" className="px-4 py-8 sm:px-7" style={{ background: "#FFFFFF" }}>
       <div className="mx-auto max-w-6xl">
@@ -235,7 +235,7 @@ export function LandingLineFlow() {
           iPhoneは共有ボタンから「LINE」→「のこす」を選ぶだけ。Androidも共有メニューから同じように送れます。
         </p>
         <ol className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((step, i) => (
+          {makeSteps(onStart).map((step, i) => (
             <li key={step.title} className="rounded-2xl p-4" style={{ background: "#FFF6EF" }}>
               <p className="flex items-center gap-2">
                 <span className="grid size-6 place-items-center rounded-full text-xs font-bold text-white" style={{ background: ORANGE }}>{i + 1}</span>

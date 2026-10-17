@@ -76,7 +76,7 @@ export function LandingPage() {
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
           <div>
             <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>
-              売約の前に
+              売約や掲載終了の前に
             </p>
             <h1 className="mt-2 text-[1.7rem] leading-snug font-bold tracking-tight sm:text-4xl">
               気になった車を、
@@ -141,7 +141,7 @@ export function LandingPage() {
         </div>
       )}
 
-      <LandingLineFlow />
+      <LandingLineFlow onStart={() => openLogin()} />
 
       <section className="px-4 py-8 sm:px-7" style={{ background: "#FFF6EF" }}>
         <div className="mx-auto max-w-6xl">
