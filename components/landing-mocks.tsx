@@ -103,7 +103,7 @@ export function MockDetail() {
   );
 }
 
-function MiniCard({ ended }: { ended: boolean }) {
+export function MiniCard({ ended }: { ended: boolean }) {
   return (
     <div className="flex overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="relative w-[40%] shrink-0 self-stretch bg-[#F2F2F2]">
@@ -135,7 +135,7 @@ export function MockList() {
       <MiniCard ended />
       <p className="mt-2 rounded-xl px-3 py-2 text-center text-[12px] leading-5 font-bold" style={{ background: "#FFFFFF", color: ORANGE, border: "1px solid #F0C8AE" }}>
         写真もメモも残ります
-        <span className="block text-[10px] font-normal" style={{ color: "#6B6560" }}>メモ「電話した。試乗OK」もそのまま</span>
+        <span className="block text-[10px] font-normal" style={{ color: "#6B6560" }}>メモ「フルエアロ付き。車高調と社外ホイール入り」もそのまま</span>
       </p>
     </div>
   );

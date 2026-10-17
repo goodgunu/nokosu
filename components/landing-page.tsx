@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
+import { LandingLineFlow } from "@/components/landing-line-flow";
 import { MockDetail, MockList, MockSend } from "@/components/landing-mocks";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
@@ -62,7 +63,7 @@ const kept = [
   ["状態", "年式、距離、修復歴、車検", BadgeCheck],
   ["装備", "ナビ、ETC、スマートキー", ListChecks],
   ["販売店・出品者", "店名・出品者名と所在地", Store],
-  ["メモ", "電話した日、見た傷", NotebookPen],
+  ["メモ", "エアロ、車高調、ホイールなどのカスタム内容", NotebookPen],
 ] as const;
 
 export function LandingPage() {
@@ -198,6 +199,8 @@ export function LandingPage() {
         </div>
       </section>
 
+      <LandingLineFlow />
+
       <section className="px-4 py-8 sm:px-7" style={{ background: "#FFF6EF" }}>
         <div className="mx-auto max-w-6xl">
           <h2 className="text-lg font-bold">アカウントに残るもの</h2>
@@ -215,7 +218,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-card px-4 pt-5 pb-7 sm:px-7">
+      <section id="after" className="bg-card px-4 pt-5 pb-7 sm:px-7">
         <div className="mx-auto max-w-6xl">
           <div className="flex items-baseline gap-3">
             <h2 className="text-lg font-bold">残したあとの画面</h2>
