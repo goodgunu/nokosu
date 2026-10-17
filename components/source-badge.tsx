@@ -1,10 +1,11 @@
 import { SOURCE_LABEL, sourceOf, type Source } from "@/lib/sites";
 
-// サイトごとの色（濃色背景+白文字、コントラスト比4.5以上）。カーセンサー=オレンジ、グーネット=赤、カババ=紺
+// サイトごとの色（濃色背景+白文字、コントラスト比4.5以上）。カーセンサー=オレンジ、グーネット=赤、カババ=紺、ヤフオク=赤紫
 export const SOURCE_BADGE_CLASS: Record<Source, string> = {
   carsensor: "border-[#B5470F] bg-[#B5470F] text-white",
   goonet: "border-[#D32F2F] bg-[#D32F2F] text-white",
   kabaha: "border-[#1F3A6B] bg-[#1F3A6B] text-white",
+  "yahoo-auction": "border-[#C4001A] bg-[#C4001A] text-white",
 };
 
 export function SourceBadge({ record }: { record: { source?: string; id?: string } }) {

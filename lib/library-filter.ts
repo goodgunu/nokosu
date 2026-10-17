@@ -34,7 +34,7 @@ export function sourceCounts(
   filter: StatusFilter,
   query: string,
 ): Record<SourceFilter, number> {
-  const counts: Record<SourceFilter, number> = { all: 0, carsensor: 0, goonet: 0, kabaha: 0 };
+  const counts: Record<SourceFilter, number> = { all: 0, carsensor: 0, goonet: 0, kabaha: 0, "yahoo-auction": 0 };
   for (const listing of listings) {
     if (!matchesStatus(listing, filter) || !matchesQuery(listing, query)) continue;
     counts.all += 1;

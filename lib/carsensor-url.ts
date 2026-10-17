@@ -1,4 +1,4 @@
-import { canonicalGoonetUrl, canonicalKabahaUrl, isListingPhotoUrl, type CanonicalListing } from "@/lib/sites";
+import { canonicalGoonetUrl, canonicalKabahaUrl, canonicalYahooAuctionUrl, isListingPhotoUrl, type CanonicalListing } from "@/lib/sites";
 const PHOTO_HOSTS = new Set([
   "ccsrpcma.carsensor.net",
   "ccsrpcml.carsensor.net",
@@ -49,6 +49,8 @@ export function canonicalListingUrl(input: string): CanonicalListing | null {
   if (goo) return goo;
   const kaba = canonicalKabahaUrl(trimmed);
   if (kaba) return kaba;
+  const ya = canonicalYahooAuctionUrl(trimmed);
+  if (ya) return ya;
   const cs = canonicalCarsensorUrl(trimmed);
   return cs ? { source: "carsensor", id: cs.id, url: cs.url } : null;
 }

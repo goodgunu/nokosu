@@ -2,6 +2,7 @@ import { canonicalListingUrl } from "@/lib/carsensor-url";
 import { parseCarsensorHtml, type ParseResult } from "@/lib/parse-carsensor";
 import { parseGoonetHtml } from "@/lib/parse-goonet";
 import { parseKabahaHtml } from "@/lib/parse-kabaha";
+import { parseYahooAuctionHtml } from "@/lib/parse-yahoo-auction";
 import type { Source } from "@/lib/sites";
 
 const USER_AGENT =
@@ -11,6 +12,7 @@ const SITE_HOST: Record<Source, string> = {
   carsensor: "www.carsensor.net",
   goonet: "www.goo-net.com",
   kabaha: "www.car-byebuy.com",
+  "yahoo-auction": "auctions.yahoo.co.jp",
 };
 
 // グーネットのページは重い（約1MB）ので、少し長めに待つ
@@ -18,12 +20,14 @@ const SITE_TIMEOUT_MS: Record<Source, number> = {
   carsensor: 15000,
   goonet: 25000,
   kabaha: 20000,
+  "yahoo-auction": 20000,
 };
 
 const SITE_NAME: Record<Source, string> = {
   carsensor: "カーセンサー",
   goonet: "グーネット",
   kabaha: "カババ",
+  "yahoo-auction": "ヤフオク",
 };
 
 export async function fetchListing(
@@ -36,7 +40,7 @@ export async function fetchListing(
       parsed: {
         status: "error",
         message:
-          "カーセンサー・グーネット・カババの中古車詳細URLを貼ってください。一覧ページはそのままでは保存できません。",
+          "カーセンサー・グーネット・カババ・ヤフオクの中古車詳細URLを貼ってください。一覧ページはそのままでは保存できません。",
       },
     };
   }
@@ -67,12 +71,12 @@ export async function fetchListing(
   } catch {
     finalHost = "";
   }
-  if (finalHost !== SITE_HOST[source]) {
+  if (finalHost !== SITE_HOST[source] && !(source === "yahoo-auction" && finalHost === "page.auctions.yahoo.co.jp")) {
     return { httpStatus: 502, source, parsed: { status: "error", message: "掲載ページを取得できませんでした。" } };
   }
 
   // グーネットは、掲載が終わると404になる
-  if (source === "goonet" && (response.status === 404 || response.status === 410)) {
+  if ((source === "goonet" || source === "yahoo-auction") && (response.status === 404 || response.status === 410)) {
     return { httpStatus: 404, source, parsed: { status: "ended", id: canonical.id, title: "" } };
   }
 
@@ -87,7 +91,9 @@ export async function fetchListing(
       ? parseGoonetHtml(html, canonical.url)
       : source === "kabaha"
         ? parseKabahaHtml(html, canonical.url)
-        : parseCarsensorHtml(html, canonical.url);
+        : source === "yahoo-auction"
+          ? parseYahooAuctionHtml(html, canonical.url)
+          : parseCarsensorHtml(html, canonical.url);
   if (parsed.status === "error" && !response.ok && source !== "carsensor") {
     parsed.message = `${SITE_NAME[source]}の掲載ページを取得できませんでした。時間をおいてもう一度試してください。`;
   }

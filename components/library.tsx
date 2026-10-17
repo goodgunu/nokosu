@@ -243,14 +243,14 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
       <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
         <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <label htmlFor="carsensor-url" className="mb-2 block text-sm font-bold">
-            中古車の詳細ページURL（カーセンサー・グーネット・カババ）
+            中古車の詳細ページURL（カーセンサー・グーネット・カババ・ヤフオク）
           </label>
           <form onSubmit={save} className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <Input
               id="carsensor-url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
-              placeholder="カーセンサー・グーネット・カババのURL"
+              placeholder="カーセンサー・グーネット・カババ・ヤフオクのURL"
               className="h-11 min-w-0 flex-1 bg-white text-base"
               inputMode="url"
               autoCapitalize="off"
@@ -299,7 +299,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
             <SourceFilterButton active={sourceFilter === "all"} onClick={() => setSourceFilter("all")}>
               すべてのサイト（{counts.all}）
             </SourceFilterButton>
-            {(["carsensor", "goonet", "kabaha"] as Source[]).map((source) => (
+            {(["carsensor", "goonet", "kabaha", "yahoo-auction"] as Source[]).map((source) => (
               <SourceFilterButton
                 key={source}
                 source={source}

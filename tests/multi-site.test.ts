@@ -113,8 +113,8 @@ test("library source filter combines with status and search, with counts", () =>
     { ...base, id: "KB1", source: "kabaha", title: "GT-R", watchStatus: "passed" },
     { ...base, id: "KB2", source: "kabaha", title: "プリウス" },
   ] as unknown as ArchiveRecord[];
-  assert.deepEqual(sourceCounts(rows, "all", ""), { all: 4, carsensor: 1, goonet: 1, kabaha: 2 });
-  assert.deepEqual(sourceCounts(rows, "watching", "プリウス"), { all: 3, carsensor: 1, goonet: 1, kabaha: 1 });
+  assert.deepEqual(sourceCounts(rows, "all", ""), { all: 4, carsensor: 1, goonet: 1, kabaha: 2, "yahoo-auction": 0 });
+  assert.deepEqual(sourceCounts(rows, "watching", "プリウス"), { all: 3, carsensor: 1, goonet: 1, kabaha: 1, "yahoo-auction": 0 });
   assert.deepEqual(filterListings(rows, "all", "kabaha", "").map((r) => r.id), ["KB1", "KB2"]);
   assert.deepEqual(filterListings(rows, "watching", "kabaha", "").map((r) => r.id), ["KB2"]);
   assert.deepEqual(filterListings(rows, "ended", "goonet", "").map((r) => r.id), ["GN100000000000000"]);

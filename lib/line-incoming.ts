@@ -15,7 +15,7 @@ export const AUTO_PHOTO_KEEP = 12;
 
 export function welcomeReply(): LineReply {
   return textOnly(
-    "友だち追加ありがとうございます。\n\nカーセンサー・グーネット・カババで気になる車を開いたら、共有からこの「のこす」を選んでください。最初の1回だけアカウントをつなぐと、次からは送るだけで保存されます。",
+    "友だち追加ありがとうございます。\n\nカーセンサー・グーネット・カババ・ヤフオクで気になる車を開いたら、共有からこの「のこす」を選んでください。最初の1回だけアカウントをつなぐと、次からは送るだけで保存されます。",
   );
 }
 
@@ -29,7 +29,7 @@ export async function replyForIncoming(input: {
   const retry = input.postback?.startsWith("retry=") ? input.postback.slice("retry=".length) : "";
   const text = retry || input.text || "";
   const targets = listingTargetsFromText(text).slice(0, 1);
-  if (!targets.length) return one(textCard("カーセンサーの車の詳細ページを送ってください", "カーセンサーの車の詳細ページを送ってください。\nグーネット・カババの詳細ページも保存できます。"));
+  if (!targets.length) return one(textCard("カーセンサーの車の詳細ページを送ってください", "カーセンサーの車の詳細ページを送ってください。\nグーネット・カババ・ヤフオクの詳細ページも保存できます。"));
   const url = targets[0];
   const shareName = shareCarName(text);
   if (!input.lineUserId) {

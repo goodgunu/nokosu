@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     default: "のこす",
     template: "%s · のこす",
   },
-  description: "カーセンサー・グーネット・カババの中古車掲載を、売約や掲載終了の前に自分のアカウントへ残すメモ。",
+  description: "カーセンサー・グーネット・カババ・ヤフオクの中古車掲載を、売約や掲載終了の前に自分のアカウントへ残すメモ。",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

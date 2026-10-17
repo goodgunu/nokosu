@@ -10,7 +10,7 @@ import { Mark, Wordmark } from "@/components/wordmark";
 const mocks = [<MockSend key="send" />, <MockDetail key="detail" />, <MockList key="list" />];
 
 const steps = [
-  ["01", "送る", "URLを貼る。またはカーセンサー・グーネット・カババの共有から、LINEの「のこす」へ送る。"],
+  ["01", "送る", "URLを貼る。またはカーセンサー・グーネット・カババ・ヤフオクの共有から、LINEの「のこす」へ送る。"],
   ["02", "読み取る", "支払総額、写真、スペック、装備、販売店を取り込む。"],
   ["03", "残る", "売約して掲載が終わっても、アカウントに残る。メモも書ける。"],
 ];
@@ -100,7 +100,7 @@ export function LandingPage() {
               id="landing-url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
-              placeholder="カーセンサー・グーネット・カババのURL"
+              placeholder="カーセンサー・グーネット・カババ・ヤフオクのURL"
               className="border-border mt-2 w-full rounded-lg border px-3 py-3 text-sm"
               inputMode="url"
               autoCapitalize="off"
