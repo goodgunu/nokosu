@@ -313,7 +313,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
           <p className="flex items-baseline gap-1 leading-none">
             <span className="text-muted-foreground text-[11px] font-bold">{sourceOf(record) === "yahoo-auction" && record.availability !== "ended" ? "現在の" : ""}{record.totalPrice ? "支払総額" : "車両本体"}</span>
-            <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]">{priceNumber(record.totalPrice || record.basePrice)}</span>
+            <span className={`${sourceOf(record) === "yahoo-auction" && record.availability !== "ended" ? "text-[28px]" : "text-[26px]"} font-extrabold tabular-nums text-[#E4682C]`}>{priceNumber(record.totalPrice || record.basePrice)}</span>
             {showsMan(record.totalPrice || record.basePrice) && <span className="text-sm font-bold">万円</span>}
           </p>
           {record.basePrice && record.totalPrice && record.basePrice !== record.totalPrice && (
@@ -450,7 +450,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         <section className="py-5">
           <h2 className="border-b-2 border-orange pb-1 text-sm font-bold">{sourceOf(record) === "yahoo-auction" ? "出品者" : "販売店"}</h2>
           <p className="text-muted-foreground mt-3 text-[11px]">{sourceOf(record) === "yahoo-auction" ? "出品者名" : "店名"}</p>
-          <p className="mt-1 text-sm">{record.shopName || (sourceOf(record) === "yahoo-auction" ? "出品者名は保存されていません" : "店名は保存されていません")}</p>
+          <p className="mt-1 text-sm">{(sourceOf(record) === "yahoo-auction" ? record.shopName.replace(/（(個人|ストア)）$/, "") : record.shopName) || (sourceOf(record) === "yahoo-auction" ? "出品者名は保存されていません" : "店名は保存されていません")}</p>
           {record.shopAddress && <p className="text-muted-foreground mt-1 text-sm">{record.shopAddress}</p>}
           {record.shopUrl && (
             <a href={record.shopUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm underline underline-offset-4">

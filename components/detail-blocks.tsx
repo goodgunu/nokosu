@@ -37,8 +37,32 @@ export function EquipmentTags({ items: all }: { items: string[] }) {
   );
 }
 
+const FOLD_CHARS = 200;
+const FOLD_LINES = 6;
+
+// 出品者の説明: 長いときだけ数行に畳み、「もっと見る」「閉じる」で開閉する（装備と同じ文言）
+function FoldText({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const long = text.length > FOLD_CHARS || text.split("\n").length > FOLD_LINES;
+  return (
+    <div className="mt-3 rounded-xl border bg-card p-4 shadow-sm">
+      <p className={`text-sm leading-7 break-words whitespace-pre-wrap ${long && !open ? "line-clamp-5" : ""}`}>{text}</p>
+      {long && (
+        <button
+          type="button"
+          className="text-muted-foreground mt-3 text-xs underline underline-offset-4"
+          onClick={() => setOpen(!open)}
+        >
+          {open ? "閉じる" : "もっと見る"}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function LongText({ text, full }: { text: string; full?: boolean }) {
   const [open, setOpen] = useState(false);
+  if (full) return <FoldText text={text} />;
   const long = !full && text.length > TEXT_LIMIT;
   const shown = long && !open ? `${text.slice(0, TEXT_LIMIT).trimEnd()}…` : text;
   return (

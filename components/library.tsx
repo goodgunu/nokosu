@@ -409,7 +409,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                   <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                     <p className="flex items-baseline gap-1 leading-none">
                       <span className="text-muted-foreground text-[11px] font-bold">{sourceOf(listing) === "yahoo-auction" && !ended ? "現在の" : ""}支払総額</span>
-                      <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]" data-card="total">{priceNumber(listing.totalPrice || listing.basePrice)}</span>
+                      <span className={`${sourceOf(listing) === "yahoo-auction" && !ended ? "text-[28px]" : "text-[26px]"} font-extrabold tabular-nums text-[#E4682C]`} data-card="total">{priceNumber(listing.totalPrice || listing.basePrice)}</span>
                       {showsMan(listing.totalPrice || listing.basePrice) && <span className="text-sm font-bold">万円</span>}
                     </p>
                     {base && (

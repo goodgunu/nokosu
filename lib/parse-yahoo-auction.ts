@@ -211,8 +211,7 @@ export function parseYahooAuctionHtml(html: string, sourceUrl: string, now = Dat
   const location = isObj(seller.location) ? str(seller.location.prefecture) : "";
   const rating = isObj(seller.rating) ? seller.rating : {};
   const sellerName = str(seller.displayName);
-  const isStore = seller.isStore === true;
-  const shopName = `${sellerName || "出品者"}${isStore ? "（ストア）" : "（個人）"}`;
+  const shopName = sellerName || "出品者";
   const ratingText = str(rating.goodRating) ? `評価 良い${str(rating.goodRating)}（${str(rating.summary)}件）` : "";
 
   const listing: ParsedListing = {
