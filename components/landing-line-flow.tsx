@@ -16,8 +16,15 @@ function Frame({ children, bg = "#F2F2F2", label }: { children: React.ReactNode;
 
 function NokosuIcon({ size = 40, badge = true, ring = false }: { size?: number; badge?: boolean; ring?: boolean }) {
   return (
-    <span className="relative inline-grid shrink-0 place-items-center rounded-full font-extrabold text-white" style={{ width: size, height: size, background: ORANGE, fontSize: size * 0.3, boxShadow: ring ? `0 0 0 3px #fff, 0 0 0 5px ${ORANGE}` : undefined }}>
-      のこす
+    <span className="relative inline-block shrink-0" style={{ width: size, height: size }}>
+      <Image
+        src="/nokosu-icon.jpg"
+        alt=""
+        width={size * 2}
+        height={size * 2}
+        className="size-full rounded-full object-cover"
+        style={ring ? { boxShadow: `0 0 0 3px #fff, 0 0 0 5px ${ORANGE}` } : undefined}
+      />
       {badge && (
         <span className="absolute -right-1 -bottom-1 grid place-items-center rounded-md text-white" style={{ width: size * 0.4, height: size * 0.4, background: "#06C755", fontSize: size * 0.16 }}>
           LINE
@@ -40,29 +47,23 @@ function ShareSheet() {
           <span className="grid size-8 place-items-center rounded-lg text-[10px] font-extrabold text-white" style={{ background: "#3B6FD4" }}>車</span>
           <span className="text-[11px] font-bold">中古車サイト</span>
         </div>
-        <div className="flex justify-between border-b py-2.5" style={{ borderColor: "#DDD9D4" }}>
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="flex w-[52px] flex-col items-center gap-1">
-              {i === 0 ? <NokosuIcon size={40} ring /> : <Dummy size={40} />}
-              <span className="text-[9px]">{i === 0 ? "のこす" : "友だち"}</span>
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-between border-b py-2.5" style={{ borderColor: "#DDD9D4" }}>
-          {[["AirDrop", "#3B82F6"], ["メッセージ", "#4CD964"], ["メール", "#3B82F6"]].map(([name, color]) => (
-            <div key={name} className="flex w-[52px] flex-col items-center gap-1">
-              <span className="size-10 rounded-[10px]" style={{ background: color }} />
-              <span className="text-[9px]">{name}</span>
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-between pt-2.5">
-          {["コピー", "保存", "表示を増やす"].map((name) => (
-            <div key={name} className="flex w-[52px] flex-col items-center gap-1">
-              <span className="size-10 rounded-full bg-[#E4E1DD]" />
-              <span className="text-center text-[9px] leading-3">{name}</span>
-            </div>
-          ))}
+        <div className="grid grid-cols-3 gap-y-2.5 pt-2.5">
+          {Array.from({ length: 9 }, (_, i) => {
+            const colors = ["", "", "", "#3B82F6", "#4CD964", "#3B82F6", "#E4E1DD", "#E4E1DD", "#E4E1DD"];
+            const names = ["のこす", "友だち", "友だち", "アプリ", "アプリ", "アプリ", "操作", "操作", "操作"];
+            return (
+              <div key={i} className="flex flex-col items-center gap-1">
+                {i === 0 ? (
+                  <NokosuIcon size={40} ring />
+                ) : i < 3 ? (
+                  <Dummy size={40} />
+                ) : (
+                  <span className={`size-10 ${i >= 6 ? "rounded-full" : "rounded-[10px]"}`} style={{ background: colors[i] }} />
+                )}
+                <span className="text-[9px]">{names[i]}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </Frame>
@@ -97,6 +98,11 @@ function Reply() {
   return (
     <Frame label="LINEのトークで、のこすが保存しましたと返信する画面（サンプル）" bg="#E7F6EC">
       <div className="px-3 py-2 text-[11px] font-bold text-white" style={{ background: "#06C755" }}>のこす</div>
+      <div className="flex justify-end px-2.5 pt-2.5">
+        <div className="max-w-[80%] rounded-xl rounded-tr-sm px-2.5 py-2 text-[10px] leading-4 break-all" style={{ background: "#8DE055", color: "#111" }}>
+          https://example.com/car/123
+        </div>
+      </div>
       <div className="flex items-start gap-1.5 p-2.5">
         <NokosuIcon size={26} badge={false} />
         <div className="min-w-0 flex-1 overflow-hidden rounded-xl rounded-tl-sm bg-white">
