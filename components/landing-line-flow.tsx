@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Check, X } from "lucide-react";
+import { Camera, Check, ChevronLeft, ImageIcon, Mic, Plus, Search, Phone as PhoneIcon, Menu, X } from "lucide-react";
 import { MiniCard } from "@/components/landing-mocks";
 
 const ORANGE = "#E4682C";
@@ -14,7 +14,7 @@ function Frame({ children, bg = "#F2F2F2", label }: { children: React.ReactNode;
   );
 }
 
-function NokosuIcon({ size = 40, badge = true, ring = false }: { size?: number; badge?: boolean; ring?: boolean }) {
+export function NokosuIcon({ size = 40, badge = true, ring = false }: { size?: number; badge?: boolean; ring?: boolean }) {
   return (
     <span className="relative inline-block shrink-0" style={{ width: size, height: size }}>
       <Image
@@ -177,5 +177,67 @@ export function LandingLineFlow() {
         </ol>
       </div>
     </section>
+  );
+}
+
+// 最下部のLINEセクション用: iPhone風の枠でLINEトークをしている図
+export function LineChatPhone() {
+  return (
+    <div
+      role="img"
+      aria-label="LINEで「のこす」にURLを送ると、保存しましたと返信が届くトーク画面（サンプル）"
+      className="mx-auto w-full max-w-[290px] rounded-[44px] p-[9px]"
+      style={{ background: "#1C1917", boxShadow: "0 0 0 2px #8A8580, 0 14px 30px rgba(0,0,0,0.18)" }}
+    >
+      <div className="relative overflow-hidden rounded-[36px]" style={{ background: "#7F9FCB" }}>
+        <div className="absolute top-2 left-1/2 z-10 h-[22px] w-[84px] -translate-x-1/2 rounded-full" style={{ background: "#0B0B0B" }} />
+        <div className="flex items-center justify-between px-6 pt-2.5 pb-1 text-[11px] font-bold" style={{ background: "#7F9FCB", color: "#111" }}>
+          <span>12:52</span>
+          <span className="text-[9px]">●●●● ▮</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 pt-3 pb-2" style={{ color: "#111" }}>
+          <ChevronLeft className="size-4" aria-hidden />
+          <span className="flex-1 text-[12px] font-bold">のこす</span>
+          <Search className="size-3.5" aria-hidden />
+          <PhoneIcon className="size-3.5" aria-hidden />
+          <Menu className="size-3.5" aria-hidden />
+        </div>
+        <div className="flex flex-col gap-2.5 px-2.5 pt-1 pb-4">
+          <span className="mx-auto rounded-full px-2.5 py-0.5 text-[9px] text-white" style={{ background: "rgba(0,0,0,0.25)" }}>今日</span>
+          <div className="flex items-end justify-end gap-1">
+            <span className="text-right text-[8px] leading-3" style={{ color: "#33425e" }}>既読<br />12:52</span>
+            <div className="max-w-[72%] rounded-2xl rounded-tr-sm px-3 py-2 text-[10px] leading-4 break-all" style={{ background: "#6FE87A", color: "#111" }}>
+              https://example.com/car/123
+            </div>
+          </div>
+          <div className="flex items-start gap-1.5">
+            <NokosuIcon size={28} badge={false} />
+            <div className="flex min-w-0 flex-1 items-end gap-1">
+              <div className="min-w-0 flex-1 overflow-hidden rounded-2xl rounded-tl-sm bg-white">
+                <div className="relative aspect-[16/10] w-full">
+                  <Image src="/86-card.jpg" alt="" fill sizes="200px" className="object-cover" />
+                </div>
+                <div className="border-t-2 px-2.5 py-2" style={{ borderColor: ORANGE }}>
+                  <p className="text-[10px] font-bold" style={{ color: ORANGE }}>保存しました</p>
+                  <p className="text-[12px] leading-tight font-bold">トヨタ 86 GT</p>
+                  <p className="mt-1 text-[10px]">
+                    <span className="font-extrabold" style={{ color: ORANGE }}>238.6</span>万円 ・ <span className="font-bold text-live">掲載中</span>
+                  </p>
+                </div>
+              </div>
+              <span className="shrink-0 text-[8px]" style={{ color: "#33425e" }}>12:52</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 bg-white px-3 pt-2 pb-5" style={{ color: "#555" }}>
+          <Plus className="size-4" aria-hidden />
+          <Camera className="size-4" aria-hidden />
+          <ImageIcon className="size-4" aria-hidden />
+          <span className="flex-1 rounded-full px-3 py-1 text-[10px]" style={{ background: "#EDEDED", color: "#aaa" }}>Aa</span>
+          <Mic className="size-4" aria-hidden />
+        </div>
+        <div className="absolute bottom-1.5 left-1/2 h-1 w-[90px] -translate-x-1/2 rounded-full" style={{ background: "#111" }} />
+      </div>
+    </div>
   );
 }

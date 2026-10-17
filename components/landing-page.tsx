@@ -3,10 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
-import { LandingLineFlow } from "@/components/landing-line-flow";
+import { LandingLineFlow, LineChatPhone } from "@/components/landing-line-flow";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
-import { Mark, Wordmark } from "@/components/wordmark";
+import { Wordmark } from "@/components/wordmark";
 import { SpecChip } from "@/components/spec-chip";
 import { SOURCE_BADGE_CLASS } from "@/components/source-badge";
 import { SOURCE_LABEL } from "@/lib/sites";
@@ -208,7 +208,7 @@ export function LandingPage() {
       </section>
 
       <section style={{ background: "#E7F6EC" }}>
-        <div className="mx-auto grid max-w-6xl items-center gap-4 px-4 py-6 sm:px-7 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 lg:grid-cols-[1.2fr_0.8fr]">
           <div>
             <h2 className="text-lg font-bold">LINEに送ると、その場で残る</h2>
             <p className="text-muted-foreground mt-2 text-sm leading-7">
@@ -218,21 +218,7 @@ export function LandingPage() {
               <LineAddLink />
             </div>
           </div>
-          <div className="flex items-start gap-2">
-            <Mark size={36} />
-            <div className="border-border w-full max-w-[260px] overflow-hidden rounded-xl border bg-white text-xs">
-              <div className="relative aspect-[16/10] w-full">
-                <Image src="/86-card.jpg" alt="" fill sizes="260px" className="object-cover" />
-              </div>
-              <div className="border-t-2 px-3 py-2 leading-5" style={{ borderColor: "#E4682C" }}>
-                <p className="font-bold" style={{ color: "#E4682C" }}>保存しました</p>
-                <p className="font-bold">トヨタ 86 GT</p>
-                <p>
-                  <span className="font-extrabold" style={{ color: "#E4682C" }}>238.6</span>万円 ・ <span className="font-bold text-live">掲載中</span>
-                </p>
-              </div>
-            </div>
-          </div>
+          <LineChatPhone />
         </div>
       </section>
 
