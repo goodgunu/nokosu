@@ -12,11 +12,11 @@ import { SOURCE_BADGE_CLASS } from "@/components/source-badge";
 import { SOURCE_LABEL } from "@/lib/sites";
 
 // 実際の一覧カードに近い見た目のサンプル（ゆうがさんの車）
-function SampleCard() {
+function SampleCard({ live = true }: { live?: boolean }) {
   return (
     <div className="border-border overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="bg-muted relative aspect-[16/10] w-full overflow-hidden">
-        <Image src="/86-card.jpg" alt="" fill sizes="(max-width: 640px) 100vw, 448px" className="object-cover" />
+        <Image src="/86-card.jpg" alt="" fill sizes="(max-width: 640px) 100vw, 448px" className={`object-cover ${live ? "" : "grayscale"}`} />
       </div>
       <div className="border-t-2 p-3 pb-3.5 sm:p-4" style={{ borderColor: "#E4682C" }}>
         <p className="text-muted-foreground text-xs font-medium tracking-wide">トヨタ</p>
@@ -40,7 +40,7 @@ function SampleCard() {
           <span className={`mr-1 inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-bold ${SOURCE_BADGE_CLASS.kabaha}`}>
             {SOURCE_LABEL.kabaha}
           </span>
-          <span className="text-live font-bold">掲載中</span>
+          <span className={live ? "text-live font-bold" : "font-bold text-black"}>{live ? "掲載中" : "掲載終了"}</span>
           <span className="text-muted-foreground"> ・ 検討中 ・ 愛知県</span>
         </p>
       </div>
@@ -204,9 +204,11 @@ export function LandingPage() {
           <div className="flex items-baseline gap-3">
             <h2 className="text-lg font-bold">残したあとの画面</h2>
           </div>
-          <div className="mt-3 max-w-md">
+          <div className="mt-3 flex max-w-md flex-col gap-3">
             <SampleCard />
+            <SampleCard live={false} />
           </div>
+          <p className="text-muted-foreground mt-4 max-w-md text-sm">掲載が終わっても見られる。メモも残る。</p>
         </div>
       </section>
 
