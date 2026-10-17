@@ -128,12 +128,18 @@ export function parseKabahaHtml(html: string, sourceUrl: string): ParseResult {
     return i >= 0 ? body.slice(Math.max(0, i - 40), i) : "";
   })();
   const ended =
-    /OutOfStock/.test(product?.offers?.availability || "") || /掲載終了|成約済/.test(statusZone);
+    /OutOfStock/.test(product?.offers?.availability || "") || /掲載終了|成約済|買取済/.test(statusZone);
 
   const priceZone = body.slice(Math.max(0, body.indexOf("出品地域")));
   // 成約済みのページは「買取価格」（成約価格）だけが載っている
   const totalPrice = manText(priceZone, "支払総額") || (ended ? manText(priceZone, "買取価格") : "");
-  const basePrice = manText(priceZone, "本体価格");
+  let basePrice = manText(priceZone, "本体価格");
+  // 買取済みで価格が消えているページは、OGPやタイトルの「◯◯万円」を車両価格にする（類似車両の表は使わない）
+  if (ended && !totalPrice && !basePrice) {
+    const ogText = `${$("meta[property='og:description']").attr("content") || ""} ${$("meta[property='og:title']").attr("content") || ""} ${$("title").first().text()}`;
+    const man = ogText.match(/([\d,.]+)\s*万円/);
+    if (man) basePrice = `${man[1]}万円`;
+  }
   const priceYen = yenFromManDisplay(totalPrice) ?? yenFromManDisplay(basePrice);
   if (!title || (!totalPrice && !basePrice && !ended)) {
     return {

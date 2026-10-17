@@ -175,3 +175,15 @@ test("sanitizeImportedRecord keeps textSections and tolerates absence", () => {
   assert.deepEqual(withText?.textSections, [{ title: "車両のポイント", text: "a\nb" }]);
   assert.equal(sanitizeImportedRecord({ id: "KB38340", source: "kabaha", sourceUrl: KABA })?.textSections, undefined);
 });
+
+test("kabaha sold page without price is saved as ended, price from OGP", () => {
+  const r = parseKabahaHtml(fixture("kabaha-sold-noprice.html"), "https://www.car-byebuy.com/Trade/Cars/Details/13818");
+  assert.equal(r.status, "ok");
+  if (r.status !== "ok") return;
+  assert.equal(r.listing.ended, true);
+  assert.equal(r.listing.id, "KB13818");
+  assert.match(r.listing.title, /GT-R プレミアムエディション/);
+  assert.equal(r.listing.basePrice, "1400万円");
+  assert.equal(r.listing.totalPrice, "");
+  assert.equal(r.listing.priceYen, 14000000);
+});
