@@ -71,16 +71,15 @@ export function LandingPage() {
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
       <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-2 gap-y-1.5 px-4 py-3.5 sm:flex-nowrap sm:gap-4 sm:px-7">
+        <div className="mx-auto flex max-w-6xl items-center gap-1.5 px-3 py-3.5 sm:gap-4 sm:px-7">
           <Wordmark height={26} />
-          <span className="flex-1 sm:hidden" />
-          <p className="order-last w-full text-[11px] leading-4 font-medium text-white/90 sm:order-none sm:w-auto sm:min-w-0 sm:flex-1 sm:text-xs">気になる車を、いつでも見返せる場所。</p>
+          <p className="min-w-0 flex-1 text-[10px] leading-[13px] font-medium text-white max-[374px]:text-[9px] sm:text-xs sm:leading-4">気になる車を、<br />いつでも見返せる場所。</p>
           <a href="#line-flow" className="hidden text-sm sm:inline">
             使い方
           </a>
           <a
             href="/api/auth/line-login?next=%2F"
-            className="inline-flex shrink-0 items-center rounded-full px-3 py-1.5 text-[13px] font-bold text-white sm:px-3.5 sm:text-sm"
+            className="inline-flex shrink-0 items-center rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white sm:px-3.5 sm:text-sm"
             style={{ background: "#06C755" }}
             onClick={() => {
               const pending = url.trim();
@@ -91,7 +90,7 @@ export function LandingPage() {
           </a>
           <button
             type="button"
-            className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-bold sm:px-3.5 sm:text-sm"
+            className="shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-bold sm:px-3.5 sm:text-sm"
             style={{ background: "#FFFFFF", color: "#E4682C" }}
             onClick={() => openLogin()}
           >
