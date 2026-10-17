@@ -16,32 +16,32 @@ function SampleCard({ live }: { live: boolean }) {
   return (
     <div className="border-border overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="bg-muted relative aspect-[16/10] w-full overflow-hidden">
-        <Image src="/gtr-card.jpg" alt="" fill sizes="(max-width: 640px) 100vw, 448px" className={`object-cover ${live ? "" : "grayscale"}`} />
+        <Image src="/86-card.jpg" alt="" fill sizes="(max-width: 640px) 100vw, 448px" className={`object-cover ${live ? "" : "grayscale"}`} />
       </div>
       <div className="border-t-2 p-3 pb-3.5 sm:p-4" style={{ borderColor: "#E4682C" }}>
-        <p className="text-muted-foreground text-xs font-medium tracking-wide">日産</p>
-        <p className="text-[17px] leading-snug font-bold">GT-R ブラックエディション</p>
+        <p className="text-muted-foreground text-xs font-medium tracking-wide">トヨタ</p>
+        <p className="text-[17px] leading-snug font-bold">86 GT</p>
         <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
           <p className="flex items-baseline gap-1 leading-none">
             <span className="text-muted-foreground text-[11px] font-bold">支払総額</span>
-            <span className="text-[26px] font-extrabold tabular-nums" style={{ color: "#E4682C" }}>1,361.4</span>
+            <span className="text-[26px] font-extrabold tabular-nums" style={{ color: "#E4682C" }}>238.6</span>
             <span className="text-sm font-bold">万円</span>
           </p>
           <p className="text-muted-foreground text-[15px]">
-            車体価格 <span className="text-foreground font-medium tabular-nums">1,350万円</span>
+            車体価格 <span className="text-foreground font-medium tabular-nums">229万円</span>
           </p>
         </div>
         <div className="mt-2.5 flex flex-wrap gap-1.5">
-          <SpecChip label="年式" value="2016年" />
-          <SpecChip label="走行" value="7.4万km" />
-          <SpecChip label="色" value="ブリリアントホワイトパール" />
+          <SpecChip label="年式" value="2017年" />
+          <SpecChip label="走行" value="5.2万km" />
+          <SpecChip label="色" value="ブラック" />
         </div>
         <p className="mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs">
           <span className={`mr-1 inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-bold ${SOURCE_BADGE_CLASS.kabaha}`}>
             {SOURCE_LABEL.kabaha}
           </span>
           <span className={live ? "text-live font-bold" : "font-bold text-black"}>{live ? "掲載中" : "掲載終了"}</span>
-          <span className="text-muted-foreground"> ・ 岡山県</span>
+          <span className="text-muted-foreground"> ・ 検討中 ・ 愛知県</span>
         </p>
       </div>
     </div>
@@ -248,13 +248,13 @@ export function LandingPage() {
             <Mark size={36} />
             <div className="border-border w-full max-w-[260px] overflow-hidden rounded-xl border bg-white text-xs">
               <div className="relative aspect-[16/10] w-full">
-                <Image src="/gtr-card.jpg" alt="" fill sizes="260px" className="object-cover" />
+                <Image src="/86-card.jpg" alt="" fill sizes="260px" className="object-cover" />
               </div>
               <div className="border-t-2 px-3 py-2 leading-5" style={{ borderColor: "#E4682C" }}>
                 <p className="font-bold" style={{ color: "#E4682C" }}>保存しました</p>
-                <p className="font-bold">日産 GT-R ブラックエディション</p>
+                <p className="font-bold">トヨタ 86 GT</p>
                 <p>
-                  <span className="font-extrabold" style={{ color: "#E4682C" }}>1,361.4</span>万円 ・ <span className="font-bold text-live">掲載中</span>
+                  <span className="font-extrabold" style={{ color: "#E4682C" }}>238.6</span>万円 ・ <span className="font-bold text-live">掲載中</span>
                 </p>
               </div>
             </div>

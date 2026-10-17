@@ -6,7 +6,7 @@ import { SOURCE_LABEL } from "@/lib/sites";
 
 const ORANGE = "#E4682C";
 
-// 使い方の画面例。実際の車カードと同じデザインにそろえたサンプル（写真はゆうがさんのGT-R）
+// 使い方の画面例。実際の車カードと同じデザインにそろえたサンプル（写真は黒い86）
 function Phone({ children, label, tone = "white" }: { children: React.ReactNode; label: string; tone?: "white" | "line" }) {
   return (
     <div
@@ -25,7 +25,7 @@ function Phone({ children, label, tone = "white" }: { children: React.ReactNode;
 function Photo({ gray = false }: { gray?: boolean }) {
   return (
     <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F2F2F2]">
-      <Image src="/gtr-card.jpg" alt="" fill sizes="250px" className={`object-cover ${gray ? "grayscale" : ""}`} />
+      <Image src="/86-card.jpg" alt="" fill sizes="250px" className={`object-cover ${gray ? "grayscale" : ""}`} />
     </div>
   );
 }
@@ -34,7 +34,7 @@ function Price({ size = 22 }: { size?: number }) {
   return (
     <p className="flex items-baseline gap-1 leading-none">
       <span className="text-[10px] font-bold" style={{ color: "#666666" }}>支払総額</span>
-      <span className="font-extrabold tabular-nums" style={{ color: ORANGE, fontSize: size }}>1,361.4</span>
+      <span className="font-extrabold tabular-nums" style={{ color: ORANGE, fontSize: size }}>238.6</span>
       <span className="text-[11px] font-bold">万円</span>
     </p>
   );
@@ -62,9 +62,9 @@ export function MockSend() {
             <Photo />
             <div className="border-t-2 px-2.5 py-2" style={{ borderColor: ORANGE }}>
               <p className="text-[10px] font-bold" style={{ color: ORANGE }}>保存しました</p>
-              <p className="text-[12px] leading-tight font-bold">日産 GT-R ブラックエディション</p>
+              <p className="text-[12px] leading-tight font-bold">トヨタ 86 GT</p>
               <p className="mt-1 text-[10px]">
-                <span className="font-extrabold" style={{ color: ORANGE }}>1,361.4</span>万円 ・ <span className="font-bold text-live">掲載中</span>
+                <span className="font-extrabold" style={{ color: ORANGE }}>238.6</span>万円 ・ <span className="font-bold text-live">掲載中</span>
               </p>
             </div>
           </div>
@@ -81,19 +81,19 @@ export function MockDetail() {
       <div className="bg-white">
         <Photo />
         <div className="border-t-2 p-2.5" style={{ borderColor: ORANGE }}>
-          <p className="text-[10px] font-medium" style={{ color: "#666666" }}>日産</p>
-          <p className="text-[14px] leading-snug font-bold">GT-R ブラックエディション</p>
+          <p className="text-[10px] font-medium" style={{ color: "#666666" }}>トヨタ</p>
+          <p className="text-[14px] leading-snug font-bold">86 GT</p>
           <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2">
             <Price />
-            <p className="text-[10px]" style={{ color: "#666666" }}>車体価格 <span className="font-medium text-foreground">1,350万円</span></p>
+            <p className="text-[10px]" style={{ color: "#666666" }}>車体価格 <span className="font-medium text-foreground">229万円</span></p>
           </div>
           <div className="mt-2 flex flex-wrap gap-1">
-            <SpecChip label="年式" value="2016年" />
-            <SpecChip label="走行" value="7.4万km" />
+            <SpecChip label="年式" value="2017年" />
+            <SpecChip label="走行" value="5.2万km" />
           </div>
           <p className="mt-2 text-[10px] font-bold">装備</p>
           <div className="mt-1 flex flex-wrap gap-1">
-            {["ナビ", "ETC", "スマートキー", "本革"].map((tag) => (
+            {["ナビ", "ETC", "スマートキー", "社外ホイール"].map((tag) => (
               <span key={tag} className="rounded-full border bg-white px-2 py-0.5 text-[9px]">{tag}</span>
             ))}
           </div>
@@ -107,15 +107,16 @@ function MiniCard({ ended }: { ended: boolean }) {
   return (
     <div className="flex overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="relative w-[40%] shrink-0 self-stretch bg-[#F2F2F2]">
-        <Image src="/gtr-card.jpg" alt="" fill sizes="140px" className={`object-cover ${ended ? "grayscale" : ""}`} />
+        <Image src="/86-card.jpg" alt="" fill sizes="140px" className={`object-cover ${ended ? "grayscale" : ""}`} />
       </div>
       <div className="min-w-0 flex-1 border-l-2 p-2.5" style={{ borderColor: ORANGE }}>
-        <p className="text-[10px] font-medium" style={{ color: "#666666" }}>日産</p>
-        <p className="text-[13px] leading-snug font-bold">GT-R ブラックエディション</p>
+        <p className="text-[10px] font-medium" style={{ color: "#666666" }}>トヨタ</p>
+        <p className="text-[13px] leading-snug font-bold">86 GT</p>
         <div className="mt-1"><Price size={20} /></div>
         <p className="mt-1.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-[11px]">
           <Badge />
           <span className={ended ? "font-bold text-black" : "font-bold text-live"}>{ended ? "掲載終了" : "掲載中"}</span>
+          <span className="text-muted-foreground"> ・ 検討中</span>
         </p>
       </div>
     </div>
