@@ -141,8 +141,6 @@ export function LandingPage() {
         </div>
       )}
 
-      <LandingLineFlow />
-
       <section className="px-4 py-8 sm:px-7" style={{ background: "#FFF6EF" }}>
         <div className="mx-auto max-w-6xl">
           <h2 className="text-lg font-bold">アカウントに残るもの</h2>
@@ -169,6 +167,8 @@ export function LandingPage() {
           </div>
         </div>
       </section>
+
+      <LandingLineFlow />
 
       <section style={{ background: "#E7F6EC" }}>
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-7">
