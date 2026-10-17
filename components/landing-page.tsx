@@ -69,7 +69,7 @@ export function LandingPage() {
               priority
               sizes="(min-width: 1152px) 1100px, 100vw"
               className="object-cover"
-              style={{ objectPosition: "50% 66%" }}
+              style={{ objectPosition: "50% 70%" }}
             />
           </div>
         </div>
