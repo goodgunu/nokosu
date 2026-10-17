@@ -61,7 +61,7 @@ export function LandingPage() {
 
       <section style={{ background: "#F8D3B8", color: "#1C1917" }}>
         <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-7 sm:pt-8">
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]">
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]">
             <Image
               src="/gtr-hero.jpg"
               alt="オレンジのGT-Rの写真"
@@ -69,7 +69,7 @@ export function LandingPage() {
               priority
               sizes="(min-width: 1152px) 1100px, 100vw"
               className="object-cover"
-              style={{ objectPosition: "50% 70%" }}
+              style={{ objectPosition: "50% 60%" }}
             />
           </div>
         </div>
