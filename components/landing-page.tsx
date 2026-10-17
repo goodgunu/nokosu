@@ -71,15 +71,26 @@ export function LandingPage() {
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
       <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3.5 sm:px-7">
+        <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3.5 sm:gap-4 sm:px-7">
           <Wordmark height={26} />
-          <span className="flex-1" />
+          <p className="min-w-0 flex-1 text-[10px] leading-3 font-medium text-white/90 max-[370px]:text-[9px] sm:text-xs sm:leading-4">気になる車を見返せるように</p>
           <a href="#line-flow" className="hidden text-sm sm:inline">
             使い方
           </a>
+          <a
+            href="/api/auth/line-login?next=%2F"
+            className="inline-flex shrink-0 items-center rounded-full px-3 py-1.5 text-[13px] font-bold text-white sm:px-3.5 sm:text-sm"
+            style={{ background: "#06C755" }}
+            onClick={() => {
+              const pending = url.trim();
+              if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
+            }}
+          >
+            LINEで連携
+          </a>
           <button
             type="button"
-            className="rounded-full px-3.5 py-1.5 text-sm font-bold"
+            className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-bold sm:px-3.5 sm:text-sm"
             style={{ background: "#FFFFFF", color: "#E4682C" }}
             onClick={() => openLogin()}
           >
@@ -224,7 +235,7 @@ export function LandingPage() {
       <footer style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-5 sm:px-7">
           <Wordmark height={22} />
-          <p className="text-xs text-white/80">中古車の掲載を、自分のアカウントに残す。</p>
+          <p className="text-xs text-white/80">気になる車を、いつでも見返せる場所。</p>
           <span className="flex-1" />
           <a href="/privacy" className="text-xs">プライバシーポリシー</a>
           <a href="/terms" className="text-xs">利用規約</a>
