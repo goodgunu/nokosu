@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
-import { LandingLineFlow, LineChatPhone } from "@/components/landing-line-flow";
+import { LandingLineFlow } from "@/components/landing-line-flow";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { Wordmark } from "@/components/wordmark";
@@ -208,17 +208,16 @@ export function LandingPage() {
       </section>
 
       <section style={{ background: "#E7F6EC" }}>
-        <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-7">
           <div>
             <h2 className="text-lg font-bold">LINEに送ると、その場で残る</h2>
-            <p className="text-muted-foreground mt-2 text-sm leading-7">
+            <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-7">
               下のボタンで公式LINE「のこす」を友だち追加します。IDは {LINE_ACCOUNT_ID} です。追加したあと、各サイトの共有から「のこす」を選ぶと、アカウントに保存されます。
             </p>
             <div className="mt-4">
               <LineAddLink />
             </div>
           </div>
-          <LineChatPhone />
         </div>
       </section>
 
