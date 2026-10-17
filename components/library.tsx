@@ -17,7 +17,7 @@ import { displayName, vehicleHeading } from "@/lib/format";
 import { cardInfo } from "@/lib/card-info";
 import { SORT_OPTIONS, sortLabel, sortListings, type SortState } from "@/lib/library-sort";
 import { filterListings, sourceCounts, type SourceFilter } from "@/lib/library-filter";
-import { SOURCE_LABEL, type Source } from "@/lib/sites";
+import { SOURCE_LABEL, sourceOf, type Source } from "@/lib/sites";
 import { priceChange } from "@/lib/price-history";
 import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
@@ -408,18 +408,18 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                   <h2 className="line-clamp-2 break-words text-[17px] font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
                   <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                     <p className="flex items-baseline gap-1 leading-none">
-                      <span className="text-muted-foreground text-[11px] font-bold">支払総額</span>
+                      <span className="text-muted-foreground text-[11px] font-bold">{sourceOf(listing) === "yahoo-auction" && !ended ? "現在の" : ""}支払総額</span>
                       <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]" data-card="total">{priceNumber(listing.totalPrice || listing.basePrice)}</span>
                       {showsMan(listing.totalPrice || listing.basePrice) && <span className="text-sm font-bold">万円</span>}
                     </p>
                     {base && (
-                      <p className="text-muted-foreground text-[15px]">車体価格 <span className="font-medium tabular-nums text-foreground">{base}</span></p>
+                      <p className="text-muted-foreground text-[15px]">{sourceOf(listing) === "yahoo-auction" && !ended ? "現在の" : ""}車体価格 <span className="font-medium tabular-nums text-foreground">{base}</span></p>
                     )}
                   </div>
                   <div className="mt-2.5"><SpecChips info={info} /></div>
                   <p className="mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs">
                     <span className="mr-1 inline-flex"><SourceBadge record={listing} /></span>
-                    <span className={ended ? "font-bold text-black" : status === "掲載中" ? "text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
+                    <span className={ended ? "font-bold text-black" : status === "掲載中" ? "font-bold text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
                     <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
                     {info.region && <span className="text-muted-foreground"> ・ {info.region}</span>}
                   </p>

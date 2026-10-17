@@ -37,9 +37,9 @@ export function EquipmentTags({ items: all }: { items: string[] }) {
   );
 }
 
-function LongText({ text }: { text: string }) {
+function LongText({ text, full }: { text: string; full?: boolean }) {
   const [open, setOpen] = useState(false);
-  const long = text.length > TEXT_LIMIT;
+  const long = !full && text.length > TEXT_LIMIT;
   const shown = long && !open ? `${text.slice(0, TEXT_LIMIT).trimEnd()}…` : text;
   return (
     <div className="mt-3 rounded-xl border bg-card p-4 shadow-sm">
@@ -64,7 +64,7 @@ export function TextSections({ sections }: { sections: TextSection[] | undefined
       {sections.map((section) => (
         <section key={section.title} className="mt-8">
           <h2 className="border-b-2 border-orange pb-1 text-sm font-bold">{section.title}</h2>
-          <LongText text={section.text} />
+          <LongText text={section.text} full={section.title === "出品者の説明"} />
         </section>
       ))}
     </>

@@ -255,7 +255,7 @@ function sanitizeTextSections(input: unknown): ArchiveRecord["textSections"] {
     if (!entry || typeof entry !== "object") return [];
     const { title, text: body } = entry as { title?: unknown; text?: unknown };
     if (typeof title !== "string" || typeof body !== "string" || !body.trim()) return [];
-    return [{ title: title.slice(0, 80), text: body.slice(0, 8000) }];
+    return [{ title: title.slice(0, 80), text: body.slice(0, 30000) }];
   });
   return sections.length ? sections : undefined;
 }

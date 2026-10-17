@@ -299,7 +299,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         <div className="mt-3 flex items-center justify-between rounded-xl border bg-card px-3 py-2 text-sm shadow-sm">
           <span>
             <span className={`mr-2 inline-block size-1.5 rounded-full align-middle ${record.availability === "live" ? "bg-live" : "bg-[#b5b5b5]"}`} />
-            <span className={record.availability === "ended" ? "font-bold text-black" : record.availability === "live" ? "text-live" : ""}>
+            <span className={record.availability === "ended" ? "font-bold text-black" : record.availability === "live" ? "font-bold text-live" : ""}>
               {record.availability === "ended" ? "掲載終了" : record.availability === "live" ? "掲載中" : "まだ確認していません"}
             </span>
             {checked ? <span className="text-muted-foreground"> ・ {checked}に確認</span> : null}
@@ -312,13 +312,13 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         <h1 className="break-words text-[19px] font-bold leading-snug">{name}</h1>
         <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
           <p className="flex items-baseline gap-1 leading-none">
-            <span className="text-muted-foreground text-[11px] font-bold">{record.totalPrice ? "支払総額" : "車両本体"}</span>
+            <span className="text-muted-foreground text-[11px] font-bold">{sourceOf(record) === "yahoo-auction" && record.availability !== "ended" ? "現在の" : ""}{record.totalPrice ? "支払総額" : "車両本体"}</span>
             <span className="text-[26px] font-extrabold tabular-nums text-[#E4682C]">{priceNumber(record.totalPrice || record.basePrice)}</span>
             {showsMan(record.totalPrice || record.basePrice) && <span className="text-sm font-bold">万円</span>}
           </p>
           {record.basePrice && record.totalPrice && record.basePrice !== record.totalPrice && (
             <p className="text-muted-foreground text-[15px]">
-              車体価格 <span className="font-medium tabular-nums text-foreground">{record.basePrice}</span>
+              {sourceOf(record) === "yahoo-auction" && record.availability !== "ended" ? "現在の" : ""}車体価格 <span className="font-medium tabular-nums text-foreground">{record.basePrice}</span>
               {record.expenseNote ? <span className="text-xs"> {record.expenseNote}</span> : null}
             </p>
           )}
@@ -326,7 +326,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         <div className="mt-2.5"><SpecChips info={info} /></div>
         <p className="mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs">
           <span className="mr-1 inline-flex"><SourceBadge record={record} /></span>
-          <span className={record.availability === "ended" ? "font-bold text-black" : record.availability === "live" ? "text-live" : "text-muted-foreground"}>
+          <span className={record.availability === "ended" ? "font-bold text-black" : record.availability === "live" ? "font-bold text-live" : "text-muted-foreground"}>
             {record.availability === "ended" ? "掲載終了" : record.availability === "live" ? "掲載中" : "未確認"}
           </span>
           {info.region && <span className="text-muted-foreground"> ・ {info.region}</span>}
@@ -441,20 +441,20 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           ))}
           {record.qualityComment && (
             <details className="border-b py-3">
-              <summary className="cursor-pointer text-sm">販売店コメント</summary>
+              <summary className="cursor-pointer text-sm">{sourceOf(record) === "yahoo-auction" ? "出品者の評価" : "販売店コメント"}</summary>
               <p className="text-muted-foreground mt-2 text-sm leading-7">{record.qualityComment}</p>
             </details>
           )}
         </div>
 
         <section className="py-5">
-          <h2 className="border-b-2 border-orange pb-1 text-sm font-bold">販売店</h2>
-          <p className="text-muted-foreground mt-3 text-[11px]">店名</p>
-          <p className="mt-1 text-sm">{record.shopName || "店名は保存されていません"}</p>
+          <h2 className="border-b-2 border-orange pb-1 text-sm font-bold">{sourceOf(record) === "yahoo-auction" ? "出品者" : "販売店"}</h2>
+          <p className="text-muted-foreground mt-3 text-[11px]">{sourceOf(record) === "yahoo-auction" ? "出品者名" : "店名"}</p>
+          <p className="mt-1 text-sm">{record.shopName || (sourceOf(record) === "yahoo-auction" ? "出品者名は保存されていません" : "店名は保存されていません")}</p>
           {record.shopAddress && <p className="text-muted-foreground mt-1 text-sm">{record.shopAddress}</p>}
           {record.shopUrl && (
             <a href={record.shopUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm underline underline-offset-4">
-              お店のページ
+              {sourceOf(record) === "yahoo-auction" ? "出品者のページ" : "お店のページ"}
               <ExternalLink className="size-3.5" />
             </a>
           )}

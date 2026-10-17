@@ -65,6 +65,7 @@ function endLabel(iso: string): string {
 function htmlToText(html: string): string {
   return html
     .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(td|th)>/gi, " ")
     .replace(/<\/(p|div|tr|li|table|h\d)>/gi, "\n")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
@@ -191,9 +192,12 @@ export function parseYahooAuctionHtml(html: string, sourceUrl: string, now = Dat
   const items = options.flatMap((o) => (isObj(o) && str(o.name) ? [{ name: str(o.name), equipped: o.isOption === true }] : []));
   const equipment: EquipmentGroup[] = items.length ? [{ category: "装備", items }] : [];
 
-  const descText = Array.isArray(item.description)
-    ? (item.description as unknown[]).map((l) => str(l)).join("\n").trim()
-    : htmlToText(str(item.descriptionHtml));
+  // description（配列）は長いと「...」で途中切れになるので、全文入りの descriptionHtml を優先する
+  // car.description が出品者の全文（<BR>区切り）。無ければ descriptionHtml、最後に配列
+  const fromCar = htmlToText(str(car.description));
+  const fromHtml = htmlToText(str(item.descriptionHtml));
+  const fromArray = Array.isArray(item.description) ? (item.description as unknown[]).map((l) => str(l)).join("\n").trim() : "";
+  const descText = (fromCar || fromHtml || fromArray).replace(/^コメント\n+/, "");
   const textSections: TextSection[] = descText ? [{ title: "出品者の説明", text: descText }] : [];
 
   const photoMap = new Map<string, ParsedPhoto>();
