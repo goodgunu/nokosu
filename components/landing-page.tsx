@@ -48,43 +48,40 @@ export function LandingPage() {
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
       <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
-        <div className="mx-auto flex max-w-6xl items-center gap-1.5 px-3 py-3.5 sm:gap-4 sm:px-7">
-          <span className="shrink-0 [&_img]:h-[22px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
-          <p className="min-w-0 flex-1 text-[11px] leading-[14px] min-[380px]:text-xs min-[380px]:leading-[15px] font-normal text-white/80 sm:leading-4">気になる車を、<br />いつでも見返せる場所。</p>
-          <div className="flex shrink-0 items-center gap-1 sm:gap-4">
-          <a href="#line-flow" className="hidden text-sm sm:inline">
-            使い方
-          </a>
-          <a
-            href="/api/auth/line-login?next=%2F"
-            className="inline-flex shrink-0 items-center rounded-full px-2 py-1.5 text-[10px] font-bold text-white sm:px-3.5 sm:text-sm"
-            style={{ background: "#06C755" }}
-            onClick={() => {
-              const pending = url.trim();
-              if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
-            }}
-          >
-            <span className="sm:hidden" aria-hidden>LINE</span>
-            <span className="sr-only sm:not-sr-only">LINEで連携</span>
-          </a>
-          <button
-            type="button"
-            disabled={xBusy}
-            className="shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold text-white disabled:opacity-60 sm:px-3.5 sm:text-sm"
-            style={{ background: "#000000" }}
-            onClick={() => void startX()}
-          >
-            <span className="sm:hidden" aria-hidden>X</span>
-            <span className="sr-only sm:not-sr-only">Xで連携</span>
-          </button>
-          <button
-            type="button"
-            className="shrink-0 rounded-full px-2 py-1.5 text-[10px] font-bold sm:px-3.5 sm:text-sm"
-            style={{ background: "#FFFFFF", color: "#E4682C" }}
-            onClick={() => openLogin()}
-          >
-            はじめる
-          </button>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3.5 sm:gap-4 sm:px-7">
+          <span className="shrink-0 [&_img]:h-[24px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-4">
+            <a href="#line-flow" className="hidden text-sm sm:inline">
+              使い方
+            </a>
+            <button
+              type="button"
+              disabled={xBusy}
+              className="shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white disabled:opacity-60 sm:px-3.5 sm:text-sm"
+              style={{ background: "#000000" }}
+              onClick={() => void startX()}
+            >
+              Xで連携
+            </button>
+            <a
+              href="/api/auth/line-login?next=%2F"
+              className="inline-flex shrink-0 items-center rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white sm:px-3.5 sm:text-sm"
+              style={{ background: "#06C755" }}
+              onClick={() => {
+                const pending = url.trim();
+                if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
+              }}
+            >
+              LINEで連携
+            </a>
+            <button
+              type="button"
+              className="shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-bold sm:px-3.5 sm:text-sm"
+              style={{ background: "#FFFFFF", color: "#E4682C" }}
+              onClick={() => openLogin()}
+            >
+              はじめる
+            </button>
           </div>
         </div>
       </header>
