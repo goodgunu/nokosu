@@ -38,7 +38,10 @@ export function LandingPage() {
     setXBusy(true);
     try {
       const result = await signIn.sso({ strategy: "oauth_x", redirectUrl: "/", redirectCallbackUrl: "/sso-callback" });
-      if (result.error) setXBusy(false);
+      if (result.error) {
+        console.error("X sign-in failed", result.error);
+        setXBusy(false);
+      }
       else window.setTimeout(() => setXBusy(false), 15000);
     } catch {
       setXBusy(false);

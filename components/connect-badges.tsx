@@ -12,6 +12,7 @@ export function ConnectBadges() {
   const { isLoaded, isSignedIn, user } = useUser();
   const [links, setLinks] = useState<Links | null>(null);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -33,12 +34,19 @@ export function ConnectBadges() {
   async function linkX() {
     if (!clerkUser || busy) return;
     setBusy(true);
+    setErr("");
     try {
-      const account = await clerkUser.createExternalAccount({ strategy: "oauth_x", redirectUrl: window.location.pathname });
+      // redirectUrl は絶対URLで渡す(相対だとClerkが解決できず失敗することがある)
+      const account = await clerkUser.createExternalAccount({ strategy: "oauth_x", redirectUrl: window.location.href });
       const url = account.verification?.externalVerificationRedirectURL;
       if (url) window.location.assign(url.toString());
-      else setBusy(false);
-    } catch {
+      else {
+        setErr("Xの連携を開始できませんでした");
+        setBusy(false);
+      }
+    } catch (e) {
+      const msg = (e as { errors?: { longMessage?: string; message?: string }[] })?.errors?.[0];
+      setErr(msg?.longMessage ?? msg?.message ?? "Xの連携を開始できませんでした");
       setBusy(false);
     }
   }
@@ -64,6 +72,7 @@ export function ConnectBadges() {
             X連携
           </button>
         ))}
+      {err ? <span role="alert" className="max-w-[10rem] text-[10px] font-bold text-red-600">{err}</span> : null}
     </>
   );
 }
