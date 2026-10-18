@@ -4,8 +4,9 @@ import { NextResponse } from "next/server";
 export default clerkMiddleware((auth, request) => {
   void auth;
   const pathname = new URL(request.url).pathname;
-  // 公開ページ（ログイン不要）: /privacy /terms
-  if (pathname === "/privacy" || pathname === "/terms") return NextResponse.next();
+  // 公開ページ（ログイン不要）: /privacy /terms /s/<共有ID>
+  if (pathname === "/privacy" || pathname === "/terms" || pathname.startsWith("/s/")) return NextResponse.next();
+  if (pathname.startsWith("/api/share/")) return NextResponse.next();
   if (pathname.startsWith("/api/cron")) return NextResponse.next();
 });
 

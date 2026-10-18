@@ -22,18 +22,19 @@ export function callbackUrl(request: Request): string {
   return `${originOf(request)}/api/auth/line-login/callback`;
 }
 
-type Pending = { state: string; nonce: string; next: string; exp: number };
+type Pending = { state: string; nonce: string; next: string; exp: number; link?: boolean };
 
 function sign(payload: string, secret: string): string {
   return createHmac("sha256", secret).update(payload).digest("base64url");
 }
 
-export function startLogin(request: Request, secret: string, channelId: string, nextPath: string) {
+export function startLogin(request: Request, secret: string, channelId: string, nextPath: string, link = false) {
   const pending: Pending = {
     state: randomBytes(16).toString("hex"),
     nonce: randomBytes(16).toString("hex"),
     next: safeNext(nextPath),
     exp: Date.now() + 10 * 60 * 1000,
+    ...(link ? { link: true } : {}),
   };
   const payload = Buffer.from(JSON.stringify(pending)).toString("base64url");
   const cookieValue = `${payload}.${sign(payload, secret)}`;

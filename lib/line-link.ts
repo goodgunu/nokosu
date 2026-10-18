@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { normalizeEmail } from "@/lib/account";
-import { readAppJson, writeAppJson } from "@/lib/store";
+import { listLineLinkNames, readAppJson, writeAppJson } from "@/lib/store";
 
 type LineLink = {
   lineUserId: string;
@@ -19,6 +19,28 @@ export async function linkLineUser(lineUserId: string, email: string): Promise<v
   if (!safeLineUserId(lineUserId) || !normalized) throw new Error("LINEとアカウントを結びつけられません。");
   const record: LineLink = { lineUserId, email: normalized, linkedAt: new Date().toISOString() };
   await writeAppJson(linkPath(lineUserId), record);
+  await writeAppJson(reversePath(normalized), { lineUserId, linkedAt: record.linkedAt }).catch(() => undefined);
+}
+
+// このメールのアカウントが、LINEとつながっているか（つながっていれば true）
+export async function isLineLinkedEmail(email: string): Promise<boolean> {
+  const normalized = normalizeEmail(email);
+  if (!normalized) return false;
+  const reverse = await readAppJson<{ lineUserId?: string }>(reversePath(normalized));
+  if (reverse?.lineUserId && (await linkedEmail(reverse.lineUserId)) === normalized) return true;
+  // 逆引きができる前につないだ分は、links/ を探して見つかったら逆引きを作る
+  for (const name of await listLineLinkNames()) {
+    const record = await readAppJson<LineLink>(name);
+    if (record?.email === normalized && record.lineUserId) {
+      await writeAppJson(reversePath(normalized), { lineUserId: record.lineUserId, linkedAt: record.linkedAt }).catch(() => undefined);
+      return true;
+    }
+  }
+  return false;
+}
+
+function reversePath(email: string): string {
+  return `linkrev/${createHash("sha256").update(email).digest("hex").slice(0, 40)}.json`;
 }
 
 function linkPath(lineUserId: string): string {

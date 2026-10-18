@@ -1,5 +1,6 @@
 "use client";
 
+import { useSignIn } from "@clerk/nextjs";
 import { useState } from "react";
 import Image from "next/image";
 import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
@@ -21,6 +22,8 @@ const kept = [
 export function LandingPage() {
   const [url, setUrl] = useState("");
   const [showLogin, setShowLogin] = useState(false);
+  const { signIn } = useSignIn();
+  const [xBusy, setXBusy] = useState(false);
 
   function openLogin(nextUrl?: string) {
     const pending = (nextUrl ?? url).trim();
@@ -28,12 +31,27 @@ export function LandingPage() {
     setShowLogin(true);
   }
 
+  async function startX() {
+    if (xBusy) return;
+    const pending = url.trim();
+    if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
+    setXBusy(true);
+    try {
+      const result = await signIn.sso({ strategy: "oauth_x", redirectUrl: "/", redirectCallbackUrl: "/sso-callback" });
+      if (result.error) setXBusy(false);
+      else window.setTimeout(() => setXBusy(false), 15000);
+    } catch {
+      setXBusy(false);
+    }
+  }
+
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
       <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
-        <div className="mx-auto flex max-w-6xl items-center gap-1.5 px-3 py-3.5 sm:gap-4 sm:px-7">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-1.5 gap-y-2.5 px-3 py-3.5 sm:flex-nowrap sm:gap-4 sm:px-7">
           <span className="shrink-0 [&_img]:h-[22px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
           <p className="min-w-0 flex-1 text-xs leading-[15px] font-normal text-white/80 sm:leading-4">気になる車を、<br />いつでも見返せる場所。</p>
+          <div className="flex basis-full items-center justify-end gap-1.5 sm:basis-auto sm:gap-4">
           <a href="#line-flow" className="hidden text-sm sm:inline">
             使い方
           </a>
@@ -50,12 +68,22 @@ export function LandingPage() {
           </a>
           <button
             type="button"
+            disabled={xBusy}
+            className="shrink-0 rounded-full px-2 py-1.5 text-[10px] font-bold text-white disabled:opacity-60 sm:px-3.5 sm:text-sm"
+            style={{ background: "#000000" }}
+            onClick={() => void startX()}
+          >
+            Xで連携
+          </button>
+          <button
+            type="button"
             className="shrink-0 rounded-full px-2 py-1.5 text-[10px] font-bold sm:px-3.5 sm:text-sm"
             style={{ background: "#FFFFFF", color: "#E4682C" }}
             onClick={() => openLogin()}
           >
             はじめる
           </button>
+          </div>
         </div>
       </header>
 

@@ -59,7 +59,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
 
   const view = !isLoaded || phase === "loading" ? "loading" : phase;
 
-  if (pathname.startsWith("/sso-callback") || pathname === "/privacy" || pathname === "/terms") return children;
+  if (pathname.startsWith("/sso-callback") || pathname === "/privacy" || pathname === "/terms" || pathname.startsWith("/s/")) return children;
 
   if (view === "loading") {
     return <main className="mx-auto max-w-xl px-4 py-16 text-sm text-muted-foreground">アカウントを確認しています</main>;

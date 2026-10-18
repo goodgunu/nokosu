@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ExternalLink, MoreHorizontal, RefreshCw } from "lucide-react";
+import { ShareXSheet, XIcon } from "@/components/share-x-sheet";
 import { SiteHeader } from "@/components/site-header";
 import { LineAddCard } from "@/components/line-add-link";
 import { PhotoGallery } from "@/components/photo-gallery";
@@ -43,6 +44,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [draft, setDraft] = useState<ParsedListing | null>(null);
   const pickStarted = useRef(false);
 
@@ -246,6 +248,15 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
             <ArrowLeft className="size-4" />
             保存した車
           </Link>
+          <div className="flex items-center gap-1">
+          <button
+            type="button"
+            className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[#0f1419] px-3 text-xs font-bold text-white"
+            onClick={() => setShareOpen(true)}
+          >
+            <XIcon className="size-3.5" />
+            Xで共有
+          </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground px-2 text-lg tracking-widest" aria-label="その他の操作">
               <MoreHorizontal className="size-5" />
@@ -258,6 +269,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
               <DropdownMenuItem onClick={() => setConfirmDelete(true)}>削除</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
 
         <div className="mt-3 min-w-0">
@@ -485,6 +497,8 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
         </div>
       </div>
       )}
+
+      <ShareXSheet key={`${record.id}-${record.updatedAt}`} record={record} open={shareOpen} onOpenChange={setShareOpen} />
 
       <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <DialogContent>

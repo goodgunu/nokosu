@@ -4,6 +4,7 @@ import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { DeleteObjectsCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import type { ArchiveRecord, SavedPhoto } from "@/lib/types";
+import { isShareId, publicListingOf, type ShareRecord } from "@/lib/share";
 
 export type OwnerRecord = {
   email: string;
@@ -160,6 +161,7 @@ export async function appendPhotos(email: string, listingId: string, photos: Sto
 
 export async function deleteRecord(email: string, id: string): Promise<void> {
   if (!isListingId(id)) return;
+  await unpublishShare(email, id).catch(() => undefined);
   await clearPhotos(email, id);
   const file = recordFile(email, id);
   if (fileStoreEnabled()) {
@@ -421,5 +423,105 @@ export async function writeAppJson(name: string, value: unknown): Promise<void> 
 }
 
 function isAppJsonName(name: string): boolean {
-  return new RegExp(`^drafts/${LISTING_ID_SOURCE}\\.json$`).test(name) || /^codes\/[a-f0-9]{32}\.json$/.test(name) || /^links\/[a-f0-9]{40}\.json$/.test(name);
+  return new RegExp(`^drafts/${LISTING_ID_SOURCE}\\.json$`).test(name) || /^codes\/[a-f0-9]{32}\.json$/.test(name) || /^links\/[a-f0-9]{40}\.json$/.test(name) || /^linkrev\/[a-f0-9]{40}\.json$/.test(name);
+}
+
+
+// ---- 共有ページ（「Xで共有」を押した車だけ公開） ----
+// shares/<共有ID>.json = 公開してよい項目のコピー + 写真の場所（保存者フォルダ）
+// share-index/<保存者フォルダ>/<車両ID>.json = その車の共有ID（再共有で同じURLを使う・共有停止に使う）
+
+function shareFile(id: string): string {
+  return `shares/${id}.json`;
+}
+
+function shareIndexFile(email: string, listingId: string): string {
+  return `share-index/${userFolder(email)}/${listingId}.json`;
+}
+
+async function readStoreJson<T>(file: string): Promise<T | null> {
+  if (fileStoreEnabled()) return readJsonFile<T>(path.join(dataDir(), file));
+  return readBlobJson<T>(file);
+}
+
+async function writeStoreJson(file: string, value: unknown): Promise<void> {
+  if (fileStoreEnabled()) {
+    await ensureDir(path.dirname(path.join(dataDir(), file)));
+    await writeFile(path.join(dataDir(), file), JSON.stringify(value));
+    return;
+  }
+  await writeBlobJson(file, value);
+}
+
+async function removeStoreFile(file: string): Promise<void> {
+  if (fileStoreEnabled()) {
+    await rm(path.join(dataDir(), file), { force: true });
+    return;
+  }
+  await r2Delete([file]).catch(() => undefined);
+}
+
+// 推測できない22文字（128bit）の共有ID
+export function newShareId(): string {
+  return randomBytes(16).toString("base64url");
+}
+
+export async function publishShare(email: string, record: ArchiveRecord, coverIndex = 0): Promise<ShareRecord> {
+  if (!isListingId(record.id)) throw new Error("車両IDが不正です。");
+  const existing = await readStoreJson<{ id?: string }>(shareIndexFile(email, record.id));
+  const id = existing?.id && isShareId(existing.id) ? existing.id : newShareId();
+  const previous = await readStoreJson<ShareRecord>(shareFile(id));
+  const share: ShareRecord = {
+    id,
+    folder: userFolder(email),
+    listingId: record.id,
+    createdAt: previous?.createdAt || new Date().toISOString(),
+    listing: publicListingOf(record, coverIndex),
+  };
+  await writeStoreJson(shareFile(id), share);
+  await writeStoreJson(shareIndexFile(email, record.id), { id });
+  return share;
+}
+
+export async function getShare(id: string): Promise<ShareRecord | null> {
+  if (!isShareId(id)) return null;
+  const share = await readStoreJson<ShareRecord>(shareFile(id));
+  return share?.id === id ? share : null;
+}
+
+export async function getShareIdFor(email: string, listingId: string): Promise<string | null> {
+  if (!isListingId(listingId)) return null;
+  const existing = await readStoreJson<{ id?: string }>(shareIndexFile(email, listingId));
+  return existing?.id && isShareId(existing.id) ? existing.id : null;
+}
+
+export async function unpublishShare(email: string, listingId: string): Promise<void> {
+  if (!isListingId(listingId)) return;
+  const id = await getShareIdFor(email, listingId);
+  if (id) await removeStoreFile(shareFile(id));
+  await removeStoreFile(shareIndexFile(email, listingId));
+}
+
+export async function getSharePhoto(id: string, index: number): Promise<StoredImage | null> {
+  const share = await getShare(id);
+  if (!share || !Number.isInteger(index) || index < 0 || index >= share.listing.photoCount) return null;
+  const dir = `photos/${share.folder}/${share.listingId}`;
+  const meta = await readStoreJson<PhotoMeta[]>(`${dir}/meta.json`);
+  const item = Array.isArray(meta) ? meta[index] : undefined;
+  if (!item) return null;
+  const file = `${dir}/${index}.bin`;
+  const bytes = fileStoreEnabled()
+    ? await readFile(path.join(dataDir(), file)).catch(() => null)
+    : await readBlobBytes(file);
+  if (!bytes || bytes.byteLength < 80) return null;
+  return { bytes, type: item.type || "image/jpeg", caption: item.caption, category: item.category };
+}
+
+// links/ にあるLINE連携の名前を全部返す（メールからLINE連携を逆引きするときだけ使う）
+export async function listLineLinkNames(): Promise<string[]> {
+  if (fileStoreEnabled()) {
+    const names = await readdir(path.join(dataDir(), "links")).catch(() => []);
+    return names.filter((n) => /^[a-f0-9]{40}\.json$/.test(n)).map((n) => `links/${n}`);
+  }
+  return (await listBlobPathnames("links/")).filter((n) => /^links\/[a-f0-9]{40}\.json$/.test(n));
 }

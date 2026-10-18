@@ -1,5 +1,6 @@
 import { lineAccountId } from "@/lib/line-login";
-import { linkedEmail } from "@/lib/line-link";
+import { accountState } from "@/lib/current-user";
+import { linkedEmail, linkLineUser } from "@/lib/line-link";
 import { callbackUrl, exchangeCode, lineLoginConfig, LINE_STATE_COOKIE, readPending } from "@/lib/line-oauth";
 import { readCookie, sessionCookie, signSession } from "@/lib/session";
 import { authSecret } from "@/lib/store";
@@ -19,6 +20,24 @@ export async function GET(request: Request) {
   if (!code || !pending || pending.state !== state) return fail("ログインを確認できませんでした。もう一度お試しください。");
   const profile = await exchangeCode(code, callbackUrl(request), pending.nonce, config).catch(() => null);
   if (!profile) return fail("LINEのログインを確認できませんでした。もう一度お試しください。");
+
+  // 「LINEを連携」: いまログインしているアカウント（メールのあるもの）にLINEをつなぐ。ログインは入れ替えない
+  if (pending.link) {
+    const state = await accountState().catch(() => ({ status: "anonymous" as const }));
+    const clear = `${LINE_STATE_COOKIE}=; HttpOnly; Path=/api/auth/line-login; SameSite=Lax; Max-Age=0; Secure`;
+    const back = (flag: string) => {
+      const target = new URL(pending.next, request.url);
+      target.searchParams.set("line", flag);
+      const h = new Headers({ Location: target.pathname + target.search });
+      h.append("Set-Cookie", clear);
+      return new Response(null, { status: 302, headers: h });
+    };
+    if (state.status !== "ready" || !state.email.includes("@") || state.email.startsWith("lineauth:")) return back("unavailable");
+    const existing = await linkedEmail(profile.sub).catch(() => null);
+    if (existing && existing !== state.email.toLowerCase()) return back("conflict");
+    await linkLineUser(profile.sub, state.email);
+    return back("linked");
+  }
 
   // LINEのメールは未確認の可能性があるため、データ領域の決定には使わない。
   // 公式アカウント連携（Googleなどでログイン済みの本人が結びつけたもの）があればそのメール、なければ line:<sub>。

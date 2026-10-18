@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConnectBadges } from "@/components/connect-badges";
 import { useAccount } from "@/components/account-provider";
 import { Wordmark } from "@/components/wordmark";
 
@@ -10,8 +11,9 @@ export function SiteHeader() {
         <Link href="/" aria-label="のこす ホーム">
           <Wordmark height={30} />
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <p className="hidden text-xs font-medium text-white/90 sm:block">中古車の個人メモ</p>
+          {account && <ConnectBadges />}
           {account && (
             <button type="button" onClick={() => void account.logout()} className="text-sm font-medium text-white">
               ログアウト
