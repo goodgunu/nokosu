@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -30,12 +31,13 @@ function isMobile(): boolean {
   return typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
-export function ShareXSheet({ record, open, onOpenChange }: { record: ArchiveRecord; open: boolean; onOpenChange: (open: boolean) => void }) {
+export function ShareXSheet({ record, open, onOpenChange, mode = "x" }: { record: ArchiveRecord; open: boolean; onOpenChange: (open: boolean) => void; mode?: "x" | "native" }) {
   const total = record.savedPhotos?.length ?? 0;
   const [comment, setComment] = useState("");
   const [selected, setSelected] = useState<number[]>(() => Array.from({ length: Math.min(PHOTO_LIMIT, total) }, (_, i) => i));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const listing = useMemo(() => publicListingOf(record, selected[0] ?? 0), [record, selected]);
   const body = postBody(comment, listing);
@@ -47,9 +49,10 @@ export function ShareXSheet({ record, open, onOpenChange }: { record: ArchiveRec
     if (busy || over) return;
     setBusy(true);
     setError("");
+    setCopied(false);
     // PCは、操作の直後に空の窓を開けておく（あとで投稿画面に切り替える。ポップアップ対策）
     const mobile = isMobile();
-    const popup = !mobile ? window.open("", "_blank") : null;
+    const popup = !mobile && mode === "x" ? window.open("", "_blank") : null;
     try {
       const res = await fetch(`/api/library/${record.id}/share`, {
         method: "POST",
@@ -78,8 +81,19 @@ export function ShareXSheet({ record, open, onOpenChange }: { record: ArchiveRec
           }
         } catch (e) {
           if (e instanceof DOMException && e.name === "AbortError") return; // 共有画面を閉じただけ
-          // それ以外の失敗は、下のXの投稿画面に切り替える
+          // それ以外の失敗は、Xの投稿画面（共有）かURLのコピー（その他）に切り替える
         }
+      }
+
+      if (mode === "native") {
+        // 端末の共有メニューに渡せないとき（PCなど）は、公開ページのURLをコピーする
+        try {
+          await navigator.clipboard.writeText(url);
+          setCopied(true);
+        } catch {
+          setError(`コピーできませんでした。このURLを使ってください: ${url}`);
+        }
+        return;
       }
 
       const target = intentUrl(comment, listing, url);
@@ -102,8 +116,12 @@ export function ShareXSheet({ record, open, onOpenChange }: { record: ArchiveRec
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] gap-3 overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Xで共有</DialogTitle>
-          <DialogDescription>押すと、この車の共有ページ（メモは出ません）ができて、Xの投稿画面が開きます。</DialogDescription>
+          <DialogTitle>{mode === "x" ? "Xで共有" : "共有"}</DialogTitle>
+          <DialogDescription>
+            {mode === "x"
+              ? "押すと、この車の共有ページ（メモは出ません）ができて、Xの投稿画面が開きます。"
+              : "押すと、この車の共有ページ（メモは出ません）ができて、端末の共有メニューが開きます。"}
+          </DialogDescription>
         </DialogHeader>
 
         <label className="block">
@@ -168,10 +186,13 @@ export function ShareXSheet({ record, open, onOpenChange }: { record: ArchiveRec
 
         {error && <p className="text-sm text-red-600">{error}</p>}
         <p className="text-muted-foreground text-[11px] leading-5">
-          スマホでは、選んだ写真をつけてXアプリに渡します。つけられないときは、リンクカードつきの投稿画面を開きます。
+          {mode === "x"
+            ? "スマホでは、選んだ写真をつけてXアプリに渡します。つけられないときは、リンクカードつきの投稿画面を開きます。"
+            : "選んだ写真と本文を、端末の共有メニューに渡します。共有メニューを使えないときは、共有ページのURLをコピーします。"}
         </p>
+        {copied && <p className="text-center text-sm font-bold" style={{ color: "#05813A" }}>コピーしました</p>}
         <Button className="h-11 w-full rounded-full font-bold text-white" style={{ background: "#0f1419" }} disabled={busy || over} onClick={() => void share()}>
-          {busy ? "準備しています" : (<><XIcon className="mr-1.5 size-4" />Xで共有する</>)}
+          {busy ? "準備しています" : mode === "x" ? (<><XIcon className="mr-1.5 size-4" />Xで共有する</>) : (<><Share className="mr-1.5 size-4" />共有する</>)}
         </Button>
       </DialogContent>
     </Dialog>

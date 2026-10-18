@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink, MoreHorizontal, RefreshCw } from "lucide-react";
+import { ArrowLeft, ExternalLink, MoreHorizontal, RefreshCw, Share } from "lucide-react";
 import { ShareXSheet, XIcon } from "@/components/share-x-sheet";
 import { SiteHeader } from "@/components/site-header";
 import { LineAddCard } from "@/components/line-add-link";
@@ -44,7 +44,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
+  const [shareMode, setShareMode] = useState<"x" | "native" | null>(null);
   const [draft, setDraft] = useState<ParsedListing | null>(null);
   const pickStarted = useRef(false);
 
@@ -252,10 +252,18 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
           <button
             type="button"
             className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[#0f1419] px-3 text-xs font-bold text-white"
-            onClick={() => setShareOpen(true)}
+            onClick={() => setShareMode("x")}
           >
             <XIcon className="size-3.5" />
             Xで共有
+          </button>
+          <button
+            type="button"
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#0f1419] bg-white px-3 text-xs font-bold text-[#0f1419]"
+            onClick={() => setShareMode("native")}
+          >
+            <Share className="size-3.5" />
+            共有
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground px-2 text-lg tracking-widest" aria-label="その他の操作">
@@ -498,7 +506,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
       </div>
       )}
 
-      <ShareXSheet key={`${record.id}-${record.updatedAt}`} record={record} open={shareOpen} onOpenChange={setShareOpen} />
+      <ShareXSheet key={`${record.id}-${record.updatedAt}-${shareMode ?? "x"}`} record={record} mode={shareMode ?? "x"} open={shareMode !== null} onOpenChange={(open) => !open && setShareMode(null)} />
 
       <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <DialogContent>
