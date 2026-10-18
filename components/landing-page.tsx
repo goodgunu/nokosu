@@ -1,7 +1,7 @@
 "use client";
 
 import { useSignIn } from "@clerk/nextjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
 import { MockList } from "@/components/landing-mocks";
@@ -22,8 +22,16 @@ const kept = [
 export function LandingPage() {
   const [url, setUrl] = useState("");
   const [showLogin, setShowLogin] = useState(false);
-  const { signIn } = useSignIn();
+  const { signIn, fetchStatus } = useSignIn();
   const [xBusy, setXBusy] = useState(false);
+  const [xError, setXError] = useState("");
+
+  // 戻る操作(bfcache)で復帰したとき、処理中のまま固まらないようにする
+  useEffect(() => {
+    const onShow = () => setXBusy(false);
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
 
   function openLogin(nextUrl?: string) {
     const pending = (nextUrl ?? url).trim();
@@ -33,17 +41,31 @@ export function LandingPage() {
 
   async function startX() {
     if (xBusy) return;
+    setXError("");
     const pending = url.trim();
     if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
+    if (!signIn || fetchStatus === "fetching") {
+      setXError("読み込み中です。少し待ってからもう一度押してください");
+      return;
+    }
     setXBusy(true);
+    // 画面遷移しないまま長く待たされたら、原因不明の無反応にせず知らせる
+    const watchdog = window.setTimeout(() => {
+      setXBusy(false);
+      setXError("Xの画面に移動できませんでした。通信を確認するか、「はじめる」から「Xで続ける」をお試しください");
+    }, 10000);
     try {
       const result = await signIn.sso({ strategy: "oauth_x", redirectUrl: "/", redirectCallbackUrl: "/sso-callback" });
       if (result.error) {
+        window.clearTimeout(watchdog);
         console.error("X sign-in failed", result.error);
+        setXError(result.error.longMessage || result.error.message || "Xの連携を開始できませんでした");
         setXBusy(false);
       }
-      else window.setTimeout(() => setXBusy(false), 15000);
-    } catch {
+    } catch (error) {
+      window.clearTimeout(watchdog);
+      console.error("X sign-in failed", error);
+      setXError(error instanceof Error && error.message ? `Xの連携を開始できませんでした(${error.message})` : "Xの連携を開始できませんでした");
       setXBusy(false);
     }
   }
@@ -64,7 +86,7 @@ export function LandingPage() {
               style={{ background: "#000000" }}
               onClick={() => void startX()}
             >
-              Xで連携
+              {xBusy ? "移動中…" : "Xで連携"}
             </button>
             <a
               href="/api/auth/line-login?next=%2F"
@@ -88,6 +110,11 @@ export function LandingPage() {
           </div>
         </div>
       </header>
+      {xError ? (
+        <p role="alert" className="px-4 py-2 text-center text-xs font-bold" style={{ background: "#FEE2E2", color: "#B91C1C" }}>
+          {xError}
+        </p>
+      ) : null}
 
       <section style={{ background: "#F8D3B8", color: "#1C1917" }}>
         <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-7 sm:pt-8">
