@@ -55,7 +55,12 @@ export function LandingPage() {
       setXError("Xの画面に移動できませんでした。通信を確認するか、「はじめる」から「Xで続ける」をお試しください");
     }, 10000);
     try {
-      const result = await signIn.sso({ strategy: "oauth_x", redirectUrl: "/", redirectCallbackUrl: "/sso-callback" });
+      const origin = window.location.origin;
+      const result = await signIn.sso({
+        strategy: "oauth_x",
+        redirectUrl: `${origin}/`,
+        redirectCallbackUrl: `${origin}/sso-callback`,
+      });
       if (result.error) {
         window.clearTimeout(watchdog);
         console.error("X sign-in failed", result.error);

@@ -39,7 +39,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             --ring: #E4682C;
           }
         `}</style>
-        <ClerkProvider localization={jaJP}>
+        <ClerkProvider
+          localization={jaJP}
+          signInUrl="/"
+          signUpUrl="/"
+          signInForceRedirectUrl="/"
+          signUpForceRedirectUrl="/"
+          signInFallbackRedirectUrl="/"
+          signUpFallbackRedirectUrl="/"
+        >
           <AccountProvider>{children}</AccountProvider>
         </ClerkProvider>
       </body>

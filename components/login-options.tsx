@@ -50,10 +50,13 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
     setNotice("");
     onBeforeStart?.();
     try {
+      const origin = window.location.origin;
+      const complete = redirectUrl.startsWith("/sso-callback") ? "/" : redirectUrl;
+      const completeUrl = complete.startsWith("http") ? complete : `${origin}${complete.startsWith("/") ? complete : `/${complete}`}`;
       const result = await signIn.sso({
         strategy: provider.strategy,
-        redirectUrl: redirectUrl.startsWith("/sso-callback") ? "/" : redirectUrl,
-        redirectCallbackUrl: "/sso-callback",
+        redirectUrl: completeUrl,
+        redirectCallbackUrl: `${origin}/sso-callback`,
         ...(provider.prompt ? { oidcPrompt: provider.prompt } : {}),
       });
       if (result.error) fail(result.error.message || "ログインを開始できませんでした。");
