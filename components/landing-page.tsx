@@ -9,6 +9,7 @@ import { LandingLineFlow } from "@/components/landing-line-flow";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
 import { Wordmark } from "@/components/wordmark";
+import { messageFromClerkXError } from "@/lib/clerk-x-errors";
 
 const kept = [
   ["写真", "掲載の写真を選んで残す", Camera],
@@ -30,6 +31,11 @@ export function LandingPage() {
   useEffect(() => {
     const onShow = () => setXBusy(false);
     window.addEventListener("pageshow", onShow);
+    const stored = sessionStorage.getItem("nokosu-x-sso-error");
+    if (stored) {
+      sessionStorage.removeItem("nokosu-x-sso-error");
+      setXError(stored);
+    }
     return () => window.removeEventListener("pageshow", onShow);
   }, []);
 
@@ -64,13 +70,13 @@ export function LandingPage() {
       if (result.error) {
         window.clearTimeout(watchdog);
         console.error("X sign-in failed", result.error);
-        setXError(result.error.longMessage || result.error.message || "Xの連携を開始できませんでした");
+        setXError(messageFromClerkXError(result.error));
         setXBusy(false);
       }
     } catch (error) {
       window.clearTimeout(watchdog);
       console.error("X sign-in failed", error);
-      setXError(error instanceof Error && error.message ? `Xの連携を開始できませんでした(${error.message})` : "Xの連携を開始できませんでした");
+      setXError(messageFromClerkXError(error));
       setXBusy(false);
     }
   }

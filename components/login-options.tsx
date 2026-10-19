@@ -4,6 +4,7 @@ import { useSignIn, useSignUp } from "@clerk/nextjs";
 import type { OAuthStrategy } from "@clerk/shared/types";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { messageFromClerkXError } from "@/lib/clerk-x-errors";
 
 type OAuthProvider = {
   id: string;
@@ -59,10 +60,10 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
         redirectCallbackUrl: `${origin}/sso-callback`,
         ...(provider.prompt ? { oidcPrompt: provider.prompt } : {}),
       });
-      if (result.error) fail(result.error.message || "ログインを開始できませんでした。");
+      if (result.error) fail(messageFromClerkXError(result.error, "ログインを開始できませんでした。"));
       else window.setTimeout(() => setBusy(""), 15000);
     } catch (error) {
-      fail(error instanceof Error ? error.message : "ログインを開始できませんでした。");
+      fail(messageFromClerkXError(error, "ログインを開始できませんでした。"));
     }
   }
 

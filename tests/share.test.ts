@@ -153,6 +153,7 @@ test("share ids: unguessable, validated; publish/unpublish round trip", async ()
 
 import { isLineLinkedEmail, linkLineUser } from "../lib/line-link";
 import { startLogin, readPending } from "../lib/line-oauth";
+import { isXAlreadyUsedError, messageFromClerkXError, X_ALREADY_USED_MESSAGE } from "../lib/clerk-x-errors";
 
 test("line link can be looked up from the email side", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "nokosu-link-"));
@@ -176,4 +177,17 @@ test("line login start remembers the link intent", () => {
   const pending = readPending(link.cookieValue, "secret");
   assert.equal(pending?.link, true);
   assert.equal(pending?.next, "/listings/KB1");
+});
+
+test("X already used maps Clerk codes to Japanese", () => {
+  assert.equal(
+    messageFromClerkXError({ errors: [{ code: "external_account_exists", message: "exists" }] }),
+    X_ALREADY_USED_MESSAGE,
+  );
+  assert.equal(
+    messageFromClerkXError({ errors: [{ code: "identification_claimed", message: "claimed" }] }),
+    X_ALREADY_USED_MESSAGE,
+  );
+  assert.ok(isXAlreadyUsedError({ code: "oauth_account_already_exists", message: "x" }));
+  assert.equal(messageFromClerkXError({ errors: [{ code: "oauth_access_denied", message: "denied" }] }), "denied");
 });

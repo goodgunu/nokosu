@@ -2,10 +2,12 @@ import Link from "next/link";
 import { ConnectBadges } from "@/components/connect-badges";
 import { useAccount } from "@/components/account-provider";
 import { Wordmark } from "@/components/wordmark";
+import { AuthNotice } from "@/components/auth-notice";
 
 export function SiteHeader() {
   const account = useAccount();
   return (
+    <>
     <header className="border-b border-black/10" style={{ background: "#E4682C", color: "#FFFFFF" }}>
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link href="/" aria-label="のこす ホーム">
@@ -22,5 +24,7 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
+    <AuthNotice />
+    </>
   );
 }

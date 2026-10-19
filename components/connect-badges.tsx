@@ -2,10 +2,13 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { messageFromClerkXError, X_ALREADY_USED_MESSAGE } from "@/lib/clerk-x-errors";
+import { publishAuthNotice } from "@/components/auth-notice";
 
 type Links = { line: boolean; canLinkLine: boolean };
 
 const BADGE = "inline-flex shrink-0 items-center rounded-full px-2 py-1 text-[10px] font-bold";
+const X_LINK_FLAG = "nokosu-x-link";
 
 // ログアウトの横に出す連携の状態。未連携ならボタン、連携済みならバッジ
 export function ConnectBadges() {
@@ -29,32 +32,73 @@ export function ConnectBadges() {
 
   // Xの連携は、Clerkでログインしているときだけ判定・連携できる
   const clerkUser = isLoaded && isSignedIn ? user : null;
-  const xLinked = clerkUser?.externalAccounts?.some((a) => a.provider === "x" && a.verification?.status === "verified") ?? false;
+  const xLinked =
+    clerkUser?.externalAccounts?.some((a) => a.provider === "x" && a.verification?.status === "verified") ?? false;
+
+  // Authorize 後に戻ってきたとき、失敗したX連携を拾って文言を出す（無言失敗を防ぐ）
+  useEffect(() => {
+    if (!clerkUser) return;
+    const pending = clerkUser.externalAccounts.filter((a) => a.provider === "x" && a.verification?.status !== "verified");
+    const failed = pending.find((a) => a.verification?.status === "failed" || a.verification?.error);
+    const flagged = typeof window !== "undefined" && sessionStorage.getItem(X_LINK_FLAG) === "1";
+    if (!failed && !flagged) return;
+    let message = "";
+    if (failed?.verification?.error) {
+      message = messageFromClerkXError(failed.verification.error, X_ALREADY_USED_MESSAGE);
+    } else if (failed) {
+      message = X_ALREADY_USED_MESSAGE;
+    }
+    if (message) {
+      setErr(message);
+      publishAuthNotice(message);
+    }
+    sessionStorage.removeItem(X_LINK_FLAG);
+    for (const account of pending) {
+      if (account.verification?.status === "failed" || account.verification?.error) {
+        void account.destroy().catch(() => undefined);
+      }
+    }
+  }, [clerkUser, xLinked]);
 
   async function linkX() {
     if (!clerkUser || busy) return;
     setBusy(true);
     setErr("");
     try {
-      // redirectUrl は絶対URLで渡す(相対だとClerkが解決できず失敗することがある)
-      const account = await clerkUser.createExternalAccount({ strategy: "oauth_x", redirectUrl: window.location.href });
-      const url = account.verification?.externalVerificationRedirectURL;
-      if (url) window.location.assign(url.toString());
+      sessionStorage.setItem(X_LINK_FLAG, "1");
+      // 戻り先に印を付け、失敗時の検出を確実にする
+      const url = new URL(window.location.href);
+      url.searchParams.set("xlink", "1");
+      const account = await clerkUser.createExternalAccount({ strategy: "oauth_x", redirectUrl: url.toString() });
+      const redirect = account.verification?.externalVerificationRedirectURL;
+      if (redirect) window.location.assign(redirect.toString());
       else {
+        sessionStorage.removeItem(X_LINK_FLAG);
         setErr("Xの連携を開始できませんでした");
         setBusy(false);
       }
     } catch (e) {
-      const msg = (e as { errors?: { longMessage?: string; message?: string }[] })?.errors?.[0];
-      setErr(msg?.longMessage ?? msg?.message ?? "Xの連携を開始できませんでした");
+      sessionStorage.removeItem(X_LINK_FLAG);
+      { const message = messageFromClerkXError(e); setErr(message); publishAuthNotice(message); }
       setBusy(false);
     }
   }
 
+  // URLの ?xlink=1 をきれいにする（履歴は残す）
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("xlink")) return;
+    url.searchParams.delete("xlink");
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+  }, []);
+
   return (
     <>
       {links?.line ? (
-        <span className={BADGE} style={{ background: "#E7F6EC", color: "#05813A" }}>LINE連携済み</span>
+        <span className={BADGE} style={{ background: "#E7F6EC", color: "#05813A" }}>
+          LINE連携済み
+        </span>
       ) : links?.canLinkLine ? (
         <a
           href={`/api/auth/line-login?link=1&next=${encodeURIComponent(typeof window === "undefined" ? "/" : window.location.pathname)}`}
@@ -66,13 +110,25 @@ export function ConnectBadges() {
       ) : null}
       {clerkUser &&
         (xLinked ? (
-          <span className={BADGE} style={{ background: "#FFFFFF", color: "#000000" }}>X連携済み</span>
+          <span className={BADGE} style={{ background: "#FFFFFF", color: "#000000" }}>
+            X連携済み
+          </span>
         ) : (
-          <button type="button" disabled={busy} onClick={() => void linkX()} className={`${BADGE} text-white disabled:opacity-60`} style={{ background: "#000000" }}>
-            X連携
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void linkX()}
+            className={`${BADGE} text-white disabled:opacity-60`}
+            style={{ background: "#000000" }}
+          >
+            {busy ? "移動中…" : "X連携"}
           </button>
         ))}
-      {err ? <span role="alert" className="max-w-[10rem] text-[10px] font-bold text-red-600">{err}</span> : null}
+      {err ? (
+        <span role="alert" className="max-w-[14rem] text-[10px] font-bold leading-snug text-red-600 sm:max-w-xs">
+          {err}
+        </span>
+      ) : null}
     </>
   );
 }
