@@ -10,7 +10,7 @@ function Price({ size = 22 }: { size?: number }) {
   return (
     <p className="flex items-baseline gap-1 leading-none">
       <span className="text-[10px] font-bold" style={{ color: "#666666" }}>支払総額</span>
-      <span className="font-extrabold tabular-nums" style={{ color: ORANGE, fontSize: size }}>238.6</span>
+      <span className="font-extrabold tabular-nums" style={{ color: ORANGE, fontSize: size }}>138.6</span>
       <span className="text-[11px] font-bold">万円</span>
     </p>
   );
@@ -18,8 +18,8 @@ function Price({ size = 22 }: { size?: number }) {
 
 function Badge() {
   return (
-    <span className={`inline-flex shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[9px] leading-none font-bold ${SOURCE_BADGE_CLASS.kabaha}`}>
-      {SOURCE_LABEL.kabaha}
+    <span className={`inline-flex shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[9px] leading-none font-bold ${SOURCE_BADGE_CLASS.carsensor}`}>
+      {SOURCE_LABEL.carsensor}
     </span>
   );
 }
@@ -75,21 +75,21 @@ export function AppCard() {
         <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
           <p className="flex items-baseline gap-1 leading-none whitespace-nowrap">
             <span className="text-muted-foreground text-[11px] font-bold">支払総額</span>
-            <span className="text-[26px] font-extrabold tabular-nums" style={{ color: ORANGE }}>238.6</span>
+            <span className="text-[26px] font-extrabold tabular-nums" style={{ color: ORANGE }}>138.6</span>
             <span className="text-sm font-bold">万円</span>
           </p>
           <p className="text-muted-foreground text-[15px] whitespace-nowrap">
-            車体価格 <span className="text-foreground font-medium tabular-nums">229万円</span>
+            車体価格 <span className="text-foreground font-medium tabular-nums">129万円</span>
           </p>
         </div>
         <div className="mt-2.5 flex flex-wrap gap-1.5">
-          <SpecChip label="年式" value="2017年" />
+          <SpecChip label="年式" value="2013年" />
           <SpecChip label="走行" value="5.2万km" />
-          <SpecChip label="色" value="ブラック" />
+          <SpecChip label="色" value="オレンジメタリック" />
         </div>
         <p className="mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs">
-          <span className={`mr-1 inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-bold ${SOURCE_BADGE_CLASS.kabaha}`}>
-            {SOURCE_LABEL.kabaha}
+          <span className={`mr-1 inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-bold ${SOURCE_BADGE_CLASS.carsensor}`}>
+            {SOURCE_LABEL.carsensor}
           </span>
           <span className="text-live font-bold">掲載中</span>
           <span className="text-muted-foreground"> ・ 検討中 ・ 愛知県</span>

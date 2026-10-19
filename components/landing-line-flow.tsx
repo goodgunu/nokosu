@@ -289,7 +289,7 @@ export function LineChatPhone({ maxWidth = 290 }: { maxWidth?: number }) {
                   <p className="text-[10px] font-bold" style={{ color: ORANGE }}>保存しました</p>
                   <p className="text-[12px] leading-tight font-bold">トヨタ 86 GT</p>
                   <p className="mt-1 text-[10px]">
-                    <span className="font-extrabold" style={{ color: ORANGE }}>238.6</span>万円 ・ <span className="font-bold text-live">掲載中</span>
+                    <span className="font-extrabold" style={{ color: ORANGE }}>138.6</span>万円 ・ <span className="font-bold text-live">掲載中</span>
                   </p>
                 </div>
               </div>
