@@ -13,7 +13,19 @@ export async function GET(request: Request) {
   const config = lineLoginConfig();
   if (!config) return fail("LINEログインは、まだ設定されていません。", 503);
   const params = new URL(request.url).searchParams;
-  if (params.get("error")) return Response.redirect(new URL("/", request.url), 302);
+  if (params.get("error")) {
+    // 認可キャンセル等。連携中なら画面で分かるようフラグを付ける
+    const pendingOnError = readPending(readCookie(request, LINE_STATE_COOKIE), config.secret);
+    const clear = `${LINE_STATE_COOKIE}=; HttpOnly; Path=/api/auth/line-login; SameSite=Lax; Max-Age=0; Secure`;
+    if (pendingOnError?.link) {
+      const target = new URL(pendingOnError.next, request.url);
+      target.searchParams.set("line", "denied");
+      const h = new Headers({ Location: target.pathname + target.search });
+      h.append("Set-Cookie", clear);
+      return new Response(null, { status: 302, headers: h });
+    }
+    return Response.redirect(new URL("/", request.url), 302);
+  }
   const code = params.get("code") || "";
   const state = params.get("state") || "";
   const pending = readPending(readCookie(request, LINE_STATE_COOKIE), config.secret);

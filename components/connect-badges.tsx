@@ -4,6 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { messageFromClerkXError, X_ALREADY_USED_MESSAGE } from "@/lib/clerk-x-errors";
 import { publishAuthNotice } from "@/components/auth-notice";
+import { LINE_ALREADY_USED_MESSAGE, LINE_UNAVAILABLE_MESSAGE } from "@/lib/line-link-messages";
 
 type Links = { line: boolean; canLinkLine: boolean };
 
@@ -28,6 +29,25 @@ export function ConnectBadges() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  // LINE連携の戻り(?line=conflict 等)。AuthNoticeでも出すが、バッジ横にも赤字を出す
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const flag = url.searchParams.get("line");
+    if (flag === "conflict") setErr(LINE_ALREADY_USED_MESSAGE);
+    else if (flag === "unavailable") setErr(LINE_UNAVAILABLE_MESSAGE);
+    const onLinked = () => {
+      fetch("/api/auth/links", { cache: "no-store" })
+        .then((r) => (r.ok ? (r.json() as Promise<Links>) : null))
+        .then((data) => {
+          if (data) setLinks(data);
+        })
+        .catch(() => undefined);
+    };
+    window.addEventListener("nokosu-line-linked", onLinked);
+    return () => window.removeEventListener("nokosu-line-linked", onLinked);
   }, []);
 
   // Xの連携は、Clerkでログインしているときだけ判定・連携できる

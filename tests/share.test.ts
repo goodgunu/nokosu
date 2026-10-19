@@ -154,6 +154,7 @@ test("share ids: unguessable, validated; publish/unpublish round trip", async ()
 import { isLineLinkedEmail, linkLineUser } from "../lib/line-link";
 import { startLogin, readPending } from "../lib/line-oauth";
 import { isXAlreadyUsedError, messageFromClerkXError, X_ALREADY_USED_MESSAGE } from "../lib/clerk-x-errors";
+import { messageForLineLinkFlag, LINE_ALREADY_USED_MESSAGE } from "../lib/line-link-messages";
 
 test("line link can be looked up from the email side", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "nokosu-link-"));
@@ -190,4 +191,11 @@ test("X already used maps Clerk codes to Japanese", () => {
   );
   assert.ok(isXAlreadyUsedError({ code: "oauth_account_already_exists", message: "x" }));
   assert.equal(messageFromClerkXError({ errors: [{ code: "oauth_access_denied", message: "denied" }] }), "denied");
+});
+
+test("LINE link conflict maps to Japanese", () => {
+  assert.equal(messageForLineLinkFlag("conflict"), LINE_ALREADY_USED_MESSAGE);
+  assert.ok(messageForLineLinkFlag("unavailable"));
+  assert.equal(messageForLineLinkFlag("linked"), "LINEを連携しました。");
+  assert.equal(messageForLineLinkFlag("other"), null);
 });
