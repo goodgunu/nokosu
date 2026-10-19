@@ -75,7 +75,7 @@ export function checkListing(id: string) {
 
 export function patchListing(
   id: string,
-  patch: Partial<Pick<ArchiveRecord, "memo" | "memoEntries" | "watchStatus" | "availability" | "lastCheckedAt">>,
+  patch: Partial<Pick<ArchiveRecord, "memo" | "memoEntries" | "watchStatus" | "availability" | "lastCheckedAt" | "favorite">>,
 ) {
   return requestJson<{ record: ArchiveRecord }>(`/api/library/${id}`, {
     method: "PATCH",

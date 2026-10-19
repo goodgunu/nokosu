@@ -15,8 +15,19 @@ import { readCompare, writeCompare } from "@/lib/compare";
 import { deleteListing, getPhotos, listListings, storedPhotoBlob } from "@/lib/db";
 import { displayName, vehicleHeading } from "@/lib/format";
 import { cardInfo } from "@/lib/card-info";
-import { SORT_OPTIONS, sortLabel, sortListings, type SortState } from "@/lib/library-sort";
-import { filterListings, sourceCounts, type SourceFilter } from "@/lib/library-filter";
+import { SORT_PRESETS, presetIdOf, sortListings, type SortState } from "@/lib/library-sort";
+import {
+  NO_EXTRA_FILTER,
+  filterListings,
+  isExtraActive,
+  makerOptions,
+  matchesExtra,
+  sourceCounts,
+  type AvailabilityFilter,
+  type ExtraFilter,
+  type SourceFilter,
+} from "@/lib/library-filter";
+import { NotifySettingCard } from "@/components/notify-setting";
 import { SOURCE_LABEL, sourceOf, type Source } from "@/lib/sites";
 import { priceChange } from "@/lib/price-history";
 import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
@@ -39,7 +50,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   const [query, setQuery] = useState("");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [sort, setSort] = useState<SortState>(null);
-  const [sortOpen, setSortOpen] = useState(false);
+  const [extra, setExtra] = useState<ExtraFilter>(NO_EXTRA_FILTER);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<ParsedListing | null>(null);
   const [localCount, setLocalCount] = useState(0);
@@ -74,8 +85,27 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   }, []);
 
   const visible = useMemo(() => {
-    return sortListings(filterListings(listings, "all", sourceFilter, query), sort);
-  }, [listings, query, sourceFilter, sort]);
+    return sortListings(
+      filterListings(listings, "all", sourceFilter, query).filter((listing) => matchesExtra(listing, extra)),
+      sort,
+    );
+  }, [listings, query, sourceFilter, sort, extra]);
+  const makers = useMemo(() => makerOptions(listings), [listings]);
+  const favoriteCount = useMemo(() => listings.filter((listing) => listing.favorite).length, [listings]);
+
+  async function toggleFavorite(id: string) {
+    const current = listings.find((item) => item.id === id);
+    if (!current) return;
+    const nextValue = !current.favorite;
+    setListings((rows) => rows.map((row) => (row.id === id ? { ...row, favorite: nextValue || undefined } : row)));
+    try {
+      await patchListing(id, { favorite: nextValue });
+    } catch {
+      setListings((rows) => rows.map((row) => (row.id === id ? { ...row, favorite: current.favorite } : row)));
+      setNoticeError(true);
+      setNotice("お気に入りを保存できませんでした。もう一度お試しください。");
+    }
+  }
   const counts = useMemo(() => sourceCounts(listings, "all", query), [listings, query]);
 
   function toggleCompare(id: string) {
@@ -317,15 +347,6 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               placeholder="車名、店、メモ"
               className="h-9 w-full bg-card sm:w-48"
             />
-            <Button
-              variant="outline"
-              aria-expanded={sortOpen}
-              aria-controls="sort-panel"
-              onClick={() => setSortOpen((open) => !open)}
-              className={sort ? "border-[#E4682C] text-[#E4682C]" : ""}
-            >
-              並べ替え{sort ? `（${sortLabel(sort)}）` : ""} {sortOpen ? "−" : "＋"}
-            </Button>
             <Button variant="outline" onClick={() => void exportAll()}>
               書き出す
             </Button>
@@ -340,32 +361,82 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               onChange={(event) => void onImport(event.target.files?.[0])}
             />
           </div>
-          {sortOpen && (
-            <div id="sort-panel" className="space-y-2.5 rounded-xl border bg-card p-3 shadow-sm sm:p-4">
-              {SORT_OPTIONS.map((opt) => (
-                <div key={opt.key} className="flex items-center gap-3">
-                  <span className="w-[4.5rem] shrink-0 text-sm font-bold sm:w-24">{opt.label}</span>
-                  <div className="grid min-w-0 flex-1 grid-cols-2 overflow-hidden rounded-lg border border-border shadow-sm">
-                    {(["asc", "desc"] as const).map((dir) => {
-                      const active = sort?.key === opt.key && sort.dir === dir;
-                      return (
-                        <button
-                          key={dir}
-                          type="button"
-                          aria-pressed={active}
-                          data-sort={`${opt.key}-${dir}`}
-                          onClick={() => setSort(active ? null : { key: opt.key, dir })}
-                          className={`h-10 text-sm font-bold ${dir === "desc" ? "border-l border-border" : ""} ${active ? "bg-[#E4682C] text-white" : "bg-card text-muted-foreground"}`}
-                        >
-                          {dir === "asc" ? opt.asc : opt.desc}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-              <p className="text-muted-foreground text-xs">もう一度押すと解除します（解除すると保存が新しい順）。データのない車は最後に並びます。</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto]" aria-label="並べ替えと絞り込み">
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className="text-muted-foreground text-[11px] font-bold">並べ替え</span>
+              <select
+                data-control="sort"
+                value={presetIdOf(sort)}
+                onChange={(event) => {
+                  const preset = SORT_PRESETS.find((item) => item.id === event.target.value);
+                  setSort(preset && preset.id !== "saved-desc" ? preset.sort : null);
+                }}
+                className={`h-10 w-full min-w-0 rounded-lg border bg-card px-2 text-sm font-bold ${sort ? "border-[#E7692F] text-[#E7692F]" : "border-border"}`}
+              >
+                {SORT_PRESETS.map((preset) => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className="text-muted-foreground text-[11px] font-bold">メーカー</span>
+              <select
+                data-control="maker"
+                value={extra.maker}
+                onChange={(event) => setExtra((current) => ({ ...current, maker: event.target.value }))}
+                className={`h-10 w-full min-w-0 rounded-lg border bg-card px-2 text-sm font-bold ${extra.maker ? "border-[#E7692F] text-[#E7692F]" : "border-border"}`}
+              >
+                <option value="">すべてのメーカー</option>
+                {makers.map((item) => (
+                  <option key={item.maker} value={item.maker}>
+                    {item.maker}（{item.count}）
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="col-span-2 flex flex-wrap items-center gap-2 sm:col-span-1 sm:self-end">
+              <div className="grid grid-cols-3 overflow-hidden rounded-lg border border-border shadow-sm" role="group" aria-label="掲載の状態">
+                {([
+                  ["all", "すべて"],
+                  ["live", "掲載中"],
+                  ["ended", "掲載終了"],
+                ] as [AvailabilityFilter, string][]).map(([value, label], index) => {
+                  const active = extra.availability === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={active}
+                      data-availability={value}
+                      onClick={() => setExtra((current) => ({ ...current, availability: value }))}
+                      className={`h-10 px-3 text-sm font-bold ${index ? "border-l border-border" : ""} ${active ? "bg-[#E7692F] text-white" : "bg-card text-muted-foreground"}`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                aria-pressed={extra.favoritesOnly}
+                data-control="favorites"
+                onClick={() => setExtra((current) => ({ ...current, favoritesOnly: !current.favoritesOnly }))}
+                className={`inline-flex h-10 items-center gap-1 rounded-lg border px-3 text-sm font-bold ${extra.favoritesOnly ? "border-[#E7692F] bg-[#E7692F] text-white" : "border-border bg-card text-muted-foreground"}`}
+              >
+                <HeartIcon filled={extra.favoritesOnly} color={extra.favoritesOnly ? "#FFFFFF" : undefined} className="size-4" />
+                お気に入り（{favoriteCount}）
+              </button>
             </div>
+          </div>
+          {isExtraActive(extra) && (
+            <p className="text-muted-foreground flex items-center gap-2 text-xs">
+              {visible.length}台を表示中
+              <button type="button" className="font-bold text-[#E7692F] underline" onClick={() => setExtra(NO_EXTRA_FILTER)}>
+                絞り込みを解除
+              </button>
+            </p>
           )}
         </div>
 
@@ -375,6 +446,10 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
           <EmptyLibrary />
         ) : visible.length === 0 ? (
           <p className="text-muted-foreground rounded-xl border border-dashed bg-card px-5 py-8 text-center text-sm">条件に合う車はありません。</p>
+        ) : visible.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-card px-5 py-8 text-center text-sm leading-7 text-muted-foreground">
+            条件に合う車がありません。絞り込みを変えてみてください。
+          </div>
         ) : (
           <ul className="min-w-0 space-y-3">
             {visible.map((listing) => {
@@ -393,6 +468,16 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               return (
               <li key={listing.id} className={`relative min-w-0 overflow-hidden rounded-2xl border bg-card shadow-sm ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
                 <div className="relative">
+                  <button
+                    type="button"
+                    aria-pressed={Boolean(listing.favorite)}
+                    aria-label={listing.favorite ? "お気に入りから外す" : "お気に入りに入れる"}
+                    data-favorite={listing.id}
+                    onClick={() => void toggleFavorite(listing.id)}
+                    className="absolute top-2 right-2 z-10 grid size-10 place-items-center rounded-full bg-white/95 text-[#6B6560] shadow-md"
+                  >
+                    <HeartIcon filled={Boolean(listing.favorite)} className="size-5" />
+                  </button>
                   <Link href={`/listings/${listing.id}`} className="block">
                     <div className="bg-muted aspect-[16/10] w-full overflow-hidden">
                       {listing.photoCount > 0 ? (
@@ -436,10 +521,12 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
           </ul>
         )}
 
+        <NotifySettingCard />
+
         <LineAddCard />
 
         <footer className="text-muted-foreground border-t pt-5 text-xs leading-6">
-          のこすは各掲載サイトとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店・出品者と各サイトにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。掲載が続いているかと価格は、毎日朝に自動で確認します。値下げと値上げは一覧に出ます。
+          のこすは各掲載サイトとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店・出品者と各サイトにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。掲載が続いているかと価格は、毎日朝に自動で確認します。値下げと値上げは一覧に出ます。LINEとつないでいると、値下げや掲載終了をLINEでもお知らせします（1日1通まで）。
         </footer>
       </main>
 
@@ -496,30 +583,19 @@ function SourceFilterButton({
   );
 }
 
-function FilterButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-bold ${active ? "border-[#E4682C] bg-[#E4682C] text-white" : "border-border bg-card text-muted-foreground"}`}
-    >
-      {children}
-    </button>
-  );
-}
-
 function EmptyLibrary() {
   return (
     <div className="rounded-xl border border-dashed border-border bg-card px-5 py-10 text-center text-sm leading-7 text-muted-foreground">
       まだ何も残っていません。上のフォームにURLを貼るか、LINEから共有してください。
     </div>
+  );
+}
+
+function HeartIcon({ filled, className, color }: { filled: boolean; className?: string; color?: string }) {
+  const tone = color ?? "#E7692F";
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={className} fill={filled ? tone : "none"} stroke={filled ? tone : "currentColor"} strokeWidth={2} strokeLinejoin="round">
+      <path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.3 1.1 5 3 1.7-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" />
+    </svg>
   );
 }

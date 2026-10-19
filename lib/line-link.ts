@@ -39,6 +39,15 @@ export async function isLineLinkedEmail(email: string): Promise<boolean> {
   return false;
 }
 
+// このメールのアカウントとつながっているLINEのユーザーID（なければ null）
+export async function linkedLineUserId(email: string): Promise<string | null> {
+  const normalized = normalizeEmail(email);
+  if (!normalized) return null;
+  if (!(await isLineLinkedEmail(normalized))) return null;
+  const reverse = await readAppJson<{ lineUserId?: string }>(reversePath(normalized));
+  return reverse?.lineUserId && (await linkedEmail(reverse.lineUserId)) === normalized ? reverse.lineUserId : null;
+}
+
 function reversePath(email: string): string {
   return `linkrev/${createHash("sha256").update(email).digest("hex").slice(0, 40)}.json`;
 }

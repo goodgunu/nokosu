@@ -423,7 +423,7 @@ export async function writeAppJson(name: string, value: unknown): Promise<void> 
 }
 
 function isAppJsonName(name: string): boolean {
-  return new RegExp(`^drafts/${LISTING_ID_SOURCE}\\.json$`).test(name) || /^codes\/[a-f0-9]{32}\.json$/.test(name) || /^links\/[a-f0-9]{40}\.json$/.test(name) || /^linkrev\/[a-f0-9]{40}\.json$/.test(name);
+  return new RegExp(`^drafts/${LISTING_ID_SOURCE}\\.json$`).test(name) || /^codes\/[a-f0-9]{32}\.json$/.test(name) || /^links\/[a-f0-9]{40}\.json$/.test(name) || /^linkrev\/[a-f0-9]{40}\.json$/.test(name) || /^notify\/[a-f0-9]{20}\.json$/.test(name) || /^notify-queue\/[a-f0-9]{20}\.json$/.test(name);
 }
 
 
@@ -524,4 +524,37 @@ export async function listLineLinkNames(): Promise<string[]> {
     return names.filter((n) => /^[a-f0-9]{40}\.json$/.test(n)).map((n) => `links/${n}`);
   }
   return (await listBlobPathnames("links/")).filter((n) => /^links\/[a-f0-9]{40}\.json$/.test(n));
+}
+
+
+// ---- LINE通知（値下げ・掲載終了） ----
+
+// 保存先フォルダ名（records/<folder>/...）。通知の設定と待ち行列もこの名前で持つ
+export function userFolderOf(email: string): string {
+  return userFolder(email);
+}
+
+// records/<folder>/<id>.json からフォルダ名を取り出す（古い形式は null）
+export function folderOfRecordPath(pathname: string): string | null {
+  const match = pathname.match(/^records\/([a-f0-9]{20})\//);
+  return match ? match[1] : null;
+}
+
+export async function listNotifyQueueFolders(): Promise<string[]> {
+  const names = fileStoreEnabled()
+    ? (await readdir(path.join(dataDir(), "notify-queue")).catch(() => [])).map((n) => `notify-queue/${n}`)
+    : await listBlobPathnames("notify-queue/");
+  return names.flatMap((name) => {
+    const match = name.match(/^notify-queue\/([a-f0-9]{20})\.json$/);
+    return match ? [match[1]] : [];
+  });
+}
+
+export async function deleteAppJson(name: string): Promise<void> {
+  if (!isAppJsonName(name)) throw new Error("保存名が不正です。");
+  if (fileStoreEnabled()) {
+    await rm(path.join(dataDir(), name), { force: true });
+    return;
+  }
+  await r2Delete([name]);
 }

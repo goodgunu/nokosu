@@ -3,6 +3,7 @@ import { checkDue, priceHistoryAfter } from "@/lib/price-history";
 import { recordFromListing } from "@/lib/save-kept";
 import { listAllStoredRecords, writeStoredRecord, type StoredRecord } from "@/lib/store";
 import type { ArchiveRecord } from "@/lib/types";
+import { detectEvents, queueEventsForPath, type NotifyEvent } from "@/lib/notify";
 
 export async function refreshStoredCar(record: ArchiveRecord, now = new Date()): Promise<ArchiveRecord> {
   const iso = now.toISOString();
@@ -40,6 +41,7 @@ export async function runDailyCheck(options?: {
   refresh?: (record: ArchiveRecord) => Promise<ArchiveRecord>;
   load?: () => Promise<StoredRecord[]>;
   save?: (pathname: string, record: ArchiveRecord) => Promise<void>;
+  notify?: (pathname: string, events: NotifyEvent[]) => Promise<void>;
 }): Promise<{ checked: number; remaining: number }> {
   const now = options?.now ?? Date.now();
   const budgetMs = options?.budgetMs ?? 40_000;
@@ -47,6 +49,7 @@ export async function runDailyCheck(options?: {
   const refresh = options?.refresh ?? ((record) => refreshStoredCar(record, new Date(now)));
   const load = options?.load ?? listAllStoredRecords;
   const save = options?.save ?? writeStoredRecord;
+  const notify = options?.notify ?? queueEventsForPath;
   const started = Date.now();
   const due = (await load())
     .filter((item) => checkDue(item.record, now))
@@ -57,6 +60,8 @@ export async function runDailyCheck(options?: {
     try {
       const next = await refresh(item.record);
       await save(item.pathname, next);
+      const events = detectEvents(item.record, next, new Date(now));
+      if (events.length) await notify(item.pathname, events).catch(() => undefined);
     } catch {
       await save(item.pathname, { ...item.record, checkAttemptAt: new Date(now).toISOString() }).catch(() => undefined);
     }

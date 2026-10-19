@@ -41,6 +41,10 @@ export async function PATCH(request: Request, context: Context) {
     });
   }
   if (isWatchStatus(body.watchStatus)) next.watchStatus = body.watchStatus;
+  if (typeof body.favorite === "boolean") {
+    if (body.favorite) next.favorite = true;
+    else delete next.favorite;
+  }
   if (body.availability === "live" || body.availability === "ended" || body.availability === "unknown") {
     next.availability = body.availability;
   }

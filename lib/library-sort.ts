@@ -1,7 +1,7 @@
 import { factValue, isBlankValue, yenFromManDisplay, yearNumber } from "@/lib/format";
 import type { ArchiveRecord } from "@/lib/types";
 
-export type SortKey = "total" | "base" | "year" | "distance" | "repair" | "saved";
+export type SortKey = "total" | "base" | "year" | "distance" | "repair" | "saved" | "drop";
 export type SortDir = "asc" | "desc";
 export type SortState = { key: SortKey; dir: SortDir } | null;
 
@@ -15,7 +15,35 @@ export const SORT_OPTIONS: { key: SortKey; label: string; asc: string; desc: str
   { key: "distance", label: "走行距離", asc: "少ない順", desc: "多い順" },
   { key: "repair", label: "修復歴", asc: "なし", desc: "あり" },
   { key: "saved", label: "保存日", asc: "古い順", desc: "新しい順" },
+  { key: "drop", label: "値下げ", asc: "小さい順", desc: "大きい順" },
 ];
+
+// 一覧の「並べ替え」で選べる順番
+export const SORT_PRESETS: { id: string; label: string; sort: { key: SortKey; dir: SortDir } }[] = [
+  { id: "saved-desc", label: "新しく保存した順", sort: { key: "saved", dir: "desc" } },
+  { id: "total-asc", label: "価格の安い順", sort: { key: "total", dir: "asc" } },
+  { id: "total-desc", label: "価格の高い順", sort: { key: "total", dir: "desc" } },
+  { id: "drop-desc", label: "値下げの大きい順", sort: { key: "drop", dir: "desc" } },
+  { id: "year-desc", label: "年式の新しい順", sort: { key: "year", dir: "desc" } },
+  { id: "distance-asc", label: "走行距離の少ない順", sort: { key: "distance", dir: "asc" } },
+];
+
+export function presetIdOf(sort: SortState): string {
+  const { key, dir } = sort ?? DEFAULT_SORT;
+  return SORT_PRESETS.find((p) => p.sort.key === key && p.sort.dir === dir)?.id ?? "saved-desc";
+}
+
+// 保存してからの値下げ額（円）。下がっていなければ null（並べると最後）
+export function priceDropYen(r: Pick<ArchiveRecord, "priceHistory" | "totalPrice" | "basePrice" | "priceYen">): number | null {
+  const points = (r.priceHistory ?? []).filter((p) => p.totalPrice || p.priceYen != null);
+  if (points.length < 2) return null;
+  const yenOf = (p: { totalPrice: string; priceYen: number | null }) => yenFromManDisplay(p.totalPrice || "") ?? p.priceYen;
+  const first = yenOf(points[0]);
+  const last = yenOf(points[points.length - 1]);
+  if (first == null || last == null) return null;
+  const drop = first - last;
+  return drop > 0 ? drop : null;
+}
 
 export function totalYen(r: Pick<ArchiveRecord, "totalPrice" | "basePrice" | "priceYen">): number | null {
   return yenFromManDisplay(r.totalPrice || "") ?? r.priceYen ?? yenFromManDisplay(r.basePrice || "");
@@ -61,6 +89,8 @@ function value(r: ArchiveRecord, key: SortKey): number | null {
       return distanceKm(r);
     case "repair":
       return repairRank(r);
+    case "drop":
+      return priceDropYen(r);
     case "saved": {
       const t = Date.parse(r.savedAt);
       return Number.isNaN(t) ? null : t;

@@ -56,3 +56,41 @@ export function filterListings(
       matchesQuery(listing, query),
   );
 }
+
+export type AvailabilityFilter = "all" | "live" | "ended";
+
+export type ExtraFilter = {
+  maker: string; // "" はすべて
+  availability: AvailabilityFilter;
+  favoritesOnly: boolean;
+};
+
+export const NO_EXTRA_FILTER: ExtraFilter = { maker: "", availability: "all", favoritesOnly: false };
+
+export function makerOf(listing: Pick<ArchiveRecord, "maker">): string {
+  return (listing.maker || "").trim();
+}
+
+// 一覧にあるメーカー（件数の多い順、同数は名前順）
+export function makerOptions(listings: ArchiveRecord[]): { maker: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const listing of listings) {
+    const maker = makerOf(listing);
+    if (maker) counts.set(maker, (counts.get(maker) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([maker, count]) => ({ maker, count }))
+    .sort((a, b) => b.count - a.count || a.maker.localeCompare(b.maker, "ja"));
+}
+
+export function matchesExtra(listing: ArchiveRecord, extra: ExtraFilter): boolean {
+  if (extra.maker && makerOf(listing) !== extra.maker) return false;
+  if (extra.availability === "ended" && listing.availability !== "ended") return false;
+  if (extra.availability === "live" && listing.availability === "ended") return false;
+  if (extra.favoritesOnly && !listing.favorite) return false;
+  return true;
+}
+
+export function isExtraActive(extra: ExtraFilter): boolean {
+  return Boolean(extra.maker) || extra.availability !== "all" || extra.favoritesOnly;
+}

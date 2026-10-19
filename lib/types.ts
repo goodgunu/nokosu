@@ -81,6 +81,8 @@ export type ArchiveRecord = {
   availability: Availability;
   priceHistory?: PricePoint[];
   watchStatus: WatchStatus;
+  // お気に入り（ハート）。任意項目
+  favorite?: boolean;
   memo: string;
   memoEntries?: MemoEntry[];
   title: string;

@@ -201,21 +201,28 @@ export function LandingPage() {
               残した掲載は、毎朝自動でチェック。価格が下がると、一覧に「値下げ」と出ます。
             </p>
           </div>
-          <div className="mx-auto w-full max-w-sm rounded-2xl bg-white p-4 shadow-lg lg:mx-0" style={{ color: "#1C1917" }}>
-            <div className="flex items-center justify-between">
-              <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white" style={{ background: "#E7692F" }}>例</span>
-              <span className="text-[11px]" style={{ color: "#6B6560" }}>今朝の確認</span>
+          <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-lg lg:mx-0" style={{ color: "#1C1917" }} data-promo-card>
+            <div className="relative aspect-[16/10] w-full">
+              <Image src="/gtr-hero-2.jpg" alt="例のオレンジのGT-R" fill sizes="(min-width: 1024px) 384px, 90vw" className="object-cover" style={{ objectPosition: "50% 60%" }} />
+              <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={{ background: "#E7692F" }}>例</span>
             </div>
-            <p className="mt-3 text-xs font-medium" style={{ color: "#6B6560" }}>日産 GT-R プレミアムエディション</p>
-            <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <span className="text-base font-bold tabular-nums line-through decoration-2" style={{ color: "#9A948E" }}>280万円</span>
-              <span className="text-lg font-bold" style={{ color: "#E7692F" }} aria-hidden>→</span>
-              <span className="text-[2rem] leading-none font-extrabold tabular-nums" style={{ color: "#E7692F" }}>270万円</span>
+            <div className="border-t-2 p-4" style={{ borderTopColor: "#E7692F" }}>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium" style={{ color: "#6B6560" }}>日産</p>
+                <span className="text-[11px]" style={{ color: "#6B6560" }}>今朝の確認</span>
+              </div>
+              <p className="mt-0.5 text-[17px] leading-snug font-bold">GT-R プレミアムエディション</p>
+              <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-[11px] font-bold" style={{ color: "#6B6560" }}>支払総額</span>
+                <span className="text-base font-bold tabular-nums line-through decoration-2" style={{ color: "#9A948E" }}>280万円</span>
+                <span className="text-lg font-bold" style={{ color: "#E7692F" }} aria-hidden>→</span>
+                <span className="text-[2rem] leading-none font-extrabold tabular-nums" style={{ color: "#E7692F" }}>270<span className="text-sm font-bold" style={{ color: "#1C1917" }}>万円</span></span>
+              </div>
+              <p className="mt-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-bold" style={{ background: "#E7F6EC", color: "#05813A" }}>
+                10万円値下げ
+              </p>
+              <p className="mt-2.5 text-[11px] leading-5" style={{ color: "#6B6560" }}>※ 表示のイメージです。実際の金額ではありません。</p>
             </div>
-            <p className="mt-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-bold" style={{ background: "#E7F6EC", color: "#05813A" }}>
-              10万円値下げ
-            </p>
-            <p className="mt-2.5 text-[11px] leading-5" style={{ color: "#6B6560" }}>※ 表示のイメージです。実際の金額ではありません。</p>
           </div>
         </div>
       </section>

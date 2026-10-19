@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { after } from "next/server";
 import { runDailyCheck } from "@/lib/daily-check";
+import { sendDigests, siteOrigin } from "@/lib/notify";
 
 export const maxDuration = 60;
 
@@ -18,7 +19,11 @@ export async function GET(request: Request) {
       const next = new URL(request.url);
       next.searchParams.set("step", String(step + 1));
       await fetch(next, { headers: { authorization }, cache: "no-store" }).catch(() => undefined);
+      return;
     }
+    // 確認が一通り終わったら、値下げ・掲載終了をLINEで1日1通にまとめて送る
+    const token = process.env.LINE_CHANNEL_ACCESS_TOKEN || "";
+    if (token) await sendDigests({ origin: siteOrigin(new URL(request.url).origin), token }).catch(() => undefined);
   });
   return Response.json({ accepted: true, step });
 }
