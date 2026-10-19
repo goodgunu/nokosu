@@ -131,13 +131,13 @@ export function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-7 sm:pt-8">
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]">
             <Image
-              src="/gtr-hero.jpg"
+              src="/gtr-hero-2.jpg"
               alt="オレンジのGT-Rの写真"
               fill
               priority
               sizes="(min-width: 1152px) 1100px, 100vw"
               className="object-cover"
-              style={{ objectPosition: "50% 60%" }}
+              style={{ objectPosition: "50% 55%" }}
             />
           </div>
         </div>
