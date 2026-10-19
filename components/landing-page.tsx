@@ -1,6 +1,5 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from "lucide-react";
@@ -9,7 +8,6 @@ import { LandingLineFlow } from "@/components/landing-line-flow";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID, LINE_ADD_FRIEND_URL } from "@/components/line-add-link";
 import { Wordmark } from "@/components/wordmark";
-import { messageFromClerkXError } from "@/lib/clerk-x-errors";
 
 const kept = [
   ["写真", "掲載の写真を選んで残す", Camera],
@@ -23,62 +21,21 @@ const kept = [
 export function LandingPage() {
   const [url, setUrl] = useState("");
   const [showLogin, setShowLogin] = useState(false);
-  const { signIn, fetchStatus } = useSignIn();
-  const [xBusy, setXBusy] = useState(false);
   const [xError, setXError] = useState("");
 
-  // 戻る操作(bfcache)で復帰したとき、処理中のまま固まらないようにする
+  // ログイン画面の「Xで続ける」で失敗して戻ってきたときの文言（/sso-callback が保存する）
   useEffect(() => {
-    const onShow = () => setXBusy(false);
-    window.addEventListener("pageshow", onShow);
     const stored = sessionStorage.getItem("nokosu-x-sso-error");
     if (stored) {
       sessionStorage.removeItem("nokosu-x-sso-error");
       setXError(stored);
     }
-    return () => window.removeEventListener("pageshow", onShow);
   }, []);
 
   function openLogin(nextUrl?: string) {
     const pending = (nextUrl ?? url).trim();
     if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
     setShowLogin(true);
-  }
-
-  async function startX() {
-    if (xBusy) return;
-    setXError("");
-    const pending = url.trim();
-    if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
-    if (!signIn || fetchStatus === "fetching") {
-      setXError("読み込み中です。少し待ってからもう一度押してください");
-      return;
-    }
-    setXBusy(true);
-    // 画面遷移しないまま長く待たされたら、原因不明の無反応にせず知らせる
-    const watchdog = window.setTimeout(() => {
-      setXBusy(false);
-      setXError("Xの画面に移動できませんでした。通信を確認するか、「はじめる」から「Xで続ける」をお試しください");
-    }, 10000);
-    try {
-      const origin = window.location.origin;
-      const result = await signIn.sso({
-        strategy: "oauth_x",
-        redirectUrl: `${origin}/`,
-        redirectCallbackUrl: `${origin}/sso-callback`,
-      });
-      if (result.error) {
-        window.clearTimeout(watchdog);
-        console.error("X sign-in failed", result.error);
-        setXError(messageFromClerkXError(result.error));
-        setXBusy(false);
-      }
-    } catch (error) {
-      window.clearTimeout(watchdog);
-      console.error("X sign-in failed", error);
-      setXError(messageFromClerkXError(error));
-      setXBusy(false);
-    }
   }
 
   return (
@@ -90,18 +47,9 @@ export function LandingPage() {
             <a href="#line-flow" className="hidden text-sm sm:inline">
               使い方
             </a>
-            <button
-              type="button"
-              disabled={xBusy}
-              className="shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white disabled:opacity-60 sm:px-3.5 sm:text-sm"
-              style={{ background: "#000000" }}
-              onClick={() => void startX()}
-            >
-              {xBusy ? "移動中…" : "Xで連携"}
-            </button>
             <a
               href="/api/auth/line-login?next=%2F"
-              className="inline-flex shrink-0 items-center rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white sm:px-3.5 sm:text-sm"
+              className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white sm:px-3.5 sm:text-sm"
               style={{ background: "#06C755" }}
               onClick={() => {
                 const pending = url.trim();
@@ -112,7 +60,7 @@ export function LandingPage() {
             </a>
             <button
               type="button"
-              className="shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-bold sm:px-3.5 sm:text-sm"
+              className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold sm:px-3.5 sm:text-sm"
               style={{ background: "#FFFFFF", color: "#E4682C" }}
               onClick={() => openLogin()}
             >
