@@ -243,12 +243,16 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
     <>
       <SiteHeader />
       <main className="mx-auto max-w-3xl space-y-0 px-4 pt-5 pb-28 sm:px-6">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="text-muted-foreground inline-flex items-center gap-1 text-sm font-medium hover:text-foreground">
-            <ArrowLeft className="size-4" />
+        <div className="flex items-center justify-between gap-2">
+          <Link
+            href="/"
+            className="inline-flex h-8 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-black/15 bg-white px-3 text-xs font-bold text-[#0f1419] hover:bg-black/5"
+            data-control="back"
+          >
+            <ArrowLeft className="size-3.5" />
             保存した車
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
             className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[#0f1419] px-3 text-xs font-bold text-white"

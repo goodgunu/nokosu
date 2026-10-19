@@ -5,10 +5,12 @@ import { useEffect, useState } from "react";
 import { messageFromClerkXError, X_ALREADY_USED_MESSAGE } from "@/lib/clerk-x-errors";
 import { publishAuthNotice } from "@/components/auth-notice";
 import { LINE_ALREADY_USED_MESSAGE, LINE_UNAVAILABLE_MESSAGE } from "@/lib/line-link-messages";
+import { hasVerifiedX, isXProvider } from "@/lib/x-provider";
 
-type Links = { line: boolean; canLinkLine: boolean };
+type Links = { line: boolean; canLinkLine: boolean; x?: boolean | null };
 
-const BADGE = "inline-flex shrink-0 items-center rounded-full px-2 py-1 text-[10px] font-bold";
+export const HEADER_PILL = "inline-flex h-7 shrink-0 items-center whitespace-nowrap rounded-full px-2.5 text-[11px] font-bold leading-none";
+const BADGE = HEADER_PILL;
 const X_LINK_FLAG = "nokosu-x-link";
 
 // ログアウトの横に出す連携の状態。未連携ならボタン、連携済みならバッジ
@@ -50,15 +52,16 @@ export function ConnectBadges() {
     return () => window.removeEventListener("nokosu-line-linked", onLinked);
   }, []);
 
-  // Xの連携は、Clerkでログインしているときだけ判定・連携できる
+  // Xの連携ボタンは、Clerkでログインしているときだけ出せる（連携の操作にClerkのセッションが要る）。
+  // 連携済みかどうかは、サーバー(/api/auth/links)の判定も使う。LINEでログインしていても
+  // 同じメールのアカウントにXがつながっていれば「X連携済み」を出す
   const clerkUser = isLoaded && isSignedIn ? user : null;
-  const xLinked =
-    clerkUser?.externalAccounts?.some((a) => a.provider === "x" && a.verification?.status === "verified") ?? false;
+  const xLinked = hasVerifiedX(clerkUser?.externalAccounts) || links?.x === true;
 
   // Authorize 後に戻ってきたとき、失敗したX連携を拾って文言を出す（無言失敗を防ぐ）
   useEffect(() => {
     if (!clerkUser) return;
-    const pending = clerkUser.externalAccounts.filter((a) => a.provider === "x" && a.verification?.status !== "verified");
+    const pending = clerkUser.externalAccounts.filter((a) => isXProvider(a.provider) && a.verification?.status !== "verified");
     const failed = pending.find((a) => a.verification?.status === "failed" || a.verification?.error);
     const flagged = typeof window !== "undefined" && sessionStorage.getItem(X_LINK_FLAG) === "1";
     if (!failed && !flagged) return;
@@ -128,12 +131,11 @@ export function ConnectBadges() {
           LINE連携
         </a>
       ) : null}
-      {clerkUser &&
-        (xLinked ? (
-          <span className={BADGE} style={{ background: "#FFFFFF", color: "#000000" }}>
-            X連携済み
-          </span>
-        ) : (
+      {xLinked ? (
+        <span className={BADGE} style={{ background: "#FFFFFF", color: "#000000" }}>
+          X連携済み
+        </span>
+      ) : clerkUser ? (
           <button
             type="button"
             disabled={busy}
@@ -143,7 +145,7 @@ export function ConnectBadges() {
           >
             {busy ? "移動中…" : "X連携"}
           </button>
-        ))}
+      ) : null}
       {err ? (
         <span role="alert" className="max-w-[14rem] text-[10px] font-bold leading-snug text-red-600 sm:max-w-xs">
           {err}
