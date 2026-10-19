@@ -188,6 +188,38 @@ export function LandingPage() {
         </div>
       </section>
 
+      <section id="daily-check" style={{ background: "#E7692F", color: "#FFFFFF" }}>
+        <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-9 sm:px-7 sm:py-12 lg:grid-cols-2 lg:gap-12">
+          <div>
+            <p className="text-xs font-bold tracking-[0.14em] text-white/85">毎朝、自動でチェック</p>
+            <h2 className="mt-2 text-[1.65rem] leading-snug font-extrabold tracking-tight sm:text-4xl">
+              毎日自動で確認。
+              <br />
+              値下げもすぐわかる。
+            </h2>
+            <p className="mt-3 max-w-md text-sm leading-7 text-white/95 sm:text-base">
+              残した掲載は、毎朝自動でチェック。価格が下がると、一覧に「値下げ」と出ます。
+            </p>
+          </div>
+          <div className="mx-auto w-full max-w-sm rounded-2xl bg-white p-4 shadow-lg lg:mx-0" style={{ color: "#1C1917" }}>
+            <div className="flex items-center justify-between">
+              <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white" style={{ background: "#E7692F" }}>例</span>
+              <span className="text-[11px]" style={{ color: "#6B6560" }}>今朝の確認</span>
+            </div>
+            <p className="mt-3 text-xs font-medium" style={{ color: "#6B6560" }}>日産 GT-R プレミアムエディション</p>
+            <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-base font-bold tabular-nums line-through decoration-2" style={{ color: "#9A948E" }}>280万円</span>
+              <span className="text-lg font-bold" style={{ color: "#E7692F" }} aria-hidden>→</span>
+              <span className="text-[2rem] leading-none font-extrabold tabular-nums" style={{ color: "#E7692F" }}>270万円</span>
+            </div>
+            <p className="mt-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-bold" style={{ background: "#E7F6EC", color: "#05813A" }}>
+              10万円値下げ
+            </p>
+            <p className="mt-2.5 text-[11px] leading-5" style={{ color: "#6B6560" }}>※ 表示のイメージです。実際の金額ではありません。</p>
+          </div>
+        </div>
+      </section>
+
       {showLogin && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
