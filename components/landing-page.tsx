@@ -202,13 +202,13 @@ export function LandingPage() {
             </p>
             <div className="mt-5 max-w-md rounded-2xl bg-white p-4 shadow-lg" style={{ color: "#1C1917" }} data-promo-line>
               <p className="flex items-center gap-2 text-base font-extrabold">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white" style={{ background: "#06C755" }} aria-hidden>
-                  LINE
+                <span className="grid size-7 shrink-0 place-items-center rounded-full" style={{ background: "#06C755" }} aria-hidden>
+                  <Image src="/icon-line.png" alt="" width={16} height={15} />
                 </span>
                 値下げや売約を、LINEでお知らせ
               </p>
               <p className="mt-2 text-sm leading-6" style={{ color: "#57534E" }}>
-                LINEで連携すると、値下げや掲載終了が見つかった朝に、LINEへお知らせが届きます（1日1通にまとめます）。公式LINE「のこす」を友だち追加しておいてください。
+                LINEで連携すると、値下げや掲載終了が見つかった朝に、LINEへお知らせが届きます（1日1通にまとめます）。
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <a
