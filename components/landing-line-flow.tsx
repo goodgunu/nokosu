@@ -97,7 +97,7 @@ function ShareSheet() {
     <Frame label="中古車サイトの共有ボタンを押すと、友だちの並びに「のこす」が出る共有シートの画面（サンプル）" bg="#9AA3AE" height={350}>
       <div className="relative flex h-full flex-col justify-end overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-24 opacity-60 blur-[3px]">
-          <Image src="/86-card.jpg" alt="" fill sizes="260px" className="object-cover" />
+          <Image src="/86-card-2.jpg" alt="" fill sizes="260px" className="object-cover" />
         </div>
         <div
           className="relative mx-1.5 mb-1.5 rounded-[22px] px-3 pt-3 pb-2"
@@ -283,7 +283,7 @@ export function LineChatPhone({ maxWidth = 290 }: { maxWidth?: number }) {
             <div className="flex min-w-0 flex-1 items-end gap-1">
               <div className="min-w-0 flex-1 overflow-hidden rounded-2xl rounded-tl-sm bg-white">
                 <div className="relative aspect-[16/10] w-full">
-                  <Image src="/86-card.jpg" alt="" fill sizes="200px" className="object-cover" />
+                  <Image src="/86-card-2.jpg" alt="" fill sizes="200px" className="object-cover" style={{ objectPosition: "30% 50%" }} />
                 </div>
                 <div className="border-t-2 px-2.5 py-2" style={{ borderColor: ORANGE }}>
                   <p className="text-[10px] font-bold" style={{ color: ORANGE }}>保存しました</p>

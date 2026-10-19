@@ -1,4 +1,5 @@
 import { factValue, isBlankValue, vehicleHeading } from "@/lib/format";
+import { repairState } from "@/lib/library-sort";
 import type { ArchiveRecord, Availability } from "@/lib/types";
 
 // 共有ページに出してよい項目だけを集めた形。メモ・販売店・出品者・住所などは入れない。
@@ -10,6 +11,11 @@ export type PublicListing = {
   availability: Availability;
   sourceUrl: string;
   equipment: string[];
+  // 短い事実だけ（古い共有には無いので省略可）。空欄は ""
+  mileage?: string;
+  color?: string;
+  repairHistory?: string;
+  inspection?: string;
   photoCount: number;
   coverIndex: number;
   sharedAt: string;
@@ -53,6 +59,45 @@ export function sharePrice(record: Pick<ArchiveRecord, "totalPrice" | "basePrice
   return null;
 }
 
+const FACT_LIMIT = 40;
+
+function shortFact(value: string | undefined | null): string {
+  const text = (value ?? "").replace(/\s+/g, " ").trim();
+  if (!text || isBlankValue(text) || text.length > FACT_LIMIT) return "";
+  return text;
+}
+
+function firstFact(record: Pick<ArchiveRecord, "highlights" | "sections">, keys: string[]): string {
+  for (const key of keys) {
+    const value = shortFact(factValue(record, key));
+    if (value) return value;
+  }
+  return "";
+}
+
+// 走行距離: 各サイト共通で「走行距離」。グーネットの「20.8 万km」の空白は詰める
+export function shareMileage(record: Pick<ArchiveRecord, "highlights" | "sections">): string {
+  return firstFact(record, ["走行距離"]).replace(/(\d)\s+(万?km)/u, "$1$2");
+}
+
+// 色: 保存時に取った record.color、なければ 車体色(グーネット) / 色(カーセンサー・カババ・ヤフオク) / ボディカラー
+export function shareColor(record: Pick<ArchiveRecord, "color" | "highlights" | "sections">): string {
+  return shortFact(record.color) || firstFact(record, ["車体色", "色", "ボディカラー"]);
+}
+
+// 修復歴: なし/ありに揃える。それ以外（「わからない」など）は短ければそのまま
+export function shareRepair(record: Pick<ArchiveRecord, "highlights" | "sections">): string {
+  const state = repairState(record);
+  if (state === "none") return "なし";
+  if (state === "has") return "あり";
+  return firstFact(record, ["修復歴"]);
+}
+
+// 車検: グーネット・ヤフオク「車検」、カーセンサー「車検有無」、カババ「車検有効期限」
+export function shareInspection(record: Pick<ArchiveRecord, "highlights" | "sections">): string {
+  return firstFact(record, ["車検", "車検有無", "車検有効期限", "車検満了", "車検満了日"]);
+}
+
 export function publicListingOf(record: ArchiveRecord, coverIndex = 0, now = new Date()): PublicListing {
   const price = sharePrice(record);
   const equipment = record.equipment
@@ -67,6 +112,10 @@ export function publicListingOf(record: ArchiveRecord, coverIndex = 0, now = new
     availability: record.availability,
     sourceUrl: record.sourceUrl,
     equipment,
+    mileage: shareMileage(record),
+    color: shareColor(record),
+    repairHistory: shareRepair(record),
+    inspection: shareInspection(record),
     photoCount: count,
     coverIndex: coverIndex >= 0 && coverIndex < count ? coverIndex : 0,
     sharedAt: now.toISOString(),

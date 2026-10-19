@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
+import { SpecChip } from "@/components/spec-chip";
 import { Wordmark } from "@/components/wordmark";
 import { getShare } from "@/lib/store";
 
@@ -54,6 +55,15 @@ export default async function SharePage({ params }: Props) {
   const indexes = Array.from({ length: listing.photoCount }, (_, i) => i);
   const status = statusText(listing.availability);
   const title = [listing.name, listing.year].filter(Boolean).join(" ");
+  // 古い共有には無い項目なので、空や未定義はそのまま出さない
+  const repair = listing.repairHistory || "";
+  const chips = [
+    { label: "年式", value: listing.year, tone: "plain" as const },
+    { label: "走行", value: listing.mileage || "", tone: "plain" as const },
+    { label: "色", value: listing.color || "", tone: "plain" as const },
+    { label: "修復歴", value: repair, tone: repair === "あり" ? ("warn" as const) : repair === "なし" ? ("calm" as const) : ("plain" as const) },
+  ].filter((chip) => chip.value);
+  const inspection = listing.inspection || "";
 
   return (
     <div className="min-h-full bg-background">
@@ -81,14 +91,25 @@ export default async function SharePage({ params }: Props) {
 
         <div className="mt-4 rounded-2xl border bg-card p-4 shadow-sm">
           <h1 className="text-[19px] leading-snug font-bold break-words">{listing.name}</h1>
-          <p className="text-muted-foreground mt-0.5 text-sm">
-            {[listing.year, status].filter(Boolean).join(" ・ ")}
-          </p>
+          {status && <p className="text-muted-foreground mt-0.5 text-sm">{status}</p>}
           {listing.price && (
             <p className="mt-2 flex items-baseline gap-1 leading-none">
               <span className="text-muted-foreground text-[11px] font-bold">{listing.priceLabel}</span>
               <span className="text-[26px] font-extrabold tabular-nums" style={{ color: "#E4682C" }}>{listing.price.replace(/万円$/, "")}</span>
               {/万円$/.test(listing.price) && <span className="text-sm font-bold">万円</span>}
+            </p>
+          )}
+          {chips.length > 0 && (
+            <div className="mt-2.5 flex flex-wrap gap-1.5" data-share="chips">
+              {chips.map((chip) => (
+                <SpecChip key={chip.label} label={chip.label} value={chip.value} tone={chip.tone} />
+              ))}
+            </div>
+          )}
+          {inspection && (
+            <p className="mt-2 text-sm" data-share="inspection">
+              <span className="text-muted-foreground mr-1.5 text-[11px] font-bold">車検</span>
+              {inspection}
             </p>
           )}
         </div>

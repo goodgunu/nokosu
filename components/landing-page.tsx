@@ -79,7 +79,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-7 sm:pt-8">
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]">
             <Image
-              src="/gtr-hero-2.jpg"
+              src="/gtr-hero-3.jpg"
               alt="オレンジのGT-Rの写真"
               fill
               priority
@@ -184,7 +184,7 @@ export function LandingPage() {
           </div>
           <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-lg lg:mx-0" style={{ color: "#1C1917" }} data-promo-card>
             <div className="relative aspect-[16/10] w-full">
-              <Image src="/gtr-hero-2.jpg" alt="例のオレンジのGT-R" fill sizes="(min-width: 1024px) 384px, 90vw" className="object-cover" style={{ objectPosition: "50% 60%" }} />
+              <Image src="/gtr-hero-3.jpg" alt="例のオレンジのGT-R" fill sizes="(min-width: 1024px) 384px, 90vw" className="object-cover" style={{ objectPosition: "30% 50%" }} />
               <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={{ background: "#E7692F" }}>例</span>
             </div>
             <div className="border-t-2 p-4" style={{ borderTopColor: "#E7692F" }}>

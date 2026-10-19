@@ -28,7 +28,7 @@ export function MiniCard({ ended }: { ended: boolean }) {
   return (
     <div className="flex overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="relative w-[40%] shrink-0 self-stretch bg-[#F2F2F2]">
-        <Image src="/86-card.jpg" alt="" fill sizes="140px" className={`object-cover ${ended ? "grayscale" : ""}`} />
+        <Image src="/86-card-2.jpg" alt="" fill sizes="140px" className={`object-cover ${ended ? "grayscale" : ""}`} style={{ objectPosition: "20% 50%" }} />
       </div>
       <div className="min-w-0 flex-1 border-l-2 p-2.5" style={{ borderColor: ORANGE }}>
         <p className="text-[10px] font-medium" style={{ color: "#666666" }}>トヨタ</p>
@@ -67,7 +67,7 @@ export function AppCard() {
   return (
     <div className="border-border min-w-0 overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="bg-muted relative aspect-[16/10] w-full overflow-hidden">
-        <Image src="/86-card.jpg" alt="" fill sizes="(max-width: 640px) 100vw, 300px" className="object-cover" />
+        <Image src="/86-card-2.jpg" alt="" fill sizes="(max-width: 640px) 100vw, 300px" className="object-cover" style={{ objectPosition: "30% 50%" }} />
       </div>
       <div className="min-w-0 border-t-2 p-3 pb-3.5" style={{ borderColor: ORANGE }}>
         <p className="text-muted-foreground text-xs font-medium tracking-wide">トヨタ</p>
