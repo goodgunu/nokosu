@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
+import { EquipmentTags } from "@/components/detail-blocks";
 import { SpecChip } from "@/components/spec-chip";
 import { Wordmark } from "@/components/wordmark";
 import { getShare } from "@/lib/store";
@@ -114,12 +115,7 @@ export default async function SharePage({ params }: Props) {
           )}
         </div>
 
-        {listing.equipment.length > 0 && (
-          <details className="mt-3 rounded-2xl border bg-card px-4 py-3 shadow-sm">
-            <summary className="cursor-pointer text-sm font-bold">装備を見る（{listing.equipment.length}）</summary>
-            <p className="text-muted-foreground mt-2 text-sm leading-7">{listing.equipment.join(" ・ ")}</p>
-          </details>
-        )}
+        <EquipmentTags items={listing.equipment} />
 
         <section className="mt-6 rounded-2xl p-5 text-center" style={{ background: "#FFF6EF" }}>
           <p className="text-sm font-bold">気になる車を、消える前に残す</p>
