@@ -231,6 +231,9 @@ export function LandingLineFlow() {
         <p className="mt-1.5 text-sm leading-7" style={{ color: "#6B6560" }}>
           iPhoneは共有ボタンから「LINE」→「のこす」を選ぶだけ。Androidも共有メニューから同じように送れます。
         </p>
+        <p className="mt-3 rounded-2xl px-4 py-3 text-sm leading-7" style={{ background: "#FFF6EF", color: "#6B6560" }}>
+          残した掲載は、毎日自動で確認します。値下げがあればすぐわかります。
+        </p>
         <ol className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => (
             <li key={step.title} className="rounded-2xl p-4" style={{ background: "#FFF6EF" }}>
