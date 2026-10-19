@@ -7,7 +7,7 @@ import { BadgeCheck, Camera, JapaneseYen, ListChecks, NotebookPen, Store } from 
 import { MockList } from "@/components/landing-mocks";
 import { LandingLineFlow } from "@/components/landing-line-flow";
 import { LoginOptions } from "@/components/login-options";
-import { LineAddLink, LINE_ACCOUNT_ID } from "@/components/line-add-link";
+import { LineAddLink, LINE_ACCOUNT_ID, LINE_ADD_FRIEND_URL } from "@/components/line-add-link";
 import { Wordmark } from "@/components/wordmark";
 import { messageFromClerkXError } from "@/lib/clerk-x-errors";
 
@@ -200,6 +200,39 @@ export function LandingPage() {
             <p className="mt-3 max-w-md text-sm leading-7 text-white/95 sm:text-base">
               残した掲載は、毎朝自動でチェック。価格が下がると、一覧に「値下げ」と出ます。
             </p>
+            <div className="mt-5 max-w-md rounded-2xl bg-white p-4 shadow-lg" style={{ color: "#1C1917" }} data-promo-line>
+              <p className="flex items-center gap-2 text-base font-extrabold">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white" style={{ background: "#06C755" }} aria-hidden>
+                  LINE
+                </span>
+                値下げや売約を、LINEでお知らせ
+              </p>
+              <p className="mt-2 text-sm leading-6" style={{ color: "#57534E" }}>
+                LINEで連携すると、値下げや掲載終了が見つかった朝に、LINEへお知らせが届きます（1日1通にまとめます）。公式LINE「のこす」を友だち追加しておいてください。
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a
+                  href="/api/auth/line-login?next=%2F"
+                  className="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold text-white"
+                  style={{ background: "#06C755" }}
+                  onClick={() => {
+                    const pending = url.trim();
+                    if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
+                  }}
+                >
+                  LINEで連携
+                </a>
+                <a
+                  href={LINE_ADD_FRIEND_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 items-center justify-center rounded-full border-2 px-4 text-sm font-bold"
+                  style={{ borderColor: "#06C755", color: "#05813A" }}
+                >
+                  公式LINEを友だち追加
+                </a>
+              </div>
+            </div>
           </div>
           <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-lg lg:mx-0" style={{ color: "#1C1917" }} data-promo-card>
             <div className="relative aspect-[16/10] w-full">
@@ -214,9 +247,9 @@ export function LandingPage() {
               <p className="mt-0.5 text-[17px] leading-snug font-bold">GT-R プレミアムエディション</p>
               <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="text-[11px] font-bold" style={{ color: "#6B6560" }}>支払総額</span>
-                <span className="text-base font-bold tabular-nums line-through decoration-2" style={{ color: "#9A948E" }}>280万円</span>
+                <span className="text-base font-bold tabular-nums line-through decoration-2" style={{ color: "#9A948E" }}>1,280万円</span>
                 <span className="text-lg font-bold" style={{ color: "#E7692F" }} aria-hidden>→</span>
-                <span className="text-[2rem] leading-none font-extrabold tabular-nums" style={{ color: "#E7692F" }}>270<span className="text-sm font-bold" style={{ color: "#1C1917" }}>万円</span></span>
+                <span className="text-[2rem] leading-none font-extrabold tabular-nums" style={{ color: "#E7692F" }}>1,270<span className="text-sm font-bold" style={{ color: "#1C1917" }}>万円</span></span>
               </div>
               <p className="mt-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-bold" style={{ background: "#E7F6EC", color: "#05813A" }}>
                 10万円値下げ
