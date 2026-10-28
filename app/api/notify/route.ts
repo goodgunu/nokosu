@@ -1,15 +1,10 @@
 import { accountState } from "@/lib/current-user";
-import { linkedLineUserId } from "@/lib/line-link";
-import { isLineUserId, putNotifySettings, settingsForEmail } from "@/lib/notify";
+import { lineNotifyRecipient } from "@/lib/line-link";
+import { putNotifySettings, settingsForEmail } from "@/lib/notify";
 
 // LINE通知（値下げ・掲載終了）の設定。LINEとつながっているアカウントだけが使える
 async function recipientFor(email: string): Promise<string | null> {
-  if (email.startsWith("line:")) {
-    const id = email.slice("line:".length);
-    return isLineUserId(id) ? id : null;
-  }
-  if (email.startsWith("yahoo:")) return null;
-  return linkedLineUserId(email).catch(() => null);
+  return lineNotifyRecipient(email).catch(() => null);
 }
 
 export async function GET() {
@@ -18,7 +13,7 @@ export async function GET() {
   const lineUserId = await recipientFor(state.email);
   const { folder, settings } = await settingsForEmail(state.email);
   if (lineUserId && settings.lineUserId !== lineUserId) {
-    // LINEでログインしたアカウントは links/ がないので、送り先をここで覚えておく
+    // 送り先を設定にも残す。日次のまとめは逆引きが無くても、ここから届ける。
     await putNotifySettings(folder, { ...settings, lineUserId }).catch(() => undefined);
   }
   return Response.json({ available: Boolean(lineUserId), enabled: settings.enabled !== false });

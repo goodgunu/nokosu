@@ -1,6 +1,7 @@
 import { currentUser, unauthorized } from "@/lib/current-user";
 import { saveAndReply } from "@/lib/line-incoming";
-import { linkLineUser } from "@/lib/line-link";
+import { claimLineLink } from "@/lib/line-link";
+import { LINE_ALREADY_USED_MESSAGE } from "@/lib/line-link-messages";
 import { finishLineConnectCode, readLineConnectCode } from "@/lib/line-login";
 import type { LineMessage } from "@/lib/line-picker";
 
@@ -25,7 +26,9 @@ export async function POST(request: Request) {
   }
   if (login.href) return Response.json({ href: login.href });
 
-  await linkLineUser(login.lineUserId, user.email);
+  const claimed = await claimLineLink(login.lineUserId, user.email);
+  if (claimed === "conflict") return Response.json({ message: LINE_ALREADY_USED_MESSAGE }, { status: 409 });
+  if (claimed !== "linked") return Response.json({ message: "LINEとアカウントを結びつけられません。" }, { status: 400 });
   const origin = siteOrigin(request);
   const reply = await saveAndReply({ email: user.email, url: login.carsensorUrl, origin });
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN || "";

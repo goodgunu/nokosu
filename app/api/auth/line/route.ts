@@ -1,8 +1,8 @@
 import { accountState, unauthorized } from "@/lib/current-user";
+import { accountForLineLogin } from "@/lib/line-link";
 import { consumeLineLoginCode, lineAccountId, safeNext } from "@/lib/line-login";
-import { sessionCookie } from "@/lib/session";
+import { sessionCookie, signSession } from "@/lib/session";
 import { authSecret } from "@/lib/store";
-import { signSession } from "@/lib/session";
 
 export async function GET(request: Request) {
   const code = new URL(request.url).searchParams.get("code") || "";
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   }
-  const email = lineAccountId(login.lineUserId);
+  const email = (await accountForLineLogin(login.lineUserId)) || lineAccountId(login.lineUserId);
   const token = signSession(email, await authSecret());
   const secure = Boolean(process.env.VERCEL) || new URL(request.url).protocol === "https:";
   return new Response(null, {
