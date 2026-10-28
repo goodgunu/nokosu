@@ -151,7 +151,13 @@ test("share ids: unguessable, validated; publish/unpublish round trip", async ()
   }
 });
 
-import { isLineLinkedEmail, linkLineUser } from "../lib/line-link";
+import { normalizeAccountKey } from "../lib/account";
+import { resolveClerkAccountKey } from "../lib/current-user";
+import { acceptGoogleAccount } from "../lib/google-owner";
+import { isLineConflict, isLineLinkedEmail, linkedEmail, linkedLineUserId, linkLineUser } from "../lib/line-link";
+import { lineAccountId } from "../lib/line-login";
+import { linkedRecipients } from "../lib/notify";
+import { userFolderOf } from "../lib/store";
 import { startLogin, readPending } from "../lib/line-oauth";
 import { isXAlreadyUsedError, messageFromClerkXError, X_ALREADY_USED_MESSAGE } from "../lib/clerk-x-errors";
 import { messageForLineLinkFlag, LINE_ALREADY_USED_MESSAGE } from "../lib/line-link-messages";
@@ -198,4 +204,51 @@ test("LINE link conflict maps to Japanese", () => {
   assert.ok(messageForLineLinkFlag("unavailable"));
   assert.equal(messageForLineLinkFlag("linked"), "LINEを連携しました。");
   assert.equal(messageForLineLinkFlag("other"), null);
+});
+
+test("Yahoo!, LINE, and Clerk/X account keys can link LINE and receive notifications", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "nokosu-link-all-"));
+  process.env.NOKOSU_DATA_DIR = dir;
+  try {
+    // 1. normalizeAccountKey & Clerk fallback without email
+    assert.equal(normalizeAccountKey("User@Example.com"), "user@example.com");
+    assert.equal(normalizeAccountKey("yahoo:abc12345678"), "yahoo:abc12345678");
+    assert.equal(normalizeAccountKey("line:Uabcdef1234567890"), "line:Uabcdef1234567890");
+    assert.equal(normalizeAccountKey("clerk:user_2abcXYZ123"), "clerk:user_2abcXYZ123");
+    assert.equal(normalizeAccountKey("bad key"), null);
+
+    assert.equal(resolveClerkAccountKey("user_2abcXYZ123", null), "clerk:user_2abcXYZ123");
+    assert.equal(
+      resolveClerkAccountKey("user_2abcXYZ123", { primaryEmailAddress: { emailAddress: "x@example.com" } }),
+      "x@example.com",
+    );
+    const clerkAccepted = await acceptGoogleAccount(resolveClerkAccountKey("user_2abcXYZ123", {}));
+    assert.deepEqual(clerkAccepted, { ok: true, email: "clerk:user_2abcXYZ123" });
+
+    // 2. LINE login user (line:U...) is treated as linked and registered for notifications
+    const lineSub = "Ulinesignup1234567890";
+    const selfKey = lineAccountId(lineSub);
+    assert.equal(await isLineLinkedEmail(selfKey), true);
+    assert.equal(await linkedLineUserId(selfKey), lineSub);
+    await linkLineUser(lineSub, selfKey);
+    assert.equal(await linkedEmail(lineSub), selfKey);
+    const recipientsBefore = await linkedRecipients();
+    assert.equal(recipientsBefore.get(userFolderOf(selfKey)), lineSub);
+
+    // 3. Self-linked line:U... does not conflict when the user later links from Yahoo! or Google
+    const yahooKey = "yahoo:yuser_12345678";
+    assert.equal(await isLineLinkedEmail(yahooKey), false);
+    assert.equal(isLineConflict(await linkedEmail(lineSub), yahooKey, lineSub), false);
+    await linkLineUser(lineSub, yahooKey);
+    assert.equal(await linkedEmail(lineSub), yahooKey);
+    assert.equal(await isLineLinkedEmail(yahooKey), true);
+    assert.equal(await linkedLineUserId(yahooKey), lineSub);
+
+    // 4. Another account trying to link the same LINE user gets conflict
+    assert.equal(isLineConflict(await linkedEmail(lineSub), "other@example.com", lineSub), true);
+    assert.equal(isLineConflict(await linkedEmail(lineSub), yahooKey, lineSub), false);
+  } finally {
+    delete process.env.NOKOSU_DATA_DIR;
+    await rm(dir, { recursive: true, force: true });
+  }
 });

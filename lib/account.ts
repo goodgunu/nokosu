@@ -7,6 +7,15 @@ export function normalizeEmail(value: string): string | null {
   return email;
 }
 
+// メールアドレスのほか、Yahoo! / LINE / Clerk / X などのアカウント識別子も受け付ける
+export function normalizeAccountKey(value: string): string | null {
+  const trimmed = value.trim();
+  const email = normalizeEmail(trimmed);
+  if (email) return email;
+  if (/^(?:yahoo|line|clerk|x):[A-Za-z0-9_-]{4,128}$/.test(trimmed)) return trimmed;
+  return null;
+}
+
 export async function registerAccount(email: string, password: string): Promise<{ ok: true; email: string } | { ok: false; message: string }> {
   const normalized = normalizeEmail(email);
   if (!normalized) return { ok: false, message: "メールアドレスを確認してください。" };

@@ -8,7 +8,6 @@ async function recipientFor(email: string): Promise<string | null> {
     const id = email.slice("line:".length);
     return isLineUserId(id) ? id : null;
   }
-  if (email.startsWith("yahoo:")) return null;
   return linkedLineUserId(email).catch(() => null);
 }
 
@@ -18,7 +17,7 @@ export async function GET() {
   const lineUserId = await recipientFor(state.email);
   const { folder, settings } = await settingsForEmail(state.email);
   if (lineUserId && settings.lineUserId !== lineUserId) {
-    // LINEでログインしたアカウントは links/ がないので、送り先をここで覚えておく
+    // LINEでログインしたアカウントは links/ がなくても送り先をここで覚えておく
     await putNotifySettings(folder, { ...settings, lineUserId }).catch(() => undefined);
   }
   return Response.json({ available: Boolean(lineUserId), enabled: settings.enabled !== false });
