@@ -4,7 +4,7 @@ export const LINE_ALREADY_USED_MESSAGE =
   "このLINEアカウントは、別ののこすのアカウントですでに使われています。";
 
 export const LINE_UNAVAILABLE_MESSAGE =
-  "このアカウントではLINE連携できません。メールのあるアカウントでログインし直してください。";
+  "このアカウントではLINE連携できません。ログインし直してから、もう一度お試しください。";
 
 export const LINE_LINKED_MESSAGE = "LINEを連携しました。";
 

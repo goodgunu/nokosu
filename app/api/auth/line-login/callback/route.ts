@@ -1,6 +1,5 @@
-import { lineAccountId } from "@/lib/line-login";
 import { accountState } from "@/lib/current-user";
-import { linkedEmail, linkLineUser } from "@/lib/line-link";
+import { accountForLineLogin, claimLineLink } from "@/lib/line-link";
 import { callbackUrl, exchangeCode, lineLoginConfig, LINE_STATE_COOKIE, readPending } from "@/lib/line-oauth";
 import { readCookie, sessionCookie, signSession } from "@/lib/session";
 import { authSecret } from "@/lib/store";
@@ -33,7 +32,8 @@ export async function GET(request: Request) {
   const profile = await exchangeCode(code, callbackUrl(request), pending.nonce, config).catch(() => null);
   if (!profile) return fail("LINEのログインを確認できませんでした。もう一度お試しください。");
 
-  // 「LINEを連携」: いまログインしているアカウント（メールのあるもの）にLINEをつなぐ。ログインは入れ替えない
+  // 「LINEを連携」: いまログインしているアカウントにLINEをつなぐ。ログインは入れ替えない。
+  // メールのほか、Yahoo! やメール無しの Clerk も対象。LINE単体の自己紐付けは競合にせず上書きする。
   if (pending.link) {
     const state = await accountState().catch(() => ({ status: "anonymous" as const }));
     const clear = `${LINE_STATE_COOKIE}=; HttpOnly; Path=/api/auth/line-login; SameSite=Lax; Max-Age=0; Secure`;
@@ -44,17 +44,17 @@ export async function GET(request: Request) {
       h.append("Set-Cookie", clear);
       return new Response(null, { status: 302, headers: h });
     };
-    if (state.status !== "ready" || !state.email.includes("@") || state.email.startsWith("lineauth:")) return back("unavailable");
-    const existing = await linkedEmail(profile.sub).catch(() => null);
-    if (existing && existing !== state.email.toLowerCase()) return back("conflict");
-    await linkLineUser(profile.sub, state.email);
+    if (state.status !== "ready") return back("unavailable");
+    const claimed = await claimLineLink(profile.sub, state.email);
+    if (claimed === "conflict") return back("conflict");
+    if (claimed !== "linked") return back("unavailable");
     return back("linked");
   }
 
   // LINEのメールは未確認の可能性があるため、データ領域の決定には使わない。
-  // 公式アカウント連携（Googleなどでログイン済みの本人が結びつけたもの）があればそのメール、なければ line:<sub>。
-  const linked = await linkedEmail(profile.sub).catch(() => null);
-  const account = linked ? `lineauth:${linked}` : lineAccountId(profile.sub);
+  // 別の実アカウントへ連携済みならそのアカウント、無ければ line:<sub> に自己紐付けする。
+  const account = await accountForLineLogin(profile.sub);
+  if (!account) return fail("LINEのログインを確認できませんでした。もう一度お試しください。");
   const token = signSession(account, await authSecret());
   const headers = new Headers({ Location: pending.next });
   headers.append("Set-Cookie", sessionCookie(token, true));

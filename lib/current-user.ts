@@ -1,7 +1,8 @@
 import { auth, currentUser as clerkCurrentUser } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
-import { normalizeEmail } from "@/lib/account";
+import { accountIdFromSession, clerkAccountId, isLineLoginAccount } from "@/lib/account";
 import { acceptGoogleAccount } from "@/lib/google-owner";
+import { ensureLineLoginLink } from "@/lib/line-link";
 import { readSession } from "@/lib/session";
 import { authSecret } from "@/lib/store";
 
@@ -11,23 +12,29 @@ export async function accountState(): Promise<AccountState> {
   const { userId } = await auth();
   if (userId) {
     const user = await clerkCurrentUser();
-    const email = user?.primaryEmailAddress?.emailAddress;
-    if (email) {
-      const accepted = await acceptGoogleAccount(email);
-      if (!accepted.ok) return { status: "mismatch" };
-      return { status: "ready", email: accepted.email };
+    if (user) {
+      const primary = user.primaryEmailAddress?.emailAddress;
+      if (primary) {
+        const accepted = await acceptGoogleAccount(primary);
+        if (!accepted.ok) return { status: "mismatch" };
+        return { status: "ready", email: accepted.email };
+      }
+      // メールが無いソーシャルログイン（X など）は、Clerk の userId をアカウントにする。
+      const clerkId = clerkAccountId(userId);
+      if (clerkId) return { status: "ready", email: clerkId };
     }
   }
   const token = (await cookies()).get("nokosu_session")?.value || "";
   if (!token) return { status: "anonymous" };
   const session = readSession(token, await authSecret());
-  if (session?.email.startsWith("lineauth:")) {
-    const email = normalizeEmail(session.email.slice("lineauth:".length));
-    return email ? { status: "ready", email } : { status: "anonymous" };
+  if (!session) return { status: "anonymous" };
+  const accountId = accountIdFromSession(session.email);
+  if (!accountId) return { status: "anonymous" };
+  // すでにログインしている LINE 単体アカウントも、未接続ならここで逆引きを作る。
+  if (isLineLoginAccount(accountId)) {
+    await ensureLineLoginLink(accountId.slice("line:".length)).catch(() => undefined);
   }
-  if (session && /^yahoo:[A-Za-z0-9_-]{8,128}$/.test(session.email)) return { status: "ready", email: session.email };
-  if (!session?.email.startsWith("line:")) return { status: "anonymous" };
-  return { status: "ready", email: session.email };
+  return { status: "ready", email: accountId };
 }
 
 export async function currentUser(request?: Request): Promise<{ email: string } | null> {
