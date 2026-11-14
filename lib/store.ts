@@ -534,6 +534,23 @@ export function userFolderOf(email: string): string {
   return userFolder(email);
 }
 
+// そのフォルダの車のうち、お気に入り（ハート）に入っているもののID
+export async function favoriteIdsInFolder(folder: string): Promise<Set<string>> {
+  const ids = new Set<string>();
+  if (!/^[a-f0-9]{20}$/.test(folder)) return ids;
+  const pathnames = fileStoreEnabled()
+    ? (await readdir(path.join(dataDir(), "records", folder)).catch(() => [])).map((name) => `records/${folder}/${name}`)
+    : await listBlobPathnames(`records/${folder}/`);
+  for (const pathname of pathnames) {
+    if (!isStoredRecordPath(pathname)) continue;
+    const record = fileStoreEnabled()
+      ? await readJsonFile<ArchiveRecord>(path.join(dataDir(), pathname))
+      : await readBlobJson<ArchiveRecord>(pathname);
+    if (record?.id && record.favorite === true) ids.add(record.id);
+  }
+  return ids;
+}
+
 // records/<folder>/<id>.json からフォルダ名を取り出す（古い形式は null）
 export function folderOfRecordPath(pathname: string): string | null {
   const match = pathname.match(/^records\/([a-f0-9]{20})\//);

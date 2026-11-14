@@ -16,10 +16,11 @@ import {
   putNotifySettings,
   queueEventsForPath,
   sendDigests,
+  notifiableEvents,
   tokyoDay,
   type NotifyEvent,
 } from "../lib/notify";
-import { listNotifyQueueFolders, userFolderOf } from "../lib/store";
+import { favoriteIdsInFolder, listNotifyQueueFolders, userFolderOf, writeStoredRecord } from "../lib/store";
 import type { ArchiveRecord } from "../lib/types";
 
 function car(id: string, o: Partial<ArchiveRecord> = {}): ArchiveRecord {
@@ -116,11 +117,12 @@ test("毎朝の確認で待ち行列にため、1ユーザー1日1通だけ送�
     await putNotifySettings(userFolderOf(offEmail), { enabled: false });
     const pathFor = (email: string, id: string) => `records/${userFolderOf(email)}/${id}.json`;
     const stored = [
-      { pathname: pathFor(linkedEmail, "AU1000000001"), record: car("AU1000000001") },
-      { pathname: pathFor(linkedEmail, "AU1000000002"), record: car("AU1000000002", { maker: "トヨタ", title: "86 GT" }) },
-      { pathname: pathFor(offEmail, "AU1000000003"), record: car("AU1000000003") },
-      { pathname: pathFor(plainEmail, "AU1000000004"), record: car("AU1000000004") },
+      { pathname: pathFor(linkedEmail, "AU1000000001"), record: car("AU1000000001", { favorite: true }) },
+      { pathname: pathFor(linkedEmail, "AU1000000002"), record: car("AU1000000002", { maker: "トヨタ", title: "86 GT", favorite: true }) },
+      { pathname: pathFor(offEmail, "AU1000000003"), record: car("AU1000000003", { favorite: true }) },
+      { pathname: pathFor(plainEmail, "AU1000000004"), record: car("AU1000000004", { favorite: true }) },
     ];
+    const favorites = async () => new Set(["AU1000000001", "AU1000000002", "AU1000000003", "AU1000000004"]);
     await runDailyCheck({
       now: NOW.getTime(),
       load: async () => stored,
@@ -139,7 +141,7 @@ test("毎朝の確認で待ち行列にため、1ユーザー1日1通だけ送�
       if (url.endsWith("/consumption")) return { ok: true, status: 200, json: async () => ({ totalUsage: 10 }) };
       return { ok: true, status: 200, json: async () => ({}) };
     };
-    const first = await sendDigests({ origin: "https://nokosu.example", token: "test-token", now: NOW, fetchImpl });
+    const first = await sendDigests({ origin: "https://nokosu.example", token: "test-token", now: NOW, fetchImpl, favorites });
     assert.equal(first.sent, 1);
     assert.equal(first.skipped, 2);
     const pushes = calls.filter((c) => c.url.endsWith("/push"));
@@ -156,10 +158,10 @@ test("毎朝の確認で待ち行列にため、1ユーザー1日1通だけ送�
     await queueEventsForPath(pathFor(linkedEmail, "AU1000000001"), [
       { id: "AU1000000001", kind: "drop", name: "x", before: "270万円", after: "260万円", dropYen: 100_000, at: "x" },
     ]);
-    const second = await sendDigests({ origin: "https://nokosu.example", token: "test-token", now: NOW, fetchImpl });
+    const second = await sendDigests({ origin: "https://nokosu.example", token: "test-token", now: NOW, fetchImpl, favorites });
     assert.equal(second.sent, 0);
     assert.equal(second.waiting, 1);
-    const tomorrow = await sendDigests({ origin: "https://nokosu.example", token: "test-token", now: new Date("2026-10-20T22:00:00.000Z"), fetchImpl });
+    const tomorrow = await sendDigests({ origin: "https://nokosu.example", token: "test-token", now: new Date("2026-10-20T22:00:00.000Z"), fetchImpl, favorites });
     assert.equal(tomorrow.sent, 1);
 
     // 無料枠を使い切っていたら送らない
@@ -171,7 +173,7 @@ test("毎朝の確認で待ち行列にため、1ユーザー1日1通だけ送�
       if (url.endsWith("/consumption")) return { ok: true, status: 200, json: async () => ({ totalUsage: 200 }) };
       throw new Error("push should not be called");
     };
-    const blocked = await sendDigests({ origin: "https://n.example", token: "t", now: new Date("2026-10-21T22:00:00.000Z"), fetchImpl: full });
+    const blocked = await sendDigests({ origin: "https://n.example", token: "t", now: new Date("2026-10-21T22:00:00.000Z"), fetchImpl: full, favorites });
     assert.equal(blocked.sent, 0);
     assert.equal(blocked.waiting, 1);
   } finally {
@@ -206,4 +208,86 @@ test("比べる画面: 主な装備といちばん良い値の印", () => {
   const year = COMPARE_ROWS.find((r) => r.label === "年式")!;
   assert.deepEqual([...bestIds([a, b], total)], ["A"]);
   assert.deepEqual([...bestIds([a, b], year)], ["B"]);
+});
+
+test("LINE通知はお気に入りの車だけ。お気に入りでない車の変化はためず、外した車も送らない", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "nokosu-notify-fav-"));
+  process.env.NOKOSU_DATA_DIR = dir;
+  try {
+    const email = "fav@example.com";
+    await linkLineUser("Ufav00000000000000000000000000001", email);
+    const pathFor = (id: string) => `records/${userFolderOf(email)}/${id}.json`;
+    const stored = [
+      { pathname: pathFor("AU2000000001"), record: car("AU2000000001", { favorite: true }) },
+      { pathname: pathFor("AU2000000002"), record: car("AU2000000002") },
+      { pathname: pathFor("AU2000000003"), record: car("AU2000000003", { favorite: true }) },
+    ];
+    const queued: string[] = [];
+    await runDailyCheck({
+      now: NOW.getTime(),
+      load: async () => stored,
+      save: async () => undefined,
+      refresh: async (record) => ({ ...record, totalPrice: "270万円", priceYen: 2_600_000 }),
+      notify: async (_pathname, events) => {
+        queued.push(...events.map((event) => event.id));
+        await queueEventsForPath(_pathname, events);
+      },
+    });
+    assert.deepEqual(queued.sort(), ["AU2000000001", "AU2000000003"]);
+
+    const pushes: string[] = [];
+    const fetchImpl = async (url: string, init: { method: string; body?: string }) => {
+      if (url.endsWith("/push")) pushes.push(init.body || "");
+      return { ok: true, status: 200, json: async () => ({}) };
+    };
+    // 3台目は、送る前にお気に入りから外した
+    const result = await sendDigests({ origin: "https://n.example", token: "t", now: NOW, fetchImpl, favorites: async () => new Set(["AU2000000001"]) });
+    assert.equal(result.sent, 1);
+    const text = (JSON.parse(pushes[0]) as { messages: { text: string }[] }).messages[0].text;
+    assert.match(text, /AU2000000001/);
+    assert.doesNotMatch(text, /AU2000000003/);
+    assert.doesNotMatch(text, /AU2000000002/);
+    assert.match(text, /お気に入り/);
+    assert.deepEqual(notifiableEvents({ favorite: undefined }, [{ id: "x", kind: "ended", name: "x", at: "x" }]), []);
+  } finally {
+    delete process.env.NOKOSU_DATA_DIR;
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("お気に入りのIDは、そのフォルダの保存から読む", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "nokosu-fav-ids-"));
+  process.env.NOKOSU_DATA_DIR = dir;
+  try {
+    const folder = userFolderOf("ids@example.com");
+    await writeStoredRecord(`records/${folder}/AU3000000001.json`, car("AU3000000001", { favorite: true }));
+    await writeStoredRecord(`records/${folder}/AU3000000002.json`, car("AU3000000002"));
+    assert.deepEqual([...(await favoriteIdsInFolder(folder))], ["AU3000000001"]);
+    assert.equal((await favoriteIdsInFolder("../etc")).size, 0);
+  } finally {
+    delete process.env.NOKOSU_DATA_DIR;
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("トークン不正(401)では待ち行列を捨てず、送り先不正(400)では捨てる", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "nokosu-notify-401-"));
+  process.env.NOKOSU_DATA_DIR = dir;
+  try {
+    const email = "auth@example.com";
+    await linkLineUser("Uauth0000000000000000000000000001", email);
+    const p = `records/${userFolderOf(email)}/AU4000000001.json`;
+    await queueEventsForPath(p, [{ id: "AU4000000001", kind: "ended", name: "x", at: "x" }]);
+    const favorites = async () => new Set(["AU4000000001"]);
+    const status = (code: number) => async () => ({ ok: code < 300, status: code, json: async () => ({}) });
+    const r401 = await sendDigests({ origin: "https://n.example", token: "bad", now: NOW, fetchImpl: status(401), favorites });
+    assert.equal(r401.failed, 1);
+    assert.equal((await listNotifyQueueFolders()).length, 1);
+    const r400 = await sendDigests({ origin: "https://n.example", token: "t", now: NOW, fetchImpl: status(400), favorites });
+    assert.equal(r400.failed, 1);
+    assert.equal((await listNotifyQueueFolders()).length, 0);
+  } finally {
+    delete process.env.NOKOSU_DATA_DIR;
+    await rm(dir, { recursive: true, force: true });
+  }
 });

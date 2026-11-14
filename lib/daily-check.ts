@@ -3,7 +3,7 @@ import { checkDue, priceHistoryAfter } from "@/lib/price-history";
 import { recordFromListing } from "@/lib/save-kept";
 import { listAllStoredRecords, writeStoredRecord, type StoredRecord } from "@/lib/store";
 import type { ArchiveRecord } from "@/lib/types";
-import { detectEvents, queueEventsForPath, type NotifyEvent } from "@/lib/notify";
+import { detectEvents, notifiableEvents, queueEventsForPath, type NotifyEvent } from "@/lib/notify";
 
 export async function refreshStoredCar(record: ArchiveRecord, now = new Date()): Promise<ArchiveRecord> {
   const iso = now.toISOString();
@@ -60,7 +60,7 @@ export async function runDailyCheck(options?: {
     try {
       const next = await refresh(item.record);
       await save(item.pathname, next);
-      const events = detectEvents(item.record, next, new Date(now));
+      const events = notifiableEvents(next, detectEvents(item.record, next, new Date(now)));
       if (events.length) await notify(item.pathname, events).catch(() => undefined);
     } catch {
       await save(item.pathname, { ...item.record, checkAttemptAt: new Date(now).toISOString() }).catch(() => undefined);

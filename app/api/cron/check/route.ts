@@ -13,19 +13,28 @@ export async function GET(request: Request) {
   }
   const step = Number(new URL(request.url).searchParams.get("step") || "0");
   const authorization = request.headers.get("authorization") || "";
+  const origin = siteOrigin(new URL(request.url).origin);
   after(async () => {
     const result = await runDailyCheck();
     if (result.remaining > 0 && step < MAX_STEP) {
-      const next = new URL(request.url);
-      next.searchParams.set("step", String(step + 1));
-      await fetch(next, { headers: { authorization }, cache: "no-store" }).catch(() => undefined);
-      return;
+      // 続きは本番のURLに投げる。Vercel Cron が呼ぶのはデプロイごとのURL（保護つき）なので、
+      // そのURLに投げると302でログイン画面へ飛ばされ、続きも通知も止まっていた
+      const handedOff = await fetch(nextStepUrl(origin, step), { headers: { authorization }, cache: "no-store", redirect: "manual" })
+        .then((response) => response.ok)
+        .catch(() => false);
+      if (handedOff) return;
     }
-    // 確認が一通り終わったら、値下げ・掲載終了をLINEで1日1通にまとめて送る
+    // 確認が一通り終わったら（または続きを渡せなかったら）、値下げ・掲載終了をLINEで1日1通にまとめて送る
     const token = process.env.LINE_CHANNEL_ACCESS_TOKEN || "";
-    if (token) await sendDigests({ origin: siteOrigin(new URL(request.url).origin), token }).catch(() => undefined);
+    if (token) await sendDigests({ origin, token }).catch(() => undefined);
   });
   return Response.json({ accepted: true, step });
+}
+
+function nextStepUrl(origin: string, step: number): string {
+  const next = new URL("/api/cron/check", origin);
+  next.searchParams.set("step", String(step + 1));
+  return next.toString();
 }
 
 function cronAuthorized(request: Request): boolean {

@@ -5,6 +5,7 @@ import { yenFromManDisplay } from "@/lib/format";
 import { shareCarName, shareYear } from "@/lib/share";
 import {
   deleteAppJson,
+  favoriteIdsInFolder,
   folderOfRecordPath,
   listLineLinkNames,
   listNotifyQueueFolders,
@@ -80,6 +81,12 @@ export function detectEvents(before: ArchiveRecord, after: ArchiveRecord, now = 
   return events;
 }
 
+// LINEで知らせるのは、お気に入り（ハート）に入れた車だけ。
+// たくさん保存しても通知が増えすぎないようにする（一覧の表示や価格の記録は全部の車で続ける）
+export function notifiableEvents(record: Pick<ArchiveRecord, "favorite">, events: NotifyEvent[]): NotifyEvent[] {
+  return record.favorite === true ? events : [];
+}
+
 // 同じ車の同じ種類は1件にまとめる（値下げは最初の価格→最新の価格）
 export function mergeEvents(current: NotifyEvent[], added: NotifyEvent[]): NotifyEvent[] {
   const merged = [...current];
@@ -152,7 +159,7 @@ export function digestText(events: NotifyEvent[], origin: string, now = new Date
     }
   }
   if (rest > 0) lines.push("", `ほか${rest}台。のこすの一覧で見られます。`);
-  lines.push("", "通知は、のこすの一覧の下にある「LINE通知」でオフにできます。");
+  lines.push("", "お気に入り（ハート）に入れた車だけお知らせしています。通知は、のこすの一覧の下にある「LINE通知」でオフにできます。");
   return lines.join("\n").slice(0, 4900);
 }
 
@@ -209,6 +216,8 @@ export async function remainingQuota(token: string, fetchImpl: FetchLike): Promi
   }
 }
 
+const DROP_ON_STATUS = new Set([400, 403, 404]);
+
 export type DigestResult = { sent: number; skipped: number; failed: number; waiting: number };
 
 export async function sendDigests(input: {
@@ -216,17 +225,25 @@ export async function sendDigests(input: {
   token: string;
   now?: Date;
   fetchImpl?: FetchLike;
+  // フォルダごとの、今お気に入りに入っている車のID（テストで差し替える）
+  favorites?: (folder: string) => Promise<Set<string>>;
+  // 送る相手のフォルダを絞る（手動で確かめるとき用）
+  onlyFolders?: string[];
 }): Promise<DigestResult> {
   const now = input.now ?? new Date();
   const today = tokyoDay(now);
   const fetchImpl = input.fetchImpl ?? (fetch as unknown as FetchLike);
   const result: DigestResult = { sent: 0, skipped: 0, failed: 0, waiting: 0 };
-  const folders = await listNotifyQueueFolders();
+  const favoritesOf = input.favorites ?? favoriteIdsInFolder;
+  const folders = (await listNotifyQueueFolders()).filter((folder) => !input.onlyFolders || input.onlyFolders.includes(folder));
   if (!folders.length) return result;
   const linked = await linkedRecipients();
   let quota = await remainingQuota(input.token, fetchImpl);
   for (const folder of folders) {
-    const events = (await readAppJson<NotifyQueue>(queuePath(folder)))?.events ?? [];
+    const queued = (await readAppJson<NotifyQueue>(queuePath(folder)))?.events ?? [];
+    // ためている間にお気に入りから外した車は送らない
+    const favoriteIds = queued.length ? await favoritesOf(folder).catch(() => new Set<string>()) : new Set<string>();
+    const events = queued.filter((event) => favoriteIds.has(event.id));
     const settings = (await getNotifySettings(folder)) ?? {};
     const to = linked.get(folder) ?? (isLineUserId(settings.lineUserId) ? settings.lineUserId : undefined);
     if (!events.length || !to || settings.enabled === false) {
@@ -254,8 +271,9 @@ export async function sendDigests(input: {
       result.sent += 1;
       await putNotifySettings(folder, { ...settings, lastSentDay: today });
       await deleteAppJson(queuePath(folder)).catch(() => undefined);
-    } else if (response && response.status >= 400 && response.status < 500 && response.status !== 429) {
-      // 友だち追加されていない・ブロックされた等。ためても届かないので捨てる
+    } else if (response && DROP_ON_STATUS.has(response.status)) {
+      // 送り先が不正・友だちでない等。ためても届かないので捨てる
+      // （401=トークン不正、429=上限 などはこちらの問題なので、捨てずにあした送り直す）
       result.failed += 1;
       await deleteAppJson(queuePath(folder)).catch(() => undefined);
     } else {
@@ -265,10 +283,14 @@ export async function sendDigests(input: {
   return result;
 }
 
+const DEFAULT_SITE_URL = "https://fleet-maple-mto3zo3.vercel.app";
+
 export function siteOrigin(fallback: string): string {
   const configured = process.env.NOKOSU_SITE_URL || "";
   if (/^https?:\/\//.test(configured)) return configured.replace(/\/$/, "");
   const production = process.env.VERCEL_PROJECT_PRODUCTION_URL || "";
   if (production) return `https://${production}`;
+  // Vercel上では、デプロイごとのURL（保護つき）ではなく本番URLを使う
+  if (process.env.VERCEL) return DEFAULT_SITE_URL;
   return fallback;
 }

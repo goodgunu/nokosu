@@ -53,8 +53,8 @@ export function NotifySettingCard() {
           <h2 className="text-sm font-bold">LINE通知</h2>
           <p className="text-muted-foreground mt-1 text-xs leading-5">
             {state.available
-              ? "毎朝の確認で、値下げや掲載終了（売約）が見つかったら、LINEでお知らせします。1日1通にまとめます。"
-              : "LINEとつなぐと、値下げや掲載終了（売約）をLINEでお知らせできます。上の「LINE連携」からつないでください。"}
+              ? "毎朝の確認で、お気に入り（ハート）に入れた車の値下げや掲載終了（売約）が見つかったら、LINEでお知らせします。1日1通にまとめます。"
+              : "LINEとつなぐと、お気に入り（ハート）に入れた車の値下げや掲載終了（売約）をLINEでお知らせできます。上の「LINE連携」からつないでください。"}
           </p>
         </div>
         {state.available && (
@@ -75,6 +75,9 @@ export function NotifySettingCard() {
           </button>
         )}
       </div>
+      <p className="mt-2 rounded-lg px-2.5 py-1.5 text-xs font-bold" style={{ background: "#FFF1E6", color: "#9C3D12" }} data-notify="favorites-only">
+        LINE通知はお気に入りの車だけに届きます。車のカードの♡を押すと、お気に入りに入ります。
+      </p>
       {state.available && (
         <p className="mt-2 text-xs font-bold" style={{ color: state.enabled ? "#E7692F" : "#6B6560" }}>
           {state.enabled ? "オン" : "オフ"}
