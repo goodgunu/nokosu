@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage, Section } from "@/components/legal-page";
 import { CONTACT_EMAIL, LEGAL_UPDATED, OPERATOR_NAME } from "@/lib/legal";
 
-export const metadata: Metadata = { title: "プライバシーポリシー | のこす" };
+export const metadata: Metadata = { title: "プライバシーポリシー" };
 
 export default function PrivacyPage() {
   return (

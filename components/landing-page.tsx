@@ -18,10 +18,13 @@ const kept = [
   ["メモ", "エアロ、車高調、ホイールなどのカスタム内容", NotebookPen],
 ] as const;
 
+const SITES = ["カーセンサー", "グーネット", "カババ", "ヤフオク"] as const;
+
 export function LandingPage() {
   const [url, setUrl] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [xError, setXError] = useState("");
+  const [urlError, setUrlError] = useState("");
 
   // ログイン画面の「Xで続ける」で失敗して戻ってきたときの文言（/sso-callback が保存する）
   useEffect(() => {
@@ -41,32 +44,35 @@ export function LandingPage() {
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
       <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-3.5 sm:gap-4 sm:px-7">
-          <span className="shrink-0 [&_img]:h-[24px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-4">
-            <a href="#line-flow" className="hidden text-sm sm:inline">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-1.5 px-3 py-2 sm:gap-3 sm:px-7">
+          <span className="shrink-0 [&_img]:h-[22px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
+          <nav className="flex shrink-0 items-center gap-1 sm:gap-2.5" aria-label="ログインと使い方">
+            <a href="#line-flow" className="inline-flex h-11 items-center px-1.5 text-xs font-bold whitespace-nowrap sm:px-2 sm:text-sm">
               使い方
             </a>
             <a
               href="/api/auth/line-login?next=%2F"
-              className="inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white sm:px-3.5 sm:text-sm"
+              className="inline-flex h-11 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-xs font-bold text-white sm:px-4 sm:text-sm"
               style={{ background: "#06C755" }}
+              data-control="header-line"
               onClick={() => {
                 const pending = url.trim();
                 if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
               }}
             >
-              LINEで連携
+              LINEではじめる
             </a>
             <button
               type="button"
-              className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold sm:px-3.5 sm:text-sm"
-              style={{ background: "#FFFFFF", color: "#E4682C" }}
+              className="inline-flex h-11 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-xs font-bold sm:px-4 sm:text-sm"
+              style={{ background: "#FFFFFF", color: "#9C3D12" }}
+              data-control="header-other"
               onClick={() => openLogin()}
             >
-              はじめる
+              <span className="sm:hidden">ほかの方法</span>
+              <span className="hidden sm:inline">メール・Googleなど</span>
             </button>
-          </div>
+          </nav>
         </div>
       </header>
       {xError ? (
@@ -108,24 +114,56 @@ export function LandingPage() {
           </div>
           <form
             className="text-foreground rounded-xl bg-white p-4"
+            noValidate
             onSubmit={(event) => {
               event.preventDefault();
-              openLogin(url);
+              const value = url.trim();
+              if (!value) {
+                setUrlError("中古車の詳細ページのURLを貼ってください。");
+                document.getElementById("landing-url")?.focus();
+                return;
+              }
+              if (!/^https?:\/\//i.test(value)) {
+                setUrlError("「https://」から始まるURLを貼ってください。");
+                document.getElementById("landing-url")?.focus();
+                return;
+              }
+              setUrlError("");
+              openLogin(value);
             }}
           >
-            <label htmlFor="landing-url" className="text-muted-foreground text-xs">
-              中古車の詳細ページURL
+            <p className="text-sm font-bold">対応サイト</p>
+            <ul className="mt-1.5 flex flex-wrap gap-1.5" aria-label="対応サイト" data-landing="sites">
+              {SITES.map((site) => (
+                <li key={site} className="rounded-full px-2.5 py-1 text-xs font-bold" style={{ background: "#FFF1E6", color: "#9C3D12" }}>
+                  {site}
+                </li>
+              ))}
+            </ul>
+            <label htmlFor="landing-url" className="mt-3 block text-xs" style={{ color: "#57534E" }}>
+              中古車の詳細ページのURL
             </label>
             <input
               id="landing-url"
               value={url}
-              onChange={(event) => setUrl(event.target.value)}
-              placeholder="カーセンサー・グーネット・カババ・ヤフオクのURL"
-              className="border-border mt-2 w-full rounded-lg border px-3 py-3 text-sm"
+              onChange={(event) => {
+                setUrl(event.target.value);
+                if (urlError) setUrlError("");
+              }}
+              placeholder="https://… をここに貼る"
+              className="mt-1.5 w-full rounded-lg border px-3 py-3 text-base sm:text-sm"
+              style={{ borderColor: urlError ? "#DC2626" : "#E5E5E5" }}
               inputMode="url"
               autoCapitalize="off"
               autoCorrect="off"
+              aria-invalid={urlError ? true : undefined}
+              aria-describedby={urlError ? "landing-url-error" : undefined}
             />
+            {urlError ? (
+              <p id="landing-url-error" role="alert" className="mt-1.5 text-xs font-bold" style={{ color: "#B91C1C" }}>
+                {urlError}
+              </p>
+            ) : null}
             <button type="submit" className="mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#E4682C" }} >
               掲載を残す
             </button>
@@ -219,7 +257,7 @@ export function LandingPage() {
         >
           <div className="w-full max-w-sm rounded-2xl bg-white p-5">
             <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>ログイン・新規登録</p>
-            <h2 className="mt-1 text-lg font-bold">はじめる</h2>
+            <h2 className="mt-1 text-lg font-bold">のこすをはじめる</h2>
             <p className="text-muted-foreground mt-1 mb-4 text-xs leading-5">はじめての方は、そのまま登録されます。登録済みの方はそのままログインできます。</p>
             <LoginOptions />
             <button type="button" className="text-muted-foreground mt-3 w-full text-xs" onClick={() => setShowLogin(false)}>
@@ -273,12 +311,19 @@ export function LandingPage() {
       </section>
 
       <footer style={{ background: "#E4682C", color: "#FFFFFF" }}>
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-5 sm:px-7">
-          <Wordmark height={22} />
-          <p className="text-xs text-white/80">気になる車を、いつでも見返せる場所。</p>
-          <span className="flex-1" />
-          <a href="/privacy" className="text-xs">プライバシーポリシー</a>
-          <a href="/terms" className="text-xs">利用規約</a>
+        <div className="mx-auto max-w-6xl px-4 pt-5 pb-4 sm:px-7">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Wordmark height={22} />
+            <p className="text-xs text-white/90">気になる車を、いつでも見返せる場所。</p>
+            <span className="flex-1" />
+            <nav className="-mx-2 flex flex-wrap" aria-label="規約">
+              <a href="/privacy" className="inline-flex min-h-11 items-center px-2 text-sm font-bold underline-offset-4 hover:underline">プライバシーポリシー</a>
+              <a href="/terms" className="inline-flex min-h-11 items-center px-2 text-sm font-bold underline-offset-4 hover:underline">利用規約</a>
+            </nav>
+          </div>
+          <p className="mt-2 text-xs leading-5 text-white/90" data-landing="disclaimer">
+            のこすは個人が運営するサービスで、カーセンサー・グーネット・カババ・ヤフオクなど各サイトの公式サービスではありません。掲載の文章と写真の権利は、販売店・出品者と各サイトにあります。
+          </p>
         </div>
       </footer>
     </div>

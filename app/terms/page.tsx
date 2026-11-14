@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage, Section } from "@/components/legal-page";
 import { CONTACT_EMAIL, LEGAL_UPDATED, OPERATOR_NAME } from "@/lib/legal";
 
-export const metadata: Metadata = { title: "利用規約 | のこす" };
+export const metadata: Metadata = { title: "利用規約" };
 
 export default function TermsPage() {
   return (

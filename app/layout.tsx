@@ -4,12 +4,32 @@ import type { Metadata } from "next";
 import { AccountProvider } from "@/components/account-provider";
 import "./globals.css";
 
+const SITE_URL = "https://fleet-maple-mto3zo3.vercel.app";
+const SITE_DESCRIPTION = "カーセンサー・グーネット・カババ・ヤフオクの中古車掲載を、売約や掲載終了の前に自分のアカウントへ残すメモ。値下げや掲載終了はLINEでお知らせします。";
+const OG_IMAGE = { url: "/og.jpg", width: 1200, height: 630, alt: "のこす　気になった車を、消える前に残す。" };
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "のこす",
+    default: "のこす｜気になった中古車を、消える前に残す",
     template: "%s · のこす",
   },
-  description: "カーセンサー・グーネット・カババ・ヤフオクの中古車掲載を、売約や掲載終了の前に自分のアカウントへ残すメモ。",
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    siteName: "のこす",
+    url: "/",
+    title: "のこす｜気になった中古車を、消える前に残す",
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "のこす｜気になった中古車を、消える前に残す",
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE.url],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

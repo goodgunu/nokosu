@@ -5,7 +5,7 @@ import { LINE_ALREADY_USED_MESSAGE, LINE_UNAVAILABLE_MESSAGE } from "@/lib/line-
 
 type Links = { line: boolean; canLinkLine: boolean };
 
-export const HEADER_PILL = "inline-flex h-7 shrink-0 items-center whitespace-nowrap rounded-full px-2.5 text-[11px] font-bold leading-none";
+export const HEADER_PILL = "inline-flex h-11 shrink-0 items-center whitespace-nowrap rounded-full px-3.5 text-xs font-bold leading-none";
 
 async function fetchLinks(): Promise<Links | null> {
   const r = await fetch("/api/auth/links", { cache: "no-store" });
