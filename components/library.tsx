@@ -28,6 +28,8 @@ import {
   type SourceFilter,
 } from "@/lib/library-filter";
 import { NotifySettingCard } from "@/components/notify-setting";
+import { LibraryPager } from "@/components/library-pager";
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES, PAGE_SIZE_KEY, paginate, parsePage, parsePageSize, type PageSize } from "@/lib/library-page";
 import { SOURCE_LABEL, sourceOf, type Source } from "@/lib/sites";
 import { priceChange } from "@/lib/price-history";
 import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
@@ -52,6 +54,19 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   const [sort, setSort] = useState<SortState>(null);
   const [extra, setExtra] = useState<ExtraFilter>(NO_EXTRA_FILTER);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  // ページ分け: 表示件数はこのブラウザに覚える。今のページは ?page= に残す
+  const [pageSize, setPageSize] = useState<PageSize>(() => {
+    if (typeof window === "undefined") return DEFAULT_PAGE_SIZE;
+    try {
+      return parsePageSize(localStorage.getItem(PAGE_SIZE_KEY));
+    } catch {
+      return DEFAULT_PAGE_SIZE;
+    }
+  });
+  const [page, setPage] = useState(() =>
+    typeof window === "undefined" ? 1 : parsePage(new URLSearchParams(window.location.search).get("page")),
+  );
+  const listTopRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState<ParsedListing | null>(null);
   const [localCount, setLocalCount] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -90,6 +105,41 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
       sort,
     );
   }, [listings, query, sourceFilter, sort, extra]);
+  // 並べ替え・絞り込み・表示件数が変わったら1ページ目に戻す
+  const pageResetKey = JSON.stringify([query, sourceFilter, sort, extra, pageSize]);
+  const [lastResetKey, setLastResetKey] = useState(pageResetKey);
+  if (pageResetKey !== lastResetKey) {
+    setLastResetKey(pageResetKey);
+    setPage(1);
+  }
+  const paged = useMemo(() => paginate(visible, page, pageSize), [visible, page, pageSize]);
+
+  // 今のページを URL の ?page= に残す（1ページ目は付けない）。読み込みが終わってから
+  useEffect(() => {
+    if (!ready) return;
+    const url = new URL(window.location.href);
+    const current = url.searchParams.get("page");
+    const want = paged.page > 1 ? String(paged.page) : null;
+    if (current === want) return;
+    if (want) url.searchParams.set("page", want);
+    else url.searchParams.delete("page");
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [ready, paged.page]);
+
+  function goToPage(next: number) {
+    setPage(next);
+    listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function changePageSize(next: PageSize) {
+    setPageSize(next);
+    try {
+      localStorage.setItem(PAGE_SIZE_KEY, String(next));
+    } catch {
+      // 保存できないブラウザでは、この画面の間だけ使う
+    }
+  }
+
   const makers = useMemo(() => makerOptions(listings), [listings]);
   const favoriteCount = useMemo(() => listings.filter((listing) => listing.favorite).length, [listings]);
 
@@ -451,8 +501,30 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
             条件に合う車がありません。絞り込みを変えてみてください。
           </div>
         ) : (
+          <div ref={listTopRef} className="min-w-0 scroll-mt-3" data-library="paged">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2" data-library="page-info">
+            <p className="text-sm" aria-live="polite">
+              <span className="font-bold tabular-nums">{paged.total}</span>台中{" "}
+              <span className="font-bold tabular-nums">{paged.from}〜{paged.to}</span>台を表示
+            </p>
+            <label className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground text-xs font-bold">表示件数</span>
+              <select
+                data-control="page-size"
+                value={pageSize}
+                onChange={(event) => changePageSize(parsePageSize(event.target.value))}
+                className="h-11 rounded-lg border border-border bg-card px-3 text-sm font-bold"
+              >
+                {PAGE_SIZES.map((size) => (
+                  <option key={size} value={size}>
+                    {size}件
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
           <ul className="min-w-0 space-y-3">
-            {visible.map((listing) => {
+            {paged.items.map((listing) => {
               const heading = vehicleHeading(listing);
               const change = priceChange(listing);
               const info = cardInfo(listing);
@@ -519,6 +591,8 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               );
             })}
           </ul>
+          <LibraryPager page={paged.page} totalPages={paged.totalPages} onChange={goToPage} />
+          </div>
         )}
 
         <NotifySettingCard />
