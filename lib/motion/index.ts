@@ -11,8 +11,12 @@ export {
   staggerDelay,
 } from "./tokens";
 export { prefersReducedMotion, useReducedMotion } from "./reduced-motion";
-export { useInView, useReveal, observeInView, type UseInViewOptions, type RevealVariant } from "./use-in-view";
-export { Reveal, Stagger } from "./reveal";
+export { useInView, useReveal, observeInView, type UseInViewOptions, type UseRevealOptions, type RevealVariant } from "./use-in-view";
+export { Reveal, Stagger, type RevealProps, type StaggerProps } from "./reveal";
+export { Presence, usePresence, type PresenceProps, type PresenceVariant, type PresenceState, type UsePresenceOptions } from "./presence";
+export { StepDots, type StepDotsProps } from "./step-dots";
+export { useMergedRef, assignRef } from "./merge-refs";
+export { Spinner } from "./spinner";
 export { NAV_FORWARD, NAV_BACK, vtName, staggerStyle, motionDelayStyle } from "./shared";
 export { Collapse, useCollapse } from "./collapse";
 export { usePop } from "./pop";

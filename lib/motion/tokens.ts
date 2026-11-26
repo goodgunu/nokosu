@@ -12,6 +12,8 @@ export const MOTION_DURATION = {
   base: 250,
   /** 画面を開いた時やスクロールでの登場、ポンと弾む動き */
   long: 400,
+  /** 保存中のくるくる 1 周 */
+  spin: 700,
 } as const;
 
 /** イージング（動き方のカーブ） */
