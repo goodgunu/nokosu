@@ -84,7 +84,7 @@ export function LandingPage() {
 
       <section style={{ background: "#F8D3B8", color: "#1C1917" }}>
         <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-7 sm:pt-8">
-          <Reveal variant="fade-up" immediate className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]">
+          <Reveal skip className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]">
             <Image
               src="/gtr-hero-3.jpg"
               alt="オレンジのGT-Rの写真"
