@@ -68,7 +68,7 @@ export default async function SharePage({ params }: Props) {
 
   return (
     <div className="min-h-full bg-background">
-      <header style={{ background: "#9C3D12", color: "#FFFFFF" }}>
+      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-xl items-center justify-between px-4 py-3">
           <Link href="/" aria-label="のこす"><Wordmark height={24} /></Link>
           <Link href="/" className="text-xs font-bold">のこすとは</Link>
@@ -125,7 +125,7 @@ export default async function SharePage({ params }: Props) {
           <Link
             href="/"
             className="mt-3 inline-block rounded-full px-6 py-3 text-sm font-bold text-white"
-            style={{ background: "#9C3D12" }}
+            style={{ background: "#E4682C" }}
           >
             のこすで保存する
           </Link>

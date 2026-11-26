@@ -54,7 +54,7 @@ export function MockList() {
         掲載終了
       </div>
       <MiniCard ended />
-      <p className="mt-2 rounded-xl px-3 py-2 text-center text-[12px] leading-5 font-bold" style={{ background: "#FFFFFF", color: "#9C3D12", border: "1px solid #F0C8AE" }}>
+      <p className="mt-2 rounded-xl px-3 py-2 text-center text-[12px] leading-5 font-bold" style={{ background: "#FFFFFF", color: ORANGE, border: "1px solid #F0C8AE" }}>
         写真もメモも残ります
         <span className="block text-[10px] font-normal" style={{ color: "#6B6560" }}>メモ「電話した。試乗OK」もそのまま</span>
       </p>

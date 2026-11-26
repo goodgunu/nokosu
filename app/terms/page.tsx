@@ -37,7 +37,7 @@ export default function TermsPage() {
         </ul>
       </Section>
       <Section title="6. 個人情報の取り扱い">
-        <p>個人情報の取り扱いは、<a href="/privacy" className="underline" style={{ color: "#9C3D12" }}>プライバシーポリシー</a>に従います。</p>
+        <p>個人情報の取り扱いは、<a href="/privacy" className="underline" style={{ color: "#E4682C" }}>プライバシーポリシー</a>に従います。</p>
       </Section>
       <Section title="7. 規約の変更">
         <p>運営者は、必要に応じて本規約を変更できます。変更後に本サービスを使い続けた場合は、変更に同意したものとみなします。</p>

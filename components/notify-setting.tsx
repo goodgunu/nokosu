@@ -67,7 +67,7 @@ export function NotifySettingCard() {
             disabled={busy}
             onClick={() => void toggle()}
             className="relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-60"
-            style={{ background: state.enabled ? "#9C3D12" : "#D6D3D1" }}
+            style={{ background: state.enabled ? "#E7692F" : "#D6D3D1" }}
           >
             <span
               className="absolute top-0.5 left-0.5 size-6 rounded-full bg-white shadow transition-transform duration-[var(--motion-dur-base)] ease-[var(--motion-ease-out)]"
@@ -83,7 +83,7 @@ export function NotifySettingCard() {
         <>
           <Collapse open={state.enabled}>
             <p className="mt-2 text-xs leading-5" data-notify="on-detail">
-              <span className="font-bold" style={{ color: "#9C3D12" }}>オン</span>
+              <span className="font-bold" style={{ color: "#E7692F" }}>オン</span>
               <span className="text-muted-foreground"> ・ 毎朝の確認のあと、お気に入りの車に変化があればLINEに届きます。</span>
             </p>
           </Collapse>

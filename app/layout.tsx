@@ -54,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             --foreground: #111111;
             --card: #FFFFFF;
             --card-foreground: #111111;
-            --primary: #9C3D12;
+            --primary: #E4682C;
             --primary-foreground: #FFFFFF;
             --secondary: #F7F7F7;
             --secondary-foreground: #111111;

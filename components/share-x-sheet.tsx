@@ -155,7 +155,7 @@ export function ShareXSheet({ record, open, onOpenChange, mode = "x" }: { record
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={photoSrc(record.id, index, record.updatedAt)} alt="" loading="lazy" className="size-full object-cover" />
                     {order >= 0 && (
-                      <span className="absolute top-1 right-1 grid size-5 place-items-center rounded-full bg-[#9C3D12] text-[11px] font-bold text-white">
+                      <span className="absolute top-1 right-1 grid size-5 place-items-center rounded-full bg-[#E4682C] text-[11px] font-bold text-white">
                         {order + 1}
                       </span>
                     )}

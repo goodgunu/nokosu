@@ -44,7 +44,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
-      <header style={{ background: "#9C3D12", color: "#FFFFFF" }}>
+      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-1.5 px-3 py-2 sm:gap-3 sm:px-7">
           <span className="shrink-0 [&_img]:h-[22px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
           <nav className="flex shrink-0 items-center gap-1 sm:gap-2.5" aria-label="ログインと使い方">
@@ -101,7 +101,7 @@ export function LandingPage() {
         </div>
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
           <Reveal variant="fade-up" immediate index={1}>
-            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#9C3D12" }}>
+            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>
               掲載が終わる前に
             </p>
             <h1 className="mt-2 text-[1.7rem] leading-snug font-bold tracking-tight sm:text-4xl">
@@ -128,7 +128,7 @@ export function LandingPage() {
               <button
                 type="button"
                 className="inline-flex h-11 items-center text-xs font-bold underline underline-offset-4 sm:text-sm"
-                style={{ color: "#9C3D12" }}
+                style={{ color: "#E4682C" }}
                 onClick={() => openLogin()}
               >
                 メール・Googleなどでログイン
@@ -194,7 +194,7 @@ export function LandingPage() {
                 {urlError}
               </p>
             ) : null}
-            <button type="submit" className="motion-press mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#9C3D12" }} >
+            <button type="submit" className="motion-press mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#E4682C" }} >
               掲載を残す
             </button>
             <p className="text-muted-foreground mt-2.5 text-[11px] leading-5">
@@ -204,7 +204,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="daily-check" style={{ background: "#9C3D12", color: "#FFFFFF" }}>
+      <section id="daily-check" style={{ background: "#E7692F", color: "#FFFFFF" }}>
         <Stagger className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-9 sm:px-7 sm:py-12 lg:grid-cols-2 lg:gap-12">
           <div>
             <p className="text-xs font-bold tracking-[0.14em] text-white/90">毎朝7時ごろに自動チェック</p>
@@ -244,7 +244,7 @@ export function LandingPage() {
           <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-lg lg:mx-0" style={{ color: "#1C1917" }} data-promo-card>
             <div className="relative aspect-[16/10] w-full">
               <Image src="/gtr-hero-3.jpg" alt="例のオレンジのGT-R" fill sizes="(min-width: 1024px) 384px, 90vw" className="object-cover" style={{ objectPosition: "30% 50%" }} />
-              <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={{ background: "#9C3D12" }}>例</span>
+              <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={{ background: "#E7692F" }}>例</span>
             </div>
             <div className="border-t-2 p-4" style={{ borderTopColor: "#E7692F" }}>
               <div className="flex items-center justify-between">
@@ -277,7 +277,7 @@ export function LandingPage() {
           }}
         >
           <div className="w-full max-w-sm rounded-2xl bg-white p-5">
-            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#9C3D12" }}>ログイン・新規登録</p>
+            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>ログイン・新規登録</p>
             <h2 className="mt-1 text-lg font-bold">のこすをはじめる</h2>
             <p className="text-muted-foreground mt-1 mb-4 text-xs leading-5">はじめての方は、そのまま登録されます。登録済みの方はそのままログインできます。</p>
             <LoginOptions />
@@ -294,7 +294,7 @@ export function LandingPage() {
           <Stagger as="ul" className="mt-3 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
             {kept.map(([title, body, Icon]) => (
               <li key={title} className="rounded-2xl border bg-white p-3.5 shadow-sm sm:p-4" style={{ borderColor: "#F0C8AE" }}>
-                <span className="grid size-9 place-items-center rounded-xl text-white" style={{ background: "#9C3D12" }}>
+                <span className="grid size-9 place-items-center rounded-xl text-white" style={{ background: "#E4682C" }}>
                   <Icon className="size-[18px]" aria-hidden />
                 </span>
                 <p className="mt-2.5 text-sm font-bold">{title}</p>
@@ -339,19 +339,19 @@ export function LandingPage() {
           <h2 className="text-lg font-bold">料金と保存について</h2>
           <dl className="mt-3 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border bg-white p-4 shadow-sm" style={{ borderColor: "#F0C8AE" }}>
-              <dt className="text-sm font-bold" style={{ color: "#9C3D12" }}>料金</dt>
+              <dt className="text-sm font-bold" style={{ color: "#E4682C" }}>料金</dt>
               <dd className="text-muted-foreground mt-1 text-xs leading-6">
                 無料で使えます。有料プランへの自動移行はありません。
               </dd>
             </div>
             <div className="rounded-2xl border bg-white p-4 shadow-sm" style={{ borderColor: "#F0C8AE" }}>
-              <dt className="text-sm font-bold" style={{ color: "#9C3D12" }}>保存件数・保存期間</dt>
+              <dt className="text-sm font-bold" style={{ color: "#E4682C" }}>保存件数・保存期間</dt>
               <dd className="text-muted-foreground mt-1 text-xs leading-6">
                 保存件数の上限はなく、ご自身で削除しないかぎり写真やメモも含めてアカウントに残ります。
               </dd>
             </div>
             <div className="rounded-2xl border bg-white p-4 shadow-sm" style={{ borderColor: "#F0C8AE" }}>
-              <dt className="text-sm font-bold" style={{ color: "#9C3D12" }}>毎朝の確認とLINE通知</dt>
+              <dt className="text-sm font-bold" style={{ color: "#E4682C" }}>毎朝の確認とLINE通知</dt>
               <dd className="text-muted-foreground mt-1 text-xs leading-6">
                 毎朝7時ごろに価格と掲載状況を自動確認します。LINE通知は、お気に入り（♡）に入れた車だけ1日1通にまとめて届きます。
               </dd>
@@ -360,7 +360,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer style={{ background: "#9C3D12", color: "#FFFFFF" }}>
+      <footer style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto max-w-6xl px-4 pt-5 pb-4 sm:px-7">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <Wordmark height={22} />
