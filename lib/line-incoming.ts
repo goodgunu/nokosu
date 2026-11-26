@@ -130,7 +130,7 @@ export function updatedMessage(origin: string, listing: ParsedListing | null, re
     const previous = tokyoStamp(before.at, now);
     return cardMessage({
       origin,
-      head: delta < 0 ? "保存済み ・ 前回から値下がり" : "保存済み ・ 前回から値上がり",
+      head: delta < 0 ? "保存済み ・ 前回から値下がり" : "保存済み ・ 前回からアップ",
       tone: "alert",
       listing,
       record,
