@@ -35,11 +35,13 @@ import { displayName, formatCheck, formatMonthDay, formatWhen, isBlankValue, led
 import { priceChange } from "@/lib/price-history";
 import { checkListing, deleteRemoteListing, fetchListing, loadRemotePhotos, patchListing, photoSrc, saveKept } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
+import { peekListing } from "@/lib/listing-cache";
 import { WATCH_STATUSES, type ArchiveRecord, type MemoEntry, type ParsedListing, type TableSection, type WatchStatus } from "@/lib/types";
 
 export function ListingScreen({ id, startPicking = false }: { id: string; startPicking?: boolean }) {
   const router = useRouter();
-  const [record, setRecord] = useState<ArchiveRecord | null | undefined>(undefined);
+  // 一覧から来た時は、一覧のデータですぐ描く（写真が一覧からつながって見える）。最新は下で取り直す
+  const [record, setRecord] = useState<ArchiveRecord | null | undefined>(() => peekListing(id));
   const [note, setNote] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState("");
@@ -299,7 +301,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
             />
           ) : photos.length > 0 ? (
             <div>
-              <PhotoGallery photos={photos} title={name} />
+              <PhotoGallery photos={photos} title={name} transitionId={record.id} />
               <Button
                 type="button"
                 className="mt-3 h-12 w-full text-base font-bold text-white"
@@ -328,7 +330,7 @@ export function ListingScreen({ id, startPicking = false }: { id: string; startP
             </span>
             {checked ? <span className="text-muted-foreground"> ・ {checked}に確認</span> : null}
           </span>
-          <span className={change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{change.label}</span>
+          <span className={change.kind === "down" ? "motion-pop inline-block text-live font-bold" : "text-muted-foreground"} data-detail="price-change">{change.label}</span>
         </div>
 
         <div className="mt-4 rounded-xl border bg-card p-4 shadow-sm sm:p-5">

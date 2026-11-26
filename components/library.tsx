@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import { SOURCE_BADGE_CLASS, SourceBadge } from "@/components/source-badge";
 import { SpecChips, priceNumber, showsMan } from "@/components/spec-chip";
 import { ArchiveImage } from "@/components/archive-image";
@@ -35,6 +36,8 @@ import { priceChange } from "@/lib/price-history";
 import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uploadSavedCar } from "@/lib/remote";
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
 import { watchLabel, type ArchiveRecord, type ParsedListing } from "@/lib/types";
+import { rememberListing } from "@/lib/listing-cache";
+import { Collapse, NAV_FORWARD, Presence, SharedElement, Spinner, Stagger, usePop, vtName } from "@/lib/motion";
 
 
 export function Library({ lineReady = false }: { lineReady?: boolean }) {
@@ -70,6 +73,12 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   const [draft, setDraft] = useState<ParsedListing | null>(null);
   const [localCount, setLocalCount] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
+  // 保存できたら「のこす」ボタンに少しだけチェックを出す
+  const [saved, setSaved] = useState(false);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 最初の表示だけカードを時間差で出す。ページを切り替えた後はクロスフェード
+  const [introDone, setIntroDone] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState<"" | "filters" | "backup">("");
 
   async function reload() {
     setListings(await fetchListings());
@@ -127,9 +136,18 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
   }, [ready, paged.page]);
 
   function goToPage(next: number) {
+    // ページを切り替えた後は、時間差ではなく中身ごとクロスフェード（motion-crossfade）
+    setIntroDone(true);
     setPage(next);
     listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  function flashSaved() {
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+    setSaved(true);
+    savedTimer.current = setTimeout(() => setSaved(false), 1600);
+  }
+
 
   function changePageSize(next: PageSize) {
     setPageSize(next);
@@ -201,6 +219,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         return;
       }
       setDraft(result.listing);
+      flashSaved();
       setNotice("写真を選んでから残してください。選ばなかった写真は保存しません。");
     } catch (error) {
       setNoticeError(true);
@@ -220,6 +239,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
       setDraft(null);
       setUrl("");
       await reload();
+      flashSaved();
       const photoNote =
         photoIndexes === null
           ? "写真は今のままです。"
@@ -336,17 +356,29 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               autoCapitalize="off"
               autoCorrect="off"
             />
-            <Button type="submit" className="h-11 px-6 font-bold text-white" disabled={Boolean(busy)}>
-              {busy || "のこす"}
+            <Button type="submit" className="h-11 gap-1.5 px-6 font-bold text-white" disabled={Boolean(busy)} data-control="save" data-state={busy ? "busy" : saved ? "done" : "idle"}>
+              {busy ? (
+                <>
+                  <Spinner className="size-4 shrink-0" label="保存しています" />
+                  {busy}
+                </>
+              ) : saved ? (
+                <>
+                  <Check className="motion-pop size-4 shrink-0" strokeWidth={3} aria-hidden />
+                  のこす
+                </>
+              ) : (
+                "のこす"
+              )}
             </Button>
           </form>
           <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
             掲載が生きているうちにURLを貼ると、価格・スペック・装備・販売店・写真をメモとして残します。
             {lineReady ? " 公式アプリの共有からLINEの「のこす」へ送ることもできます。" : ""}
           </p>
-          {notice && (
-            <p className={`mt-3 text-sm font-medium leading-6 ${noticeError ? "text-destructive" : "text-live"}`}>{notice}</p>
-          )}
+          <Presence show={Boolean(notice)} variant="fade" appear as="p" className={`mt-3 text-sm font-medium leading-6 ${noticeError ? "text-destructive" : "text-live"}`}>
+            {notice}
+          </Presence>
           {draft && (
             <PhotoPicker
               listing={draft}
@@ -397,11 +429,29 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               placeholder="車名、店、メモ"
               className="h-9 w-full bg-card sm:w-48"
             />
-            <Button variant="outline" onClick={() => void exportAll()}>
-              書き出す
+            <Button
+              variant="outline"
+              aria-expanded={toolsOpen === "filters"}
+              aria-controls="library-filters"
+              data-control="toggle-filters"
+              className={sort || isExtraActive(extra) ? "border-[#E7692F] text-[#9C3D12]" : undefined}
+              onClick={() => setToolsOpen((open) => (open === "filters" ? "" : "filters"))}
+            >
+              並べ替え・絞り込み
+              {(sort ? 1 : 0) + (isExtraActive(extra) ? 1 : 0) > 0 && (
+                <span className="grid size-4 place-items-center rounded-full bg-[#E4682C] text-[10px] text-white">{(sort ? 1 : 0) + (isExtraActive(extra) ? 1 : 0)}</span>
+              )}
+              <ChevronDown className="size-4 transition-transform duration-[var(--motion-dur-short)] ease-[var(--motion-ease-out)] [[aria-expanded=true]>&]:rotate-180" aria-hidden />
             </Button>
-            <Button variant="outline" onClick={() => fileRef.current?.click()}>
-              読み込む
+            <Button
+              variant="outline"
+              aria-expanded={toolsOpen === "backup"}
+              aria-controls="library-backup"
+              data-control="toggle-backup"
+              onClick={() => setToolsOpen((open) => (open === "backup" ? "" : "backup"))}
+            >
+              書き出し・読み込み
+              <ChevronDown className="size-4 transition-transform duration-[var(--motion-dur-short)] ease-[var(--motion-ease-out)] [[aria-expanded=true]>&]:rotate-180" aria-hidden />
             </Button>
             <input
               ref={fileRef}
@@ -411,7 +461,19 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               onChange={(event) => void onImport(event.target.files?.[0])}
             />
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto]" aria-label="並べ替えと絞り込み">
+          <Collapse open={toolsOpen === "backup"} id="library-backup">
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-3">
+              <p className="text-muted-foreground w-full text-xs leading-5">保存した車と写真を1つのファイルにまとめます。別のブラウザで読み込めます。</p>
+              <Button variant="outline" onClick={() => void exportAll()}>
+                書き出す
+              </Button>
+              <Button variant="outline" onClick={() => fileRef.current?.click()}>
+                読み込む
+              </Button>
+            </div>
+          </Collapse>
+          <Collapse open={toolsOpen === "filters"} id="library-filters">
+          <div className="grid grid-cols-2 gap-2 p-0.5 sm:grid-cols-[1fr_1fr_auto]" aria-label="並べ替えと絞り込み">
             <label className="flex min-w-0 flex-col gap-1">
               <span className="text-muted-foreground text-[11px] font-bold">並べ替え</span>
               <select
@@ -480,6 +542,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               </button>
             </div>
           </div>
+          </Collapse>
           {isExtraActive(extra) && (
             <p className="text-muted-foreground flex items-center gap-2 text-xs">
               {visible.length}台を表示中
@@ -491,7 +554,8 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         </div>
 
         {!ready ? (
-          <p className="text-muted-foreground text-sm">保存を読み込んでいます</p>
+          // 読み込み中も一覧ぶんの高さを取っておく（下のLINE通知などが先に出て、あとで押し下げられるズレ＝CLSを防ぐ）
+          <p className="text-muted-foreground min-h-[100svh] text-sm">保存を読み込んでいます</p>
         ) : listings.length === 0 ? (
           <EmptyLibrary />
         ) : visible.length === 0 ? (
@@ -523,8 +587,8 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               </select>
             </label>
           </div>
-          <ul className="min-w-0 space-y-3">
-            {paged.items.map((listing) => {
+          {(() => {
+            const cards = paged.items.map((listing) => {
               const heading = vehicleHeading(listing);
               const change = priceChange(listing);
               const info = cardInfo(listing);
@@ -538,29 +602,25 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                     : "未確認"
                   : change.label;
               return (
-              <li key={listing.id} className={`relative min-w-0 overflow-hidden rounded-2xl border bg-card shadow-sm ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}>
+              <li
+                key={listing.id}
+                className={`motion-press motion-lift relative min-w-0 overflow-hidden rounded-2xl border bg-card shadow-sm ${listing.watchStatus === "passed" ? "opacity-60" : ""}`}
+              >
                 <div className="relative">
-                  <button
-                    type="button"
-                    aria-pressed={Boolean(listing.favorite)}
-                    aria-label={listing.favorite ? "お気に入りから外す" : "お気に入りに入れる"}
-                    data-favorite={listing.id}
-                    onClick={() => void toggleFavorite(listing.id)}
-                    className="absolute top-2 right-2 z-10 grid size-10 place-items-center rounded-full bg-white/95 text-[#6B6560] shadow-md"
-                  >
-                    <HeartIcon filled={Boolean(listing.favorite)} className="size-5" />
-                  </button>
-                  <Link href={`/listings/${listing.id}`} className="block">
-                    <div className="bg-muted aspect-[16/10] w-full overflow-hidden">
+                  <FavoriteButton id={listing.id} favorite={Boolean(listing.favorite)} onToggle={() => void toggleFavorite(listing.id)} />
+                  <Link href={`/listings/${listing.id}`} className="block" transitionTypes={[NAV_FORWARD]} onClick={() => rememberListing(listing)}>
+                    <SharedElement name={vtName("photo", listing.id)}>
+                    <div className="bg-muted aspect-[16/10] w-full overflow-hidden" data-card-photo={listing.id}>
                       {listing.photoCount > 0 ? (
                         <ArchiveImage src={photoSrc(listing.id, 0, listing.updatedAt)} alt="" className="size-full object-cover" />
                       ) : (
                         <div className="text-muted-foreground grid size-full place-items-center text-xs">写真なし</div>
                       )}
                     </div>
+                    </SharedElement>
                   </Link>
                 </div>
-                <Link href={`/listings/${listing.id}`} className="block min-w-0 border-t-2 border-t-[#E4682C] p-3 pb-1 sm:p-4 sm:pb-1">
+                <Link href={`/listings/${listing.id}`} transitionTypes={[NAV_FORWARD]} onClick={() => rememberListing(listing)} className="block min-w-0 border-t-2 border-t-[#E4682C] p-3 pb-1 sm:p-4 sm:pb-1">
                   {heading.maker && <p className="text-muted-foreground text-xs font-medium tracking-wide">{heading.maker}</p>}
                   <h2 className="line-clamp-2 break-words text-[17px] font-bold leading-snug">{heading.heading || displayName(listing)}</h2>
                   <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
@@ -576,7 +636,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                   <div className="mt-2.5"><SpecChips info={info} /></div>
                   <p className="mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs">
                     <span className="mr-1 inline-flex"><SourceBadge record={listing} /></span>
-                    <span className={ended ? "font-bold text-black" : status === "掲載中" ? "font-bold text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"}>{status}</span>
+                    <span className={`${ended ? "font-bold text-black" : status === "掲載中" ? "font-bold text-live" : change.kind === "down" ? "text-live font-bold" : "text-muted-foreground"} ${!ended && change.kind === "down" ? "motion-pop inline-block" : ""}`} data-card="status">{status}</span>
                     <span className="text-muted-foreground"> ・ {watchLabel(listing.watchStatus)}</span>
                     {info.region && <span className="text-muted-foreground"> ・ {info.region}</span>}
                   </p>
@@ -589,8 +649,18 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                 </div>
               </li>
               );
-            })}
-          </ul>
+            });
+            // 最初の表示は上から順に時間差で出す（最初の10件まで）。ページを切り替えた後は中身ごとクロスフェード
+            return introDone ? (
+              <ul key={`page-${paged.page}`} className="motion-crossfade min-w-0 space-y-3" data-library="cards">
+                {cards}
+              </ul>
+            ) : (
+              <Stagger as="ul" skip={1} className="min-w-0 space-y-3">
+                {cards}
+              </Stagger>
+            );
+          })()}
           <LibraryPager page={paged.page} totalPages={paged.totalPages} onChange={goToPage} />
           </div>
         )}
@@ -671,5 +741,26 @@ function HeartIcon({ filled, className, color }: { filled: boolean; className?: 
     <svg viewBox="0 0 24 24" aria-hidden className={className} fill={filled ? tone : "none"} stroke={filled ? tone : "currentColor"} strokeWidth={2} strokeLinejoin="round">
       <path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.3 1.1 5 3 1.7-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" />
     </svg>
+  );
+}
+
+// ♡ボタン。お気に入りに入れた時だけポンと弾む（usePop）
+function FavoriteButton({ id, favorite, onToggle }: { id: string; favorite: boolean; onToggle: () => void }) {
+  const [popRef, pop] = usePop<HTMLButtonElement>();
+  return (
+    <button
+      ref={popRef}
+      type="button"
+      aria-pressed={favorite}
+      aria-label={favorite ? "お気に入りから外す" : "お気に入りに入れる"}
+      data-favorite={id}
+      onClick={() => {
+        if (!favorite) pop();
+        onToggle();
+      }}
+      className="absolute top-2 right-2 z-10 grid size-10 place-items-center rounded-full bg-white/95 text-[#6B6560] shadow-md"
+    >
+      <HeartIcon filled={favorite} className="size-5" />
+    </button>
   );
 }

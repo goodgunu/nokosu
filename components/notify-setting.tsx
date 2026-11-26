@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Collapse } from "@/lib/motion";
 
 type State = { available: boolean; enabled: boolean };
 
@@ -69,8 +70,8 @@ export function NotifySettingCard() {
             style={{ background: state.enabled ? "#E7692F" : "#D6D3D1" }}
           >
             <span
-              className="absolute top-0.5 size-6 rounded-full bg-white shadow transition-all"
-              style={{ left: state.enabled ? "1.375rem" : "0.125rem" }}
+              className="absolute top-0.5 left-0.5 size-6 rounded-full bg-white shadow transition-transform duration-[var(--motion-dur-base)] ease-[var(--motion-ease-out)]"
+              style={{ transform: state.enabled ? "translate3d(1.25rem, 0, 0)" : "none" }}
             />
           </button>
         )}
@@ -79,9 +80,20 @@ export function NotifySettingCard() {
         LINE通知はお気に入りの車だけに届きます。車のカードの♡を押すと、お気に入りに入ります。
       </p>
       {state.available && (
-        <p className="mt-2 text-xs font-bold" style={{ color: state.enabled ? "#E7692F" : "#6B6560" }}>
-          {state.enabled ? "オン" : "オフ"}
-        </p>
+        <>
+          <Collapse open={state.enabled}>
+            <p className="mt-2 text-xs leading-5" data-notify="on-detail">
+              <span className="font-bold" style={{ color: "#E7692F" }}>オン</span>
+              <span className="text-muted-foreground"> ・ 毎朝の確認のあと、お気に入りの車に変化があればLINEに届きます。</span>
+            </p>
+          </Collapse>
+          <Collapse open={!state.enabled}>
+            <p className="mt-2 text-xs leading-5" data-notify="off-detail">
+              <span className="font-bold" style={{ color: "#6B6560" }}>オフ</span>
+              <span className="text-muted-foreground"> ・ LINEには送りません。値下げや掲載終了は一覧で確認できます。</span>
+            </p>
+          </Collapse>
+        </>
       )}
       {error && <p className="mt-2 text-xs font-bold text-red-600">{error}</p>}
     </section>

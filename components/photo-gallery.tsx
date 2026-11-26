@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArchiveImage } from "@/components/archive-image";
+import { SharedElement, vtName } from "@/lib/motion";
 
 export type GalleryPhoto = {
   url: string;
@@ -21,7 +22,7 @@ export function PhotoNote({ caption, category }: { caption: string; category: st
   );
 }
 
-export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title: string }) {
+export function PhotoGallery({ photos, title, transitionId }: { photos: GalleryPhoto[]; title: string; transitionId?: string }) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -85,19 +86,30 @@ export function PhotoGallery({ photos, title }: { photos: GalleryPhoto[]; title:
   return (
     <>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {photos.map((photo, i) => (
-          <button
-            key={`${photo.url}-${i}`}
-            type="button"
-            onClick={() => {
-              setIndex(i);
-              setOpen(true);
-            }}
-            className="overflow-hidden rounded-lg border border-border bg-card shadow-sm"
-          >
-            <ArchiveImage src={photo.url} alt={photo.caption || photo.category || title} className="aspect-[4/3] w-full object-cover" />
-          </button>
-        ))}
+        {photos.map((photo, i) => {
+          const tile = (
+            <button
+              key={`${photo.url}-${i}`}
+              type="button"
+              onClick={() => {
+                setIndex(i);
+                setOpen(true);
+              }}
+              className="motion-press overflow-hidden rounded-lg border border-border bg-card shadow-sm"
+              data-detail-photo={i === 0 && transitionId ? transitionId : undefined}
+            >
+              <ArchiveImage src={photo.url} alt={photo.caption || photo.category || title} className="aspect-[4/3] w-full object-cover" />
+            </button>
+          );
+          // 1枚目は一覧のカード写真とつながる（View Transitions）
+          return i === 0 && transitionId ? (
+            <SharedElement key={`${photo.url}-${i}`} name={vtName("photo", transitionId)}>
+              {tile}
+            </SharedElement>
+          ) : (
+            tile
+          );
+        })}
       </div>
 
       {open && (

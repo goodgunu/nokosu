@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Camera, Check, ChevronLeft, ImageIcon, Mic, Plus, Search, Phone as PhoneIcon, Menu, X } from "lucide-react";
 import { AppCard } from "@/components/landing-mocks";
+import { Reveal } from "@/lib/motion";
 
 const ORANGE = "#E4682C";
 
@@ -231,16 +232,18 @@ export function LandingLineFlow() {
         <p className="mt-1.5 text-sm leading-7" style={{ color: "#6B6560" }}>
           iPhoneは共有ボタンから「LINE」→「のこす」を選ぶだけ。Androidも共有メニューから同じように送れます。
         </p>
-        <ol className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-line-flow="steps" style={{ ["--motion-step-color" as string]: "var(--orange)" }}>
           {steps.map((step, i) => (
-            <li key={step.title} className="rounded-2xl p-4" style={{ background: "#FFF6EF" }}>
+            <Reveal as="li" key={step.title} index={i} variant="fade-up" className="rounded-2xl p-4" style={{ background: "#FFF6EF" }}>
               <p className="flex items-center gap-2">
-                <span className="grid size-6 place-items-center rounded-full text-xs font-bold text-white" style={{ background: ORANGE }}>{i + 1}</span>
+                <span className="motion-step-dot size-6 border-2 border-[var(--motion-step-color)] text-xs font-bold text-[var(--motion-step-color)] [[data-revealed]_&]:text-white">
+                  {i + 1}
+                </span>
                 <span className="text-sm font-bold">{step.title}</span>
               </p>
               <p className="mt-1.5 text-xs leading-6" style={{ color: "#6B6560" }}>{step.body}</p>
               {step.mock}
-            </li>
+            </Reveal>
           ))}
         </ol>
       </div>
