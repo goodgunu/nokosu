@@ -5,7 +5,7 @@
 - 新しいライブラリは使っていません（CSS と小さなフックだけ）
 - 動かすのは `transform` と `opacity` だけ（スマホでも軽い）。フォームの開閉だけは高さも動きます
 - 端末の「視差効果を減らす」がオンの人には、全部止まります（CSS と JS の両方で対応済み）
-- JS が動かない時は何も隠れません。JS の起動が 3 秒以上かかった時も、隠したものは自動で出ます
+- JS が動かない時は何も隠れません。JS の起動が 1 秒以上かかった時も、隠したものは自動で出ます（以前は 3 秒でした）
 
 すでに `app/layout.tsx` で次の 2 つを入れてあります。**追加でやることはありません。**
 
@@ -196,6 +196,8 @@ return <ol ref={ref} data-active={inView ? "" : undefined}>…</ol>;
 | `motion-lift` | PC でマウスを乗せた時だけ 2px 浮いて影が付く（スマホでは何もしない） |
 | `motion-pop` | 付いた瞬間に 1 回ポンと弾む |
 | `motion-crossfade` | 表示された瞬間にフェードイン（`key` を変えると毎回動く） |
+| `motion-pop-once` | 表示された時に 1 回だけ小さい所からポンと出る（急ぎのバッジ向け。点滅・繰り返しなし） |
+| `motion-highlight` | 1 回だけ淡く光って消える（通知から開いたカードの目印。繰り返しなし） |
 
 ```tsx
 <Link href={`/listings/${item.id}`} className="motion-press motion-lift block rounded-xl">…</Link>
@@ -210,6 +212,29 @@ return <ol ref={ref} data-active={inView ? "" : undefined}>…</ol>;
 const [popRef, pop] = usePop<HTMLButtonElement>();
 <button ref={popRef} onClick={() => { toggleFavorite(); pop(); }}>♡</button>
 ```
+
+### 急ぎのバッジ：`.motion-pop-once`
+
+「あと1時間で終了」のように、**条件を満たした時だけ出すバッジ**に付けます。出た時に 1 回だけ弾んで止まります（点滅・繰り返しはしません）。
+
+```tsx
+{endsSoon && <span className="motion-pop-once rounded-full bg-red-600 px-2 text-xs text-white">あと1時間で終了</span>}
+```
+
+- インライン要素でも動くように `display: inline-block` が付きます（`inline-flex` などのクラスがあればそちらが勝ちます）
+- 遅らせたい時は `style={{ "--motion-delay": "200ms" } as React.CSSProperties}`
+
+### 通知から開いたカードの目印：`.motion-highlight`
+
+LINE の通知などから開いた時、該当のカードに付けると **1 回だけ淡く光って消えます**。色の層（`::after`）の opacity だけが動くので、中身はずれません。
+
+```tsx
+<article className={cn("rounded-xl bg-white", item.id === fromNotice && "motion-highlight")}>…</article>
+```
+
+- 色は `--motion-highlight-color`（標準はサイトの色＝のこすはオレンジ・おくは黄をうすくしたもの）。時間は `--motion-dur-highlight`（1.6 秒）
+- `position: relative` が付きます（`absolute` などのクラスがあればそちらが勝ちます）。`::after` を自分で使っている箱には付けないでください
+- もう一度光らせたい時は、クラスを外して付け直すか `key` を変えます
 
 ### ページ分けの中身の入れ替え
 
@@ -404,7 +429,9 @@ startViewTransition(() => setTab("compare"));
 
 ## 8. 「視差効果を減らす」
 
-- CSS：自動です（時間の変数が 0 になり、隠す処理も行いません）
+- CSS：自動です（時間の変数が 0 になり、隠す処理も行いません）。`motion-pop-once` と `motion-highlight` も動きません（最初から普通に見えます）
+- スマホ幅（639px 以下）では、`slide-left` / `slide-right` も下から出る動きになります（横スクロールが出ないように）。PC 幅では今までどおり横から入ります
+- JS の起動が遅れても、隠れた要素は **1 秒**で自動的に出ます（保険）
 - JS で分岐したい時：
 
 ```tsx

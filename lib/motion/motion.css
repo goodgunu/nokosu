@@ -29,6 +29,11 @@
   /* variant="sheet-up"：下からにゅっと出るシート（要素の高さぶん下から） */
   --motion-dur-sheet: 480ms;
   --motion-sheet-distance: 100%;
+  /* .motion-highlight の色（標準はステップの丸と同じ色をうすくしたもの。style で上書きできます） */
+  --motion-highlight-color: color-mix(in srgb, var(--motion-step-color) 24%, transparent);
+  --motion-dur-highlight: 1600ms;
+  /* .motion-pop-once の一番大きいところ */
+  --motion-pop-once-scale: 1.12;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -61,7 +66,7 @@
   }
 }
 
-/* JS の起動に失敗した時の保険：3 秒たったら隠したものを出す */
+/* JS の起動に失敗した・遅れた時の保険：1 秒たったら隠したものを出す */
 @keyframes motion-failsafe {
   to {
     opacity: 1;
@@ -101,6 +106,18 @@
   /* 右から入ってくる */
   --_motion-x: var(--motion-distance);
 }
+/* スマホ幅（639px 以下）では、横から入る動きも縦（下から）にする。横スクロールが出ないように */
+@media (max-width: 639px) {
+  :is(
+      [data-reveal="slide-left"],
+      [data-reveal="slide-right"],
+      [data-stagger="slide-left"] > *,
+      [data-stagger="slide-right"] > *
+    ) {
+    --_motion-x: 0px;
+    --_motion-y: var(--motion-distance);
+  }
+}
 :is([data-reveal="scale-in"], [data-stagger="scale-in"] > *) {
   --_motion-s: var(--motion-scale-from);
 }
@@ -135,7 +152,7 @@
 
   html.motion-js:not(.motion-ready) [data-reveal]:not([data-revealed]):not([data-skip]),
   html.motion-js:not(.motion-ready) [data-stagger]:not([data-revealed]) > *:not([data-skip]) {
-    animation: motion-failsafe 1ms linear 3s forwards;
+    animation: motion-failsafe 1ms linear 1s forwards;
   }
 
   html.motion-js [data-reveal][data-revealed]:not([data-skip]),
@@ -202,6 +219,55 @@
 /* ★・♡ のポン（usePop() を使うと、押すたびに確実に動きます） */
 .motion-pop {
   animation: motion-pop var(--motion-dur-long);
+}
+
+/*
+ * 通知から開いたカードを 1 回だけ淡く光らせる（繰り返さない）。
+ * 光るのは ::after の色の層の opacity だけ。中身や配置は動きません。
+ * もう一度光らせたい時は、クラスを外して付け直すか key を変えてください。
+ */
+@keyframes motion-highlight {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.motion-highlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: var(--motion-highlight-color);
+  pointer-events: none;
+  opacity: 0;
+  animation: motion-highlight var(--motion-dur-highlight) var(--motion-ease-out) var(--motion-delay, 0ms) 1 both;
+}
+
+/*
+ * 急ぎのバッジ（「あと1時間で終了」など）が出た時に 1 回だけポンと出る。点滅・繰り返しはしません。
+ */
+@keyframes motion-pop-once {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(var(--motion-pop-once-scale));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.motion-pop-once {
+  animation: motion-pop-once var(--motion-dur-long) var(--motion-ease-spring) var(--motion-delay, 0ms) 1 backwards;
 }
 
 /* ページ切り替えの中身の入れ替え（key を変えると毎回フェードイン） */
@@ -287,6 +353,14 @@
  */
 /* 形の初期値は @layer components に入れて、Tailwind のクラス（size-6・grid など）で上書きできるようにしています */
 @layer components {
+  /* .motion-highlight の ::after を中に収めるため。absolute などの Tailwind クラスが付いていればそちらが勝ちます */
+  .motion-highlight {
+    position: relative;
+  }
+  /* transform はインライン要素に効かないので。inline-flex などが付いていればそちらが勝ちます */
+  .motion-pop-once {
+    display: inline-block;
+  }
   .motion-step-dots {
     display: flex;
     align-items: center;
@@ -348,6 +422,8 @@
 /* ---------- 視差効果を減らす：全部止める ---------- */
 @media (prefers-reduced-motion: reduce) {
   .motion-pop,
+  .motion-pop-once,
+  .motion-highlight::after,
   .motion-crossfade,
   .motion-spin,
   [data-presence-state] {
