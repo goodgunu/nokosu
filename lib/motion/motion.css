@@ -21,6 +21,11 @@
   --motion-scale-from: 0.96;
   --motion-pop-scale: 1.28;
   --motion-lift-shadow: 0 8px 20px rgb(0 0 0 / 0.1);
+  /* ステップの丸を埋める色。サイトごとに違うのはこの 1 行だけ（おく＝黄 / のこす＝オレンジ） */
+  --motion-step-color: var(--orange);
+  /* 丸が埋まり始めるまでの、箱が出てからの遅れ */
+  --motion-step-lag: 150ms;
+  --motion-dur-spin: 700ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -29,6 +34,7 @@
     --motion-dur-base: 0ms;
     --motion-dur-long: 0ms;
     --motion-stagger-step: 0ms;
+    --motion-dur-spin: 0ms;
     --motion-distance: 0px;
     --motion-press-scale: 1;
     --motion-scale-from: 1;
@@ -72,6 +78,12 @@
   }
 }
 
+@keyframes motion-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ---------- Reveal / Stagger の動きの種類 ---------- */
 :is([data-reveal="fade-up"], [data-stagger="fade-up"] > *) {
   --_motion-y: var(--motion-distance);
@@ -105,21 +117,46 @@
  * 出す時は animation（fill: backwards）なので、出終わったあとは
  * .motion-press や .motion-lift の transform とぶつかりません。
  */
+/* 先頭から n 件の動きを外す（<Stagger skip={n}>）。残りは 0 番から数え直す */
 @media (prefers-reduced-motion: no-preference) {
-  html.motion-js [data-reveal]:not([data-revealed]),
-  html.motion-js [data-stagger]:not([data-revealed]) > * {
+  html.motion-js [data-reveal]:not([data-revealed]):not([data-skip]),
+  html.motion-js [data-stagger]:not([data-revealed]) > *:not([data-skip]) {
     opacity: 0;
   }
 
-  html.motion-js:not(.motion-ready) [data-reveal]:not([data-revealed]),
-  html.motion-js:not(.motion-ready) [data-stagger]:not([data-revealed]) > * {
+  html.motion-js:not(.motion-ready) [data-reveal]:not([data-revealed]):not([data-skip]),
+  html.motion-js:not(.motion-ready) [data-stagger]:not([data-revealed]) > *:not([data-skip]) {
     animation: motion-failsafe 1ms linear 3s forwards;
   }
 
-  html.motion-js [data-reveal][data-revealed],
-  html.motion-js [data-stagger][data-revealed] > * {
+  html.motion-js [data-reveal][data-revealed]:not([data-skip]),
+  html.motion-js [data-stagger][data-revealed] > *:not([data-skip]) {
     animation: motion-reveal var(--motion-dur-long) var(--motion-ease-out)
-      calc(var(--motion-delay, 0ms) + min(var(--motion-i, 0), 10) * var(--motion-stagger-step)) backwards;
+      calc(var(--motion-delay, 0ms) + max(0, min(var(--motion-i, 0), 10) - var(--motion-skip, 0)) * var(--motion-stagger-step)) backwards;
+  }
+
+  /* Stagger skip={n} の先頭 n 件は、親がまだ「見えた」前でも隠さない */
+  html.motion-js [data-stagger][data-skip="1"] > :nth-child(-n + 1),
+  html.motion-js [data-stagger][data-skip="2"] > :nth-child(-n + 2),
+  html.motion-js [data-stagger][data-skip="3"] > :nth-child(-n + 3),
+  html.motion-js [data-stagger][data-skip="4"] > :nth-child(-n + 4),
+  html.motion-js [data-stagger][data-skip="5"] > :nth-child(-n + 5),
+  html.motion-js [data-stagger][data-skip="6"] > :nth-child(-n + 6),
+  html.motion-js [data-stagger][data-skip="7"] > :nth-child(-n + 7),
+  html.motion-js [data-stagger][data-skip="8"] > :nth-child(-n + 8),
+  html.motion-js [data-stagger][data-skip="9"] > :nth-child(-n + 9),
+  html.motion-js [data-stagger][data-skip="10"] > :nth-child(-n + 10) {
+    opacity: 1;
+    animation: none;
+  }
+
+  /* skip した先頭の中のステップの丸は、待ち時間なしですでに埋まっている */
+  html.motion-js [data-reveal][data-skip] .motion-step-dot::before,
+  html.motion-js [data-stagger][data-skip="1"] > :nth-child(-n + 1) .motion-step-dot::before,
+  html.motion-js [data-stagger][data-skip="2"] > :nth-child(-n + 2) .motion-step-dot::before,
+  html.motion-js [data-stagger][data-skip="3"] > :nth-child(-n + 3) .motion-step-dot::before {
+    transform: none;
+    transition: none;
   }
 }
 
@@ -156,6 +193,26 @@
   animation: motion-fade-in var(--motion-dur-base) var(--motion-ease-out) backwards;
 }
 
+/* 保存中のくるくる（アイコンや <Spinner> に付ける）。円の線は currentColor を使います */
+.motion-spin {
+  display: inline-block;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 9999px;
+  animation: motion-spin var(--motion-dur-spin) linear infinite;
+  vertical-align: middle;
+}
+/* すでに形があるアイコン（lucide など）に付けるときは、枠線を消して回転だけ使います */
+.motion-spin:where(svg),
+.motion-spin:where(img),
+:where(svg).motion-spin,
+:where(img).motion-spin {
+  border: 0;
+  background: none;
+}
+
 /* ---------- 開閉（Collapse） ---------- */
 /* grid-template-rows 0fr → 1fr で高さを伸び縮み。中身は小さめに保つこと（大きいとスマホでカクつきます） */
 .motion-collapse {
@@ -182,6 +239,84 @@
   overflow: hidden;
 }
 
+/* ---------- 出る・消える（Presence） ---------- */
+@keyframes motion-exit {
+  to {
+    opacity: 0;
+    transform: translate3d(var(--_motion-x, 0px), var(--_motion-y, 0px), 0) scale(var(--_motion-s, 1));
+  }
+}
+[data-presence="fade-up"] {
+  --_motion-y: calc(var(--motion-distance) * -1);
+}
+[data-presence="fade-down"] {
+  --_motion-y: var(--motion-distance);
+}
+[data-presence="scale-out"] {
+  --_motion-s: var(--motion-scale-from);
+}
+[data-presence-state="enter"] {
+  animation: motion-reveal var(--motion-dur-base) var(--motion-ease-out) backwards;
+}
+[data-presence-state="exit"] {
+  animation: motion-exit var(--motion-dur-base) var(--motion-ease-in-out) forwards;
+  pointer-events: none;
+}
+
+/* ---------- ステップの丸（StepDots / .motion-step-dot） ---------- */
+/*
+ * 丸の中から色が広がって埋まります（::before を scale するだけなので軽い）。
+ * 親の <Reveal> / <Stagger> / <StepDots> が画面に入ると、順番（--motion-i）どおりに埋まります。
+ * 色は --motion-step-color（親や丸自身の style で上書きできます）。
+ */
+/* 形の初期値は @layer components に入れて、Tailwind のクラス（size-6・grid など）で上書きできるようにしています */
+@layer components {
+  .motion-step-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .motion-step-dot {
+    position: relative;
+    isolation: isolate;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 9999px;
+  }
+  .motion-step-dots > .motion-step-dot:not([class*="size-"]) {
+    width: 0.625rem;
+    height: 0.625rem;
+    box-shadow: inset 0 0 0 1.5px var(--motion-step-color);
+  }
+}
+.motion-step-dot::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--motion-step-color);
+}
+/* まだ進んでいない丸（StepDots の filled より後ろ、または data-pending を付けた丸） */
+.motion-step-dot[data-pending]::before {
+  transform: scale(0);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .motion-step-dot::before {
+    transition: transform var(--motion-dur-long) var(--motion-ease-spring);
+    transition-delay: calc(
+      var(--motion-delay, 0ms) + min(var(--motion-i, 0), 10) * var(--motion-stagger-step) + var(--motion-step-lag)
+    );
+  }
+  /* 動き出した後（motion-ready）だけ空にする。JS が遅い・動かない時は最初から埋まったまま */
+  html.motion-js.motion-ready :is([data-reveal], [data-stagger], [data-steps]):not([data-revealed]) .motion-step-dot::before {
+    transform: scale(0);
+  }
+}
+
 /* ---------- View Transitions（画面のつながり） ---------- */
 /* 一覧の写真 → 詳細の写真（<SharedElement> が付けるクラス） */
 ::view-transition-group(.motion-morph) {
@@ -197,7 +332,9 @@
 /* ---------- 視差効果を減らす：全部止める ---------- */
 @media (prefers-reduced-motion: reduce) {
   .motion-pop,
-  .motion-crossfade {
+  .motion-crossfade,
+  .motion-spin,
+  [data-presence-state] {
     animation: none;
   }
   .motion-press,

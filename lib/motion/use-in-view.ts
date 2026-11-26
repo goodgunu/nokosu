@@ -78,6 +78,12 @@ export type UseInViewOptions = {
   rootMargin?: string;
   /** false にすると監視しません */
   enabled?: boolean;
+  /**
+   * true、または when="mount" のとき、画面に入るのを待たず、最初から「見えた」にします。
+   * ヒーローなど、開いた瞬間から動かしたい要素に使います。
+   */
+  immediate?: boolean;
+  when?: "in-view" | "mount";
 };
 
 /**
@@ -88,13 +94,14 @@ export type UseInViewOptions = {
 export function useInView<T extends Element = HTMLElement>(
   options: UseInViewOptions = {},
 ): [RefObject<T | null>, boolean] {
+  const immediate = options.immediate === true || options.when === "mount";
   const { once = true, threshold, rootMargin, enabled = true } = options;
   const ref = useRef<T | null>(null);
-  const [inView, setInView] = useState(false);
+  const [inView, setInView] = useState(immediate);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || !enabled) return;
+    if (!el || !enabled || immediate) return;
     if (typeof IntersectionObserver === "undefined") {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- 古いブラウザ向けの保険
       setInView(true);
@@ -119,7 +126,7 @@ export function useInView<T extends Element = HTMLElement>(
     return () => {
       if (stop) stop();
     };
-  }, [once, threshold, rootMargin, enabled]);
+  }, [once, threshold, rootMargin, enabled, immediate]);
 
   return [ref, inView];
 }
@@ -131,12 +138,28 @@ export function useInView<T extends Element = HTMLElement>(
  * const reveal = useReveal<HTMLDivElement>("fade-up");
  * <div {...reveal}>…</div>
  */
+export type UseRevealOptions = UseInViewOptions & {
+  /** true なら動きを付けず、最初から普通に見えます（表示の速さを落とさない） */
+  skip?: boolean;
+};
+
 export function useReveal<T extends Element = HTMLElement>(
   variant: RevealVariant = "fade-up",
-  options: UseInViewOptions = {},
-): { ref: RefObject<T | null>; "data-reveal": RevealVariant; "data-revealed": "" | undefined } {
-  const [ref, inView] = useInView<T>(options);
-  return { ref, "data-reveal": variant, "data-revealed": inView ? "" : undefined };
+  options: UseRevealOptions = {},
+): {
+  ref: RefObject<T | null>;
+  "data-reveal": RevealVariant;
+  "data-revealed": "" | undefined;
+  "data-skip": "" | undefined;
+} {
+  const skip = options.skip === true;
+  const [ref, inView] = useInView<T>({ ...options, enabled: options.enabled !== false && !skip });
+  return {
+    ref,
+    "data-reveal": variant,
+    "data-revealed": skip || inView ? "" : undefined,
+    "data-skip": skip ? "" : undefined,
+  };
 }
 
 export type RevealVariant = "fade" | "fade-up" | "slide-left" | "slide-right" | "scale-in";
