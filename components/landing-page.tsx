@@ -8,6 +8,7 @@ import { LandingLineFlow } from "@/components/landing-line-flow";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID, LINE_ADD_FRIEND_URL } from "@/components/line-add-link";
 import { Wordmark } from "@/components/wordmark";
+import { Reveal, Stagger, staggerStyle } from "@/lib/motion";
 
 const kept = [
   ["写真", "掲載の写真を選んで残す", Camera],
@@ -83,7 +84,8 @@ export function LandingPage() {
 
       <section style={{ background: "#F8D3B8", color: "#1C1917" }}>
         <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-7 sm:pt-8">
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]">
+          {/* 開いた瞬間から出す（data-revealed を最初から付けて、JS の起動を待たない＝表示の速さを落とさない） */}
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]" data-reveal="fade-up" data-revealed="">
             <Image
               src="/gtr-hero-3.jpg"
               alt="オレンジのGT-Rの写真"
@@ -96,7 +98,7 @@ export function LandingPage() {
           </div>
         </div>
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
-          <div>
+          <div data-reveal="fade-up" data-revealed="" style={staggerStyle(1)}>
             <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>
               売約や掲載終了の前に
             </p>
@@ -114,6 +116,9 @@ export function LandingPage() {
           </div>
           <form
             className="text-foreground rounded-xl bg-white p-4"
+            data-reveal="fade-up"
+            data-revealed=""
+            style={staggerStyle(2)}
             noValidate
             onSubmit={(event) => {
               event.preventDefault();
@@ -175,7 +180,7 @@ export function LandingPage() {
       </section>
 
       <section id="daily-check" style={{ background: "#E7692F", color: "#FFFFFF" }}>
-        <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-9 sm:px-7 sm:py-12 lg:grid-cols-2 lg:gap-12">
+        <Stagger className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-9 sm:px-7 sm:py-12 lg:grid-cols-2 lg:gap-12">
           <div>
             <p className="text-xs font-bold tracking-[0.14em] text-white/85">毎朝、自動でチェック</p>
             <h2 className="mt-2 text-[1.65rem] leading-snug font-extrabold tracking-tight sm:text-4xl">
@@ -243,7 +248,7 @@ export function LandingPage() {
               <p className="mt-2.5 text-[11px] leading-5" style={{ color: "#6B6560" }}>※ 表示のイメージです。実際の金額ではありません。</p>
             </div>
           </div>
-        </div>
+        </Stagger>
       </section>
 
       {showLogin && (
@@ -270,7 +275,7 @@ export function LandingPage() {
       <section className="px-4 py-8 sm:px-7" style={{ background: "#FFF6EF" }}>
         <div className="mx-auto max-w-6xl">
           <h2 className="text-lg font-bold">アカウントに残るもの</h2>
-          <ul className="mt-3 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
+          <Stagger as="ul" className="mt-3 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
             {kept.map(([title, body, Icon]) => (
               <li key={title} className="rounded-2xl border bg-white p-3.5 shadow-sm sm:p-4" style={{ borderColor: "#F0C8AE" }}>
                 <span className="grid size-9 place-items-center rounded-xl text-white" style={{ background: "#E4682C" }}>
@@ -280,17 +285,17 @@ export function LandingPage() {
                 <p className="mt-1 text-xs leading-5" style={{ color: "#6B6560" }}>{body}</p>
               </li>
             ))}
-          </ul>
+          </Stagger>
         </div>
       </section>
 
       <section id="after" className="px-4 pt-5 pb-7 sm:px-7" style={{ background: "#F9E3D0" }}>
         <div className="mx-auto max-w-6xl">
-          <div className="max-w-md">
+          <Reveal className="max-w-md">
             <h2 className="text-lg font-bold">残る</h2>
             <p className="text-muted-foreground mt-1 text-sm leading-6">売約して掲載が終わっても、アカウントに残る。メモも書ける。</p>
             <MockList />
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -298,7 +303,7 @@ export function LandingPage() {
 
       <section style={{ background: "#E7F6EC" }}>
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-7">
-          <div>
+          <Reveal>
             <h2 className="text-lg font-bold">LINEに送ると、その場で残る</h2>
             <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-7">
               下のボタンで公式LINE「のこす」を友だち追加します。IDは {LINE_ACCOUNT_ID} です。追加したあと、各サイトの共有から「のこす」を選ぶと、アカウントに保存されます。
@@ -306,7 +311,7 @@ export function LandingPage() {
             <div className="mt-4">
               <LineAddLink />
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
