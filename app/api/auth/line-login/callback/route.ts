@@ -1,3 +1,4 @@
+import { signedInHintCookie } from "@/lib/auth-hint";
 import { normalizeAccountKey } from "@/lib/account";
 import { lineAccountId } from "@/lib/line-login";
 import { accountState } from "@/lib/current-user";
@@ -66,6 +67,7 @@ export async function GET(request: Request) {
   const token = signSession(account, await authSecret());
   const headers = new Headers({ Location: pending.next });
   headers.append("Set-Cookie", sessionCookie(token, true));
+  headers.append("Set-Cookie", signedInHintCookie(true, true));
   headers.append("Set-Cookie", `${LINE_STATE_COOKIE}=; HttpOnly; Path=/api/auth/line-login; SameSite=Lax; Max-Age=0; Secure`);
   return new Response(null, { status: 302, headers });
 }
