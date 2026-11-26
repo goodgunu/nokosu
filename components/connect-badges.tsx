@@ -41,7 +41,7 @@ export function ConnectBadges() {
   return (
     <>
       {links?.line ? (
-        <span className={HEADER_PILL} style={{ background: "#E7F6EC", color: "#05813A" }}>
+        <span className={HEADER_PILL} style={{ background: "#E7F6EC", color: "#046C30" }}>
           LINE連携済み
         </span>
       ) : links?.canLinkLine ? (

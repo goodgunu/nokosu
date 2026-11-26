@@ -41,7 +41,7 @@ export function CompareScreen() {
           <div>
             <h1 className="text-2xl font-bold">並べて比べる</h1>
             <p className="text-muted-foreground mt-1 text-xs leading-5 sm:text-sm">
-              選んだ車を同じ項目で並べます。<span className="font-bold" style={{ color: ORANGE }}>オレンジ</span>はいちばん安い・新しい・少ない車です。
+              選んだ車を同じ項目で並べます。<span className="font-bold" style={{ color: "#9C3D12" }}>オレンジ</span>はいちばん安い・新しい・少ない車です。
             </p>
           </div>
           <Button variant="outline" nativeButton={false} render={<Link href="/" />}>
@@ -74,7 +74,7 @@ export function CompareScreen() {
                           <ArchiveImage src={photoSrc(record.id, 0, record.updatedAt)} alt="" className="size-full object-cover" />
                         )}
                         {record.favorite && (
-                          <span className="absolute top-1 right-1 rounded-full bg-white/95 px-1.5 text-xs" style={{ color: ORANGE }} aria-label="お気に入り">
+                          <span className="absolute top-1 right-1 rounded-full bg-white/95 px-1.5 text-xs" style={{ color: "#9C3D12" }} aria-label="お気に入り">
                             ♥
                           </span>
                         )}
@@ -101,7 +101,7 @@ export function CompareScreen() {
                           key={record.id}
                           data-best={isBest || undefined}
                           className={`min-w-0 border-b border-l px-2 py-2 text-[13px] leading-5 break-words sm:px-3 ${row.label === "支払総額" ? "text-base font-extrabold" : ""} ${value === "未記載" ? "text-muted-foreground" : ""}`}
-                          style={isBest ? { color: ORANGE, fontWeight: 800, background: "#FFF6EF" } : undefined}
+                          style={isBest ? { color: "#9C3D12", fontWeight: 800, background: "#FFF6EF" } : undefined}
                         >
                           {value}
                         </div>

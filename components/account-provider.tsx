@@ -148,18 +148,18 @@ function LandingWithPending() {
 function LoginRequired() {
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "#FFFFFF", color: "#1C1917" }}>
-      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
+      <header style={{ background: "#E4682C", color: "#111111" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2 sm:px-7">
           <Link href="/" aria-label="のこす トップへ" className="inline-flex min-h-11 items-center">
             <Wordmark height={26} />
           </Link>
-          <Link href="/" className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-bold text-white">
+          <Link href="/" className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-bold">
             のこすとは
           </Link>
         </div>
       </header>
       <main className="mx-auto w-full max-w-sm flex-1 px-5 py-10 sm:py-14" data-page="login-required">
-        <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>ログインが必要です</p>
+        <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#9C3D12" }}>ログインが必要です</p>
         <h1 className="mt-2 text-2xl leading-snug font-bold">ログインすると見られます</h1>
         <p className="mt-2 mb-6 text-sm leading-7" style={{ color: "#57534E" }}>
           このページは、車を保存した本人だけが開けます。保存したときと同じ方法でログインしてください。はじめての方は、そのまま登録できます。
@@ -180,7 +180,7 @@ function LoginRequired() {
 function LoginScreen() {
   return (
     <main className="mx-auto flex min-h-full max-w-lg flex-col justify-center px-4 py-16">
-      <p className="font-heading text-sm tracking-[0.2em]" style={{ color: "#E4682C" }}>のこす</p>
+      <p className="font-heading text-sm tracking-[0.2em]" style={{ color: "#9C3D12" }}>のこす</p>
       <h1 className="font-heading mt-3 text-4xl leading-tight">LINEとつなぐ</h1>
       <p className="text-muted-foreground mt-3 mb-6 text-sm leading-7">
         最初の1回だけ、ログインしたアカウントとLINEの「のこす」をつなぎます。次からは、車を送るだけで保存されます。

@@ -356,7 +356,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
               autoCapitalize="off"
               autoCorrect="off"
             />
-            <Button type="submit" className="h-11 gap-1.5 px-6 font-bold text-white" disabled={Boolean(busy)} data-control="save" data-state={busy ? "busy" : saved ? "done" : "idle"}>
+            <Button type="submit" className="h-11 gap-1.5 px-6 font-bold" disabled={Boolean(busy)} data-control="save" data-state={busy ? "busy" : saved ? "done" : "idle"}>
               {busy ? (
                 <>
                   <Spinner className="size-4 shrink-0" label="保存しています" />
@@ -439,7 +439,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
             >
               並べ替え・絞り込み
               {(sort ? 1 : 0) + (isExtraActive(extra) ? 1 : 0) > 0 && (
-                <span className="grid size-4 place-items-center rounded-full bg-[#E4682C] text-[10px] text-white">{(sort ? 1 : 0) + (isExtraActive(extra) ? 1 : 0)}</span>
+                <span className="grid size-4 place-items-center rounded-full bg-[#E4682C] text-[10px] text-[#111]">{(sort ? 1 : 0) + (isExtraActive(extra) ? 1 : 0)}</span>
               )}
               <ChevronDown className="size-4 transition-transform duration-[var(--motion-dur-short)] ease-[var(--motion-ease-out)] [[aria-expanded=true]>&]:rotate-180" aria-hidden />
             </Button>
@@ -483,7 +483,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                   const preset = SORT_PRESETS.find((item) => item.id === event.target.value);
                   setSort(preset && preset.id !== "saved-desc" ? preset.sort : null);
                 }}
-                className={`h-10 w-full min-w-0 rounded-lg border bg-card px-2 text-sm font-bold ${sort ? "border-[#E7692F] text-[#E7692F]" : "border-border"}`}
+                className={`h-10 w-full min-w-0 rounded-lg border bg-card px-2 text-sm font-bold ${sort ? "border-[#E7692F] text-[#9C3D12]" : "border-border"}`}
               >
                 {SORT_PRESETS.map((preset) => (
                   <option key={preset.id} value={preset.id}>
@@ -498,7 +498,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                 data-control="maker"
                 value={extra.maker}
                 onChange={(event) => setExtra((current) => ({ ...current, maker: event.target.value }))}
-                className={`h-10 w-full min-w-0 rounded-lg border bg-card px-2 text-sm font-bold ${extra.maker ? "border-[#E7692F] text-[#E7692F]" : "border-border"}`}
+                className={`h-10 w-full min-w-0 rounded-lg border bg-card px-2 text-sm font-bold ${extra.maker ? "border-[#E7692F] text-[#9C3D12]" : "border-border"}`}
               >
                 <option value="">すべてのメーカー</option>
                 {makers.map((item) => (
@@ -523,7 +523,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                       aria-pressed={active}
                       data-availability={value}
                       onClick={() => setExtra((current) => ({ ...current, availability: value }))}
-                      className={`h-10 px-3 text-sm font-bold ${index ? "border-l border-border" : ""} ${active ? "bg-[#E7692F] text-white" : "bg-card text-muted-foreground"}`}
+                      className={`h-10 px-3 text-sm font-bold ${index ? "border-l border-border" : ""} ${active ? "bg-[#E7692F] text-[#111]" : "bg-card text-muted-foreground"}`}
                     >
                       {label}
                     </button>
@@ -535,9 +535,9 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                 aria-pressed={extra.favoritesOnly}
                 data-control="favorites"
                 onClick={() => setExtra((current) => ({ ...current, favoritesOnly: !current.favoritesOnly }))}
-                className={`inline-flex h-10 items-center gap-1 rounded-lg border px-3 text-sm font-bold ${extra.favoritesOnly ? "border-[#E7692F] bg-[#E7692F] text-white" : "border-border bg-card text-muted-foreground"}`}
+                className={`inline-flex h-10 items-center gap-1 rounded-lg border px-3 text-sm font-bold ${extra.favoritesOnly ? "border-[#E7692F] bg-[#E7692F] text-[#111]" : "border-border bg-card text-muted-foreground"}`}
               >
-                <HeartIcon filled={extra.favoritesOnly} color={extra.favoritesOnly ? "#FFFFFF" : undefined} className="size-4" />
+                <HeartIcon filled={extra.favoritesOnly} color={extra.favoritesOnly ? "#111111" : undefined} className="size-4" />
                 お気に入り（{favoriteCount}）
               </button>
             </div>
@@ -546,7 +546,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
           {isExtraActive(extra) && (
             <p className="text-muted-foreground flex items-center gap-2 text-xs">
               {visible.length}台を表示中
-              <button type="button" className="font-bold text-[#E7692F] underline" onClick={() => setExtra(NO_EXTRA_FILTER)}>
+              <button type="button" className="font-bold text-[#9C3D12] underline" onClick={() => setExtra(NO_EXTRA_FILTER)}>
                 絞り込みを解除
               </button>
             </p>
@@ -736,11 +736,11 @@ function EmptyLibrary() {
       </p>
       <ol className="mt-4 space-y-2.5 text-sm leading-6">
         <li className="flex gap-2.5">
-          <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold text-white" style={{ background: "#E4682C" }}>1</span>
+          <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold" style={{ background: "#E4682C", color: "#111111" }}>1</span>
           <span>上の入力欄に車の詳細ページURLを貼って「掲載を残す」を押す</span>
         </li>
         <li className="flex gap-2.5">
-          <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold text-white" style={{ background: "#E4682C" }}>2</span>
+          <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold" style={{ background: "#E4682C", color: "#111111" }}>2</span>
           <span>スマホなら、中古車サイトの共有ボタンから公式LINE「のこす」に送るだけでも保存できます</span>
         </li>
       </ol>

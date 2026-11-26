@@ -231,7 +231,7 @@ export function LandingLineFlow() {
   return (
     <section id="line-flow" className="px-4 py-8 sm:px-7" style={{ background: "#FFFFFF" }}>
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: ORANGE }}>使い方</h2>
+        <h2 className="text-sm font-bold tracking-[0.08em]" style={{ color: "#9C3D12" }}>使い方</h2>
         <p className="mt-1 text-lg font-bold">LINEで共有するだけ</p>
         <p className="mt-1.5 text-sm leading-7" style={{ color: "#6B6560" }}>
           iPhoneは共有ボタンから「LINE」→「のこす」を選ぶだけ。Androidも共有メニューから同じように送れます。
@@ -240,7 +240,7 @@ export function LandingLineFlow() {
           {steps.map((step, i) => (
             <Reveal as="li" key={step.title} index={i} variant="fade-up" className="rounded-2xl p-4" style={{ background: "#FFF6EF" }}>
               <p className="flex items-center gap-2">
-                <span className="motion-step-dot size-6 border-2 border-[var(--motion-step-color)] text-xs font-bold text-[var(--motion-step-color)] [[data-revealed]_&]:text-white">
+                <span className="motion-step-dot size-6 border-2 border-[var(--motion-step-color)] text-xs font-bold text-[var(--motion-step-color)] [[data-revealed]_&]:text-[#111]">
                   {i + 1}
                 </span>
                 <span className="text-sm font-bold">{step.title}</span>
@@ -294,7 +294,7 @@ export function LineChatPhone({ maxWidth = 290 }: { maxWidth?: number }) {
                   <Image src="/86-card-2.jpg" alt="" fill sizes="200px" className="object-cover" style={{ objectPosition: "30% 50%" }} />
                 </div>
                 <div className="border-t-2 px-2.5 py-2" style={{ borderColor: ORANGE }}>
-                  <p className="text-[10px] font-bold" style={{ color: ORANGE }}>保存しました</p>
+                  <p className="text-[10px] font-bold" style={{ color: "#9C3D12" }}>保存しました</p>
                   <p className="text-[12px] leading-tight font-bold">トヨタ 86 GT</p>
                   <p className="mt-1 text-[10px]">
                     <span className="font-extrabold" style={{ color: ORANGE }}>138.6</span>万円 ・ <span className="font-bold text-live">掲載中</span>

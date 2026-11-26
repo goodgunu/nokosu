@@ -63,7 +63,7 @@ export function AuthNotice() {
     <p
       role="alert"
       className="px-4 py-2 text-center text-xs font-bold leading-5"
-      style={ok ? { background: "#E7F6EC", color: "#05813A" } : { background: "#FEE2E2", color: "#B91C1C" }}
+      style={ok ? { background: "#E7F6EC", color: "#046C30" } : { background: "#FEE2E2", color: "#B91C1C" }}
     >
       {message}
     </p>

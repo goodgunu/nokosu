@@ -83,7 +83,7 @@ export function NotifySettingCard() {
         <>
           <Collapse open={state.enabled}>
             <p className="mt-2 text-xs leading-5" data-notify="on-detail">
-              <span className="font-bold" style={{ color: "#E7692F" }}>オン</span>
+              <span className="font-bold" style={{ color: "#9C3D12" }}>オン</span>
               <span className="text-muted-foreground"> ・ 毎朝の確認のあと、お気に入りの車に変化があればLINEに届きます。</span>
             </p>
           </Collapse>

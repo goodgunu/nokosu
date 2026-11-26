@@ -182,8 +182,8 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
           </a>
           <button
             type="button"
-            className="flex h-12 w-full items-center justify-center gap-3 rounded-full text-base font-bold text-white shadow-sm disabled:opacity-60"
-            style={{ background: ORANGE }}
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-full text-base font-bold shadow-sm disabled:opacity-60"
+            style={{ background: ORANGE, color: "#111111" }}
             disabled={!ready}
             onClick={() => setMode("email")}
           >
@@ -214,7 +214,7 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
             placeholder="you@example.com"
             className="border-border w-full rounded-lg border px-3 py-3 text-sm"
           />
-          <button type="submit" className="h-12 w-full rounded-full text-base font-bold text-white disabled:opacity-60" style={{ background: ORANGE }} disabled={!ready || !email.trim()}>
+          <button type="submit" className="h-12 w-full rounded-full text-base font-bold disabled:opacity-60" style={{ background: ORANGE, color: "#111111" }} disabled={!ready || !email.trim()}>
             {busy === "email" ? "送っています" : "コードを送る"}
           </button>
           <button type="button" className="text-muted-foreground w-full text-xs" onClick={() => { setMode("choose"); setNotice(""); }}>
@@ -243,7 +243,7 @@ export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl
             placeholder="123456"
             className="border-border w-full rounded-lg border px-3 py-3 text-center text-lg tracking-[0.3em]"
           />
-          <button type="submit" className="h-12 w-full rounded-full text-base font-bold text-white disabled:opacity-60" style={{ background: ORANGE }} disabled={!ready || !code.trim()}>
+          <button type="submit" className="h-12 w-full rounded-full text-base font-bold disabled:opacity-60" style={{ background: ORANGE, color: "#111111" }} disabled={!ready || !code.trim()}>
             {busy === "email" ? "確認しています" : "はじめる"}
           </button>
           <button type="button" className="text-muted-foreground w-full text-xs" onClick={() => { setMode("email"); setNotice(""); }}>

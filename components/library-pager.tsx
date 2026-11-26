@@ -37,8 +37,8 @@ export function LibraryPager({ page, totalPages, onChange }: { page: number; tot
                   onClick={() => onChange(item)}
                   aria-current={item === page ? "page" : undefined}
                   aria-label={`${item}ページ目`}
-                  className={`${BASE} px-2 ${item === page ? "text-white shadow-sm" : "border border-border bg-card"}`}
-                  style={item === page ? { background: ORANGE } : undefined}
+                  className={`${BASE} px-2 ${item === page ? "shadow-sm" : "border border-border bg-card"}`}
+                  style={item === page ? { background: ORANGE, color: "#111111" } : undefined}
                   data-page={item}
                 >
                   {item}
@@ -51,8 +51,8 @@ export function LibraryPager({ page, totalPages, onChange }: { page: number; tot
           type="button"
           onClick={() => onChange(page + 1)}
           disabled={page >= totalPages}
-          className={`${BASE} gap-0.5 pr-2.5 pl-4 text-white disabled:opacity-40`}
-          style={{ background: ORANGE }}
+          className={`${BASE} gap-0.5 pr-2.5 pl-4 disabled:opacity-40`}
+          style={{ background: ORANGE, color: "#111111" }}
           data-control="page-next"
         >
           次へ
