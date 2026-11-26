@@ -91,7 +91,9 @@ export function LandingPage() {
               fill
               loading="eager"
               fetchPriority="high"
-              sizes="(min-width: 1152px) 1100px, 100vw"
+              // 枠の余白を引いた幅（px-4=32px、sm:px-7=56px、最大は max-w-6xl から余白を引いた 1096px）。
+              // 100vw だと、高解像度のスマホで必要以上に大きい画像を取りにいくことがある。
+              sizes="(min-width: 1152px) 1096px, (min-width: 640px) calc(100vw - 56px), calc(100vw - 32px)"
               className="object-cover"
               style={{ objectPosition: "50% 55%" }}
             />
