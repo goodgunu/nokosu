@@ -26,6 +26,9 @@
   /* 丸が埋まり始めるまでの、箱が出てからの遅れ */
   --motion-step-lag: 150ms;
   --motion-dur-spin: 700ms;
+  /* variant="sheet-up"：下からにゅっと出るシート（要素の高さぶん下から） */
+  --motion-dur-sheet: 480ms;
+  --motion-sheet-distance: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -35,6 +38,8 @@
     --motion-dur-long: 0ms;
     --motion-stagger-step: 0ms;
     --motion-dur-spin: 0ms;
+    --motion-dur-sheet: 0ms;
+    --motion-sheet-distance: 0px;
     --motion-distance: 0px;
     --motion-press-scale: 1;
     --motion-scale-from: 1;
@@ -99,6 +104,10 @@
 :is([data-reveal="scale-in"], [data-stagger="scale-in"] > *) {
   --_motion-s: var(--motion-scale-from);
 }
+:is([data-reveal="sheet-up"], [data-stagger="sheet-up"] > *) {
+  /* 下からにゅっと出るシート。100% は「要素自身の高さ」。親の overflow-hidden で下に隠れた所から出てきます */
+  --_motion-y: var(--motion-sheet-distance);
+}
 
 /* 時間差の順番（直接の子の 1〜10 件目。11 件目以降は 10 件目と同じ） */
 [data-stagger] > :nth-child(2) { --motion-i: 1; }
@@ -133,6 +142,13 @@
   html.motion-js [data-stagger][data-revealed] > *:not([data-skip]) {
     animation: motion-reveal var(--motion-dur-long) var(--motion-ease-out)
       calc(var(--motion-delay, 0ms) + max(0, min(var(--motion-i, 0), 10) - var(--motion-skip, 0)) * var(--motion-stagger-step)) backwards;
+  }
+
+  /* sheet-up は少し長く、強調のカーブで（本物のシートのように、すっと上がってぴたっと止まる） */
+  html.motion-js [data-reveal="sheet-up"][data-revealed]:not([data-skip]),
+  html.motion-js [data-stagger="sheet-up"][data-revealed] > *:not([data-skip]) {
+    animation-duration: var(--motion-dur-sheet);
+    animation-timing-function: var(--motion-ease-emphasized);
   }
 
   /* Stagger skip={n} の先頭 n 件は、親がまだ「見えた」前でも隠さない */

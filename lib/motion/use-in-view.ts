@@ -162,4 +162,4 @@ export function useReveal<T extends Element = HTMLElement>(
   };
 }
 
-export type RevealVariant = "fade" | "fade-up" | "slide-left" | "slide-right" | "scale-in";
+export type RevealVariant = "fade" | "fade-up" | "slide-left" | "slide-right" | "scale-in" | "sheet-up";

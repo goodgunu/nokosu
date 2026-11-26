@@ -14,6 +14,8 @@ export const MOTION_DURATION = {
   long: 400,
   /** 保存中のくるくる 1 周 */
   spin: 700,
+  /** variant="sheet-up"：下から出てくるシート（共有シートなど） */
+  sheet: 480,
 } as const;
 
 /** イージング（動き方のカーブ） */
@@ -38,6 +40,13 @@ export const MOTION_STAGGER = {
 
 /** フェードアップ・スライドインで動く距離（px） */
 export const MOTION_DISTANCE = 14;
+
+/**
+ * variant="sheet-up" で動く距離。要素自身の高さの 100% 下から出てきます
+ * （スマホの共有シートのように、画面の下からにゅっと出る）。
+ * 親に overflow-hidden があれば、出る前の部分は枠の外に隠れます。
+ */
+export const MOTION_SHEET_DISTANCE = "100%";
 
 /** 拡大縮小の量 */
 export const MOTION_SCALE = {
@@ -68,6 +77,9 @@ export const MOTION_VARS = {
   easeSpring: "--motion-ease-spring",
   staggerStep: "--motion-stagger-step",
   distance: "--motion-distance",
+  /** sheet-up の時間と距離（style で上書きできます。例 { "--motion-sheet-distance": "64px" }） */
+  durSheet: "--motion-dur-sheet",
+  sheetDistance: "--motion-sheet-distance",
   pressScale: "--motion-press-scale",
   /** 要素ごとの追加の遅れ（例 "120ms"） */
   delay: "--motion-delay",

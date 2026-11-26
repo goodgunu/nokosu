@@ -62,7 +62,7 @@ import { Reveal, Stagger, Collapse, useCollapse, usePop, SharedElement, vtName }
 
 | props | 意味 |
 |---|---|
-| `variant` | `"fade"` / `"fade-up"`（標準・下から） / `"slide-left"`（左から） / `"slide-right"`（右から） / `"scale-in"`（少し小さい所から） |
+| `variant` | `"fade"` / `"fade-up"`（標準・下から） / `"slide-left"`（左から） / `"slide-right"`（右から） / `"scale-in"`（少し小さい所から） / `"sheet-up"`（共有シートのように、自分の高さぶん下からにゅっと出る） |
 | `delay` | 追加の遅れ（ミリ秒） |
 | `index` | 時間差の順番（0, 1, 2…。10 で頭打ち） |
 | `as` | タグ（標準 `"div"`。`"section"` `"li"` など） |
@@ -75,6 +75,20 @@ import { Reveal, Stagger, Collapse, useCollapse, usePop, SharedElement, vtName }
 - 画面を開いた時にすでに見えている所（ヒーローなど）は、開いた直後に出てきます
 - 画面の下にある所は、スクロールで画面の少し手前まで来たら出てきます
 - **`<Reveal>` の中は普通のサーバーコンポーネントのままで大丈夫です**
+
+### 下からにゅっと出るシート：`variant="sheet-up"`
+
+スマホの共有シートや LINE の転送画面のように、**要素自身の高さぶん（100%）下から**すっと上がって止まります。
+時間は `--motion-dur-sheet`（480ms）、カーブは `--motion-ease-emphasized`。動かすのは transform と opacity だけです。
+
+```tsx
+// スマホの枠（overflow-hidden）の中のシート部分を包むだけ。下にはみ出た所は枠で隠れます
+<Reveal variant="sheet-up" className="relative mx-1.5 mb-1.5 rounded-[22px] …">…シートの中身…</Reveal>
+```
+
+- 親に `overflow-hidden` がある所で使ってください（ないと、出る前のシートが枠の下に見えます）
+- 動く距離を短くしたい時は `style={{ "--motion-sheet-distance": "64px" } as React.CSSProperties}`
+- 「視差効果を減らす」がオンの時と JS が動かない時は、最初から最後の位置に見えます（動きません）
 
 ```tsx
 // クリックや data-* もそのまま渡ります
