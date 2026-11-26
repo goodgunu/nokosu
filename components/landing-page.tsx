@@ -8,7 +8,7 @@ import { LandingLineFlow } from "@/components/landing-line-flow";
 import { LoginOptions } from "@/components/login-options";
 import { LineAddLink, LINE_ACCOUNT_ID, LINE_ADD_FRIEND_URL } from "@/components/line-add-link";
 import { Wordmark } from "@/components/wordmark";
-import { Reveal, Stagger, staggerStyle } from "@/lib/motion";
+import { Reveal, Stagger } from "@/lib/motion";
 
 const kept = [
   ["写真", "掲載の写真を選んで残す", Camera],
@@ -84,8 +84,7 @@ export function LandingPage() {
 
       <section style={{ background: "#F8D3B8", color: "#1C1917" }}>
         <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-7 sm:pt-8">
-          {/* 開いた瞬間から出す（data-revealed を最初から付けて、JS の起動を待たない＝表示の速さを落とさない） */}
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]" data-reveal="fade-up" data-revealed="">
+          <Reveal variant="fade-up" immediate className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl sm:aspect-[16/8]">
             <Image
               src="/gtr-hero-3.jpg"
               alt="オレンジのGT-Rの写真"
@@ -95,10 +94,10 @@ export function LandingPage() {
               className="object-cover"
               style={{ objectPosition: "50% 55%" }}
             />
-          </div>
+          </Reveal>
         </div>
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
-          <div data-reveal="fade-up" data-revealed="" style={staggerStyle(1)}>
+          <Reveal variant="fade-up" immediate index={1}>
             <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>
               売約や掲載終了の前に
             </p>
@@ -113,12 +112,13 @@ export function LandingPage() {
             <p className="mt-3 text-xs leading-6 sm:text-sm" style={{ color: "#9C3D12" }}>
               公式アプリの共有から、LINEの「のこす」に送っても残せます。
             </p>
-          </div>
-          <form
+          </Reveal>
+          <Reveal
+            as="form"
+            variant="fade-up"
+            immediate
+            index={2}
             className="text-foreground rounded-xl bg-white p-4"
-            data-reveal="fade-up"
-            data-revealed=""
-            style={staggerStyle(2)}
             noValidate
             onSubmit={(event) => {
               event.preventDefault();
@@ -175,7 +175,7 @@ export function LandingPage() {
             <p className="text-muted-foreground mt-2.5 text-[11px] leading-5">
               価格、写真、装備、販売店を読み取ります。写真はあとから選べます。
             </p>
-          </form>
+          </Reveal>
         </div>
       </section>
 

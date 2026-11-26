@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, LoaderCircle } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { SOURCE_BADGE_CLASS, SourceBadge } from "@/components/source-badge";
 import { SpecChips, priceNumber, showsMan } from "@/components/spec-chip";
 import { ArchiveImage } from "@/components/archive-image";
@@ -37,7 +37,7 @@ import { photoSrc, fetchListings, loadRemotePhotos, patchListing, saveKept, uplo
 import { requestArchive, saveErrorMessage } from "@/lib/save-listing";
 import { watchLabel, type ArchiveRecord, type ParsedListing } from "@/lib/types";
 import { rememberListing } from "@/lib/listing-cache";
-import { Collapse, NAV_FORWARD, SharedElement, Stagger, usePop, vtName } from "@/lib/motion";
+import { Collapse, NAV_FORWARD, Presence, SharedElement, Spinner, Stagger, usePop, vtName } from "@/lib/motion";
 
 
 export function Library({ lineReady = false }: { lineReady?: boolean }) {
@@ -359,7 +359,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
             <Button type="submit" className="h-11 gap-1.5 px-6 font-bold text-white" disabled={Boolean(busy)} data-control="save" data-state={busy ? "busy" : saved ? "done" : "idle"}>
               {busy ? (
                 <>
-                  <LoaderCircle className="size-4 shrink-0 motion-safe:animate-spin" aria-hidden />
+                  <Spinner className="size-4 shrink-0" label="保存しています" />
                   {busy}
                 </>
               ) : saved ? (
@@ -376,9 +376,9 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
             掲載が生きているうちにURLを貼ると、価格・スペック・装備・販売店・写真をメモとして残します。
             {lineReady ? " 公式アプリの共有からLINEの「のこす」へ送ることもできます。" : ""}
           </p>
-          {notice && (
-            <p key={notice} className={`motion-crossfade mt-3 text-sm font-medium leading-6 ${noticeError ? "text-destructive" : "text-live"}`}>{notice}</p>
-          )}
+          <Presence show={Boolean(notice)} variant="fade" appear as="p" className={`mt-3 text-sm font-medium leading-6 ${noticeError ? "text-destructive" : "text-live"}`}>
+            {notice}
+          </Presence>
           {draft && (
             <PhotoPicker
               listing={draft}
