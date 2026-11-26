@@ -1,0 +1,218 @@
+/*
+ * 共通モーション（のこす・おく共通）
+ * - 動かすのは transform と opacity だけ（フォームの開閉だけは高さも使います）
+ * - 「視差効果を減らす」(prefers-reduced-motion: reduce) の人には動きを止めます
+ * - JS が動かない時は何も隠しません（html.motion-js が付いた時だけ隠す）
+ * 使い方は同じフォルダの README.md を見てください。
+ */
+
+/* ---------- トークン（tokens.ts と同じ値） ---------- */
+:root {
+  --motion-dur-short: 150ms;
+  --motion-dur-base: 250ms;
+  --motion-dur-long: 400ms;
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-stagger-step: 45ms;
+  --motion-distance: 14px;
+  --motion-press-scale: 0.98;
+  --motion-scale-from: 0.96;
+  --motion-pop-scale: 1.28;
+  --motion-lift-shadow: 0 8px 20px rgb(0 0 0 / 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-dur-short: 0ms;
+    --motion-dur-base: 0ms;
+    --motion-dur-long: 0ms;
+    --motion-stagger-step: 0ms;
+    --motion-distance: 0px;
+    --motion-press-scale: 1;
+    --motion-scale-from: 1;
+    --motion-pop-scale: 1;
+  }
+}
+
+/* ---------- キーフレーム ---------- */
+@keyframes motion-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--_motion-x, 0px), var(--_motion-y, 0px), 0) scale(var(--_motion-s, 1));
+  }
+}
+
+@keyframes motion-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* JS の起動に失敗した時の保険：3 秒たったら隠したものを出す */
+@keyframes motion-failsafe {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes motion-pop {
+  0% {
+    transform: scale(1);
+    animation-timing-function: var(--motion-ease-out);
+  }
+  35% {
+    transform: scale(var(--motion-pop-scale));
+    animation-timing-function: var(--motion-ease-spring);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---------- Reveal / Stagger の動きの種類 ---------- */
+:is([data-reveal="fade-up"], [data-stagger="fade-up"] > *) {
+  --_motion-y: var(--motion-distance);
+}
+:is([data-reveal="slide-left"], [data-stagger="slide-left"] > *) {
+  /* 左から入ってくる */
+  --_motion-x: calc(var(--motion-distance) * -1);
+}
+:is([data-reveal="slide-right"], [data-stagger="slide-right"] > *) {
+  /* 右から入ってくる */
+  --_motion-x: var(--motion-distance);
+}
+:is([data-reveal="scale-in"], [data-stagger="scale-in"] > *) {
+  --_motion-s: var(--motion-scale-from);
+}
+
+/* 時間差の順番（直接の子の 1〜10 件目。11 件目以降は 10 件目と同じ） */
+[data-stagger] > :nth-child(2) { --motion-i: 1; }
+[data-stagger] > :nth-child(3) { --motion-i: 2; }
+[data-stagger] > :nth-child(4) { --motion-i: 3; }
+[data-stagger] > :nth-child(5) { --motion-i: 4; }
+[data-stagger] > :nth-child(6) { --motion-i: 5; }
+[data-stagger] > :nth-child(7) { --motion-i: 6; }
+[data-stagger] > :nth-child(8) { --motion-i: 7; }
+[data-stagger] > :nth-child(9) { --motion-i: 8; }
+[data-stagger] > :nth-child(10) { --motion-i: 9; }
+[data-stagger] > :nth-child(n + 11) { --motion-i: 10; }
+
+/*
+ * 隠すのは「JS が動いていて」「視差効果を減らすがオフ」の時だけ。
+ * 出す時は animation（fill: backwards）なので、出終わったあとは
+ * .motion-press や .motion-lift の transform とぶつかりません。
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.motion-js [data-reveal]:not([data-revealed]),
+  html.motion-js [data-stagger]:not([data-revealed]) > * {
+    opacity: 0;
+  }
+
+  html.motion-js:not(.motion-ready) [data-reveal]:not([data-revealed]),
+  html.motion-js:not(.motion-ready) [data-stagger]:not([data-revealed]) > * {
+    animation: motion-failsafe 1ms linear 3s forwards;
+  }
+
+  html.motion-js [data-reveal][data-revealed],
+  html.motion-js [data-stagger][data-revealed] > * {
+    animation: motion-reveal var(--motion-dur-long) var(--motion-ease-out)
+      calc(var(--motion-delay, 0ms) + min(var(--motion-i, 0), 10) * var(--motion-stagger-step)) backwards;
+  }
+}
+
+/* ---------- 押した時・ホバーの反応 ---------- */
+.motion-press {
+  transition: transform var(--motion-dur-short) var(--motion-ease-out);
+}
+.motion-press:active {
+  transform: scale(var(--motion-press-scale));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .motion-lift {
+    transition:
+      transform var(--motion-dur-base) var(--motion-ease-out),
+      box-shadow var(--motion-dur-base) var(--motion-ease-out);
+  }
+  .motion-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--motion-lift-shadow);
+  }
+  .motion-lift.motion-press:active {
+    transform: translateY(-1px) scale(var(--motion-press-scale));
+  }
+}
+
+/* ★・♡ のポン（usePop() を使うと、押すたびに確実に動きます） */
+.motion-pop {
+  animation: motion-pop var(--motion-dur-long);
+}
+
+/* ページ切り替えの中身の入れ替え（key を変えると毎回フェードイン） */
+.motion-crossfade {
+  animation: motion-fade-in var(--motion-dur-base) var(--motion-ease-out) backwards;
+}
+
+/* ---------- 開閉（Collapse） ---------- */
+/* grid-template-rows 0fr → 1fr で高さを伸び縮み。中身は小さめに保つこと（大きいとスマホでカクつきます） */
+.motion-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--motion-dur-base) var(--motion-ease-in-out),
+    opacity var(--motion-dur-short) var(--motion-ease-out),
+    visibility 0s linear var(--motion-dur-base);
+}
+.motion-collapse[data-open] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--motion-dur-base) var(--motion-ease-in-out),
+    opacity var(--motion-dur-base) var(--motion-ease-out),
+    visibility 0s linear 0s;
+}
+.motion-collapse > .motion-collapse-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------- View Transitions（画面のつながり） ---------- */
+/* 一覧の写真 → 詳細の写真（<SharedElement> が付けるクラス） */
+::view-transition-group(.motion-morph) {
+  animation-duration: var(--motion-dur-long);
+  animation-timing-function: var(--motion-ease-emphasized);
+}
+
+/* アニメ中もタップを取りこぼさない */
+::view-transition {
+  pointer-events: none;
+}
+
+/* ---------- 視差効果を減らす：全部止める ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .motion-pop,
+  .motion-crossfade {
+    animation: none;
+  }
+  .motion-press,
+  .motion-lift,
+  .motion-collapse,
+  .motion-collapse[data-open] {
+    transition: none;
+  }
+  .motion-lift:hover {
+    transform: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}

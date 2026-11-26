@@ -2,7 +2,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { jaJP } from "@clerk/localizations";
 import type { Metadata } from "next";
 import { AccountProvider } from "@/components/account-provider";
+import { MotionBoot } from "@/lib/motion/motion-boot";
 import "./globals.css";
+import "@/lib/motion/motion.css";
 
 const SITE_URL = "https://fleet-maple-mto3zo3.vercel.app";
 const SITE_DESCRIPTION = "カーセンサー・グーネット・カババ・ヤフオクの中古車掲載を、売約や掲載終了の前に自分のアカウントへ残すメモ。値下げや掲載終了はLINEでお知らせします。";
@@ -34,10 +36,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ja" className="h-full antialiased">
+    <html lang="ja" className="h-full antialiased" suppressHydrationWarning>
       <head>
       </head>
       <body className="bg-background text-foreground min-h-full">
+        <MotionBoot />
         <style>{`
           :root {
             --orange: #E4682C;
