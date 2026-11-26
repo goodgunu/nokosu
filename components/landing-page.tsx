@@ -254,8 +254,8 @@ export function LandingPage() {
               <p className="mt-0.5 text-[17px] leading-snug font-bold">GT-R プレミアムエディション</p>
               <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <span className="text-[11px] font-bold" style={{ color: "#6B6560" }}>支払総額</span>
-                <span className="text-base font-bold tabular-nums line-through decoration-2" style={{ color: "#9A948E" }}>1,280万円</span>
-                <span className="text-lg font-bold" style={{ color: "#E7692F" }} aria-hidden>→</span>
+                <span className="text-base font-bold tabular-nums line-through decoration-2" style={{ color: "#57534E" }}>1,280万円</span>
+                <span className="text-[20px] font-bold" style={{ color: "#E7692F" }} aria-hidden>→</span>
                 <span className="text-[2rem] leading-none font-extrabold tabular-nums" style={{ color: "#E7692F" }}>1,270<span className="text-sm font-bold" style={{ color: "#1C1917" }}>万円</span></span>
               </div>
               <p className="mt-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-bold" style={{ background: "#E7F6EC", color: "#046C30" }}>
