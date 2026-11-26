@@ -8,7 +8,7 @@ import "./globals.css";
 import "@/lib/motion/motion.css";
 
 const SITE_URL = "https://fleet-maple-mto3zo3.vercel.app";
-const SITE_DESCRIPTION = "カーセンサー・グーネット・カババ・ヤフオクの中古車掲載を、売約や掲載終了の前に自分のアカウントへ残すメモ。値下げや掲載終了はLINEでお知らせします。";
+const SITE_DESCRIPTION = "カーセンサー・グーネット・カババ・ヤフオクの中古車掲載を、掲載終了の前に自分のアカウントへ残すメモ。値下げや掲載終了はLINEでお知らせします。";
 const OG_IMAGE = { url: "/og.jpg", width: 1200, height: 630, alt: "のこす　気になった車を、消える前に残す。" };
 
 export const metadata: Metadata = {
@@ -54,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             --foreground: #111111;
             --card: #FFFFFF;
             --card-foreground: #111111;
-            --primary: #E4682C;
+            --primary: #9C3D12;
             --primary-foreground: #FFFFFF;
             --secondary: #F7F7F7;
             --secondary-foreground: #111111;

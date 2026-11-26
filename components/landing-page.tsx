@@ -44,7 +44,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
-      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
+      <header style={{ background: "#9C3D12", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-1.5 px-3 py-2 sm:gap-3 sm:px-7">
           <span className="shrink-0 [&_img]:h-[22px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
           <nav className="flex shrink-0 items-center gap-1 sm:gap-2.5" aria-label="ログインと使い方">
@@ -101,8 +101,8 @@ export function LandingPage() {
         </div>
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-8 sm:px-7 sm:py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(240px,0.85fr)] lg:gap-8">
           <Reveal variant="fade-up" immediate index={1}>
-            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>
-              売約や掲載終了の前に
+            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#9C3D12" }}>
+              掲載が終わる前に
             </p>
             <h1 className="mt-2 text-[1.7rem] leading-snug font-bold tracking-tight sm:text-4xl">
               気になった車を、
@@ -110,10 +110,32 @@ export function LandingPage() {
               消える前に残す。
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-7 sm:text-base">
-              中古車の掲載は、売約や掲載期間が終わると開けなくなります。URLを残すと、価格も写真も、自分のアカウントに残ります。
+              中古車の掲載は、掲載期間が終わったりページが消えたりすると開けなくなります。URLを残すと、価格も写真も、自分のアカウントに残ります。
             </p>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <a
+                href="/api/auth/line-login?next=%2F"
+                className="motion-press inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-bold text-white shadow-sm"
+                style={{ background: "#06C755" }}
+                data-control="hero-line"
+                onClick={() => {
+                  const pending = url.trim();
+                  if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
+                }}
+              >
+                LINEではじめる（無料）
+              </a>
+              <button
+                type="button"
+                className="inline-flex h-11 items-center text-xs font-bold underline underline-offset-4 sm:text-sm"
+                style={{ color: "#9C3D12" }}
+                onClick={() => openLogin()}
+              >
+                メール・Googleなどでログイン
+              </button>
+            </div>
             <p className="mt-3 text-xs leading-6 sm:text-sm" style={{ color: "#9C3D12" }}>
-              公式アプリの共有から、LINEの「のこす」に送っても残せます。
+              カーセンサー・グーネットなどの共有ボタンから、公式LINE「のこす」に送っても残せます。
             </p>
           </Reveal>
           <Reveal
@@ -172,7 +194,7 @@ export function LandingPage() {
                 {urlError}
               </p>
             ) : null}
-            <button type="submit" className="mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#E4682C" }} >
+            <button type="submit" className="motion-press mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#9C3D12" }} >
               掲載を残す
             </button>
             <p className="text-muted-foreground mt-2.5 text-[11px] leading-5">
@@ -182,48 +204,39 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="daily-check" style={{ background: "#E7692F", color: "#FFFFFF" }}>
+      <section id="daily-check" style={{ background: "#9C3D12", color: "#FFFFFF" }}>
         <Stagger className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-9 sm:px-7 sm:py-12 lg:grid-cols-2 lg:gap-12">
           <div>
-            <p className="text-xs font-bold tracking-[0.14em] text-white/85">毎朝、自動でチェック</p>
+            <p className="text-xs font-bold tracking-[0.14em] text-white/90">毎朝7時ごろに自動チェック</p>
             <h2 className="mt-2 text-[1.65rem] leading-snug font-extrabold tracking-tight sm:text-4xl">
-              毎日自動で確認。
+              毎朝、自動で確認。
               <br />
-              値下げもすぐわかる。
+              値下げも掲載終了もわかる。
             </h2>
             <p className="mt-3 max-w-md text-sm leading-7 text-white/95 sm:text-base">
-              残した掲載は、毎朝自動でチェック。価格が下がると、一覧に「値下げ」と出ます。
+              残した掲載は、毎朝7時ごろに自動でチェックします。価格が変わると一覧に出ます。
             </p>
             <div className="mt-5 max-w-md rounded-2xl bg-white p-4 shadow-lg" style={{ color: "#1C1917" }} data-promo-line>
               <p className="flex items-center gap-2 text-base font-extrabold">
                 <span className="grid size-7 shrink-0 place-items-center rounded-full" style={{ background: "#06C755" }} aria-hidden>
                   <Image src="/icon-line.png" alt="" width={16} height={15} />
                 </span>
-                値下げや売約を、LINEでお知らせ
+                値下げや掲載終了を、LINEでお知らせ
               </p>
               <p className="mt-2 text-sm leading-6" style={{ color: "#57534E" }}>
-                LINEで連携すると、お気に入りに入れた車の値下げや掲載終了が見つかった朝に、LINEへお知らせが届きます（1日1通にまとめます）。
+                LINEで連携すると、一覧でお気に入り（♡）に入れた車の値下げや掲載終了が見つかった朝に、LINEへお知らせが届きます（1日1通にまとめます）。
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <a
                   href="/api/auth/line-login?next=%2F"
-                  className="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold text-white"
+                  className="motion-press inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold text-white"
                   style={{ background: "#06C755" }}
                   onClick={() => {
                     const pending = url.trim();
                     if (pending) sessionStorage.setItem("nokosu-pending-url", pending);
                   }}
                 >
-                  LINEで連携
-                </a>
-                <a
-                  href={LINE_ADD_FRIEND_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-11 items-center justify-center rounded-full border-2 px-4 text-sm font-bold"
-                  style={{ borderColor: "#06C755", color: "#05813A" }}
-                >
-                  公式LINEを友だち追加
+                  LINEではじめる（無料）
                 </a>
               </div>
             </div>
@@ -231,7 +244,7 @@ export function LandingPage() {
           <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-lg lg:mx-0" style={{ color: "#1C1917" }} data-promo-card>
             <div className="relative aspect-[16/10] w-full">
               <Image src="/gtr-hero-3.jpg" alt="例のオレンジのGT-R" fill sizes="(min-width: 1024px) 384px, 90vw" className="object-cover" style={{ objectPosition: "30% 50%" }} />
-              <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={{ background: "#E7692F" }}>例</span>
+              <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={{ background: "#9C3D12" }}>例</span>
             </div>
             <div className="border-t-2 p-4" style={{ borderTopColor: "#E7692F" }}>
               <div className="flex items-center justify-between">
@@ -264,7 +277,7 @@ export function LandingPage() {
           }}
         >
           <div className="w-full max-w-sm rounded-2xl bg-white p-5">
-            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#E4682C" }}>ログイン・新規登録</p>
+            <p className="text-xs font-bold tracking-[0.14em]" style={{ color: "#9C3D12" }}>ログイン・新規登録</p>
             <h2 className="mt-1 text-lg font-bold">のこすをはじめる</h2>
             <p className="text-muted-foreground mt-1 mb-4 text-xs leading-5">はじめての方は、そのまま登録されます。登録済みの方はそのままログインできます。</p>
             <LoginOptions />
@@ -281,7 +294,7 @@ export function LandingPage() {
           <Stagger as="ul" className="mt-3 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
             {kept.map(([title, body, Icon]) => (
               <li key={title} className="rounded-2xl border bg-white p-3.5 shadow-sm sm:p-4" style={{ borderColor: "#F0C8AE" }}>
-                <span className="grid size-9 place-items-center rounded-xl text-white" style={{ background: "#E4682C" }}>
+                <span className="grid size-9 place-items-center rounded-xl text-white" style={{ background: "#9C3D12" }}>
                   <Icon className="size-[18px]" aria-hidden />
                 </span>
                 <p className="mt-2.5 text-sm font-bold">{title}</p>
@@ -296,7 +309,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-6xl">
           <Reveal className="max-w-md">
             <h2 className="text-lg font-bold">残る</h2>
-            <p className="text-muted-foreground mt-1 text-sm leading-6">売約して掲載が終わっても、アカウントに残る。メモも書ける。</p>
+            <p className="text-muted-foreground mt-1 text-sm leading-6">掲載が終わっても、アカウントに残る。メモを書いたり、2〜3台を並べて比較したり、共有リンクで家族に見せたりもできます。</p>
             <MockList />
           </Reveal>
         </div>
@@ -311,6 +324,9 @@ export function LandingPage() {
             <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-7">
               下のボタンで公式LINE「のこす」を友だち追加します。IDは {LINE_ACCOUNT_ID} です。追加したあと、各サイトの共有から「のこす」を選ぶと、アカウントに保存されます。
             </p>
+            <p className="text-muted-foreground mt-2 max-w-2xl text-xs leading-6">
+              ※ アカウントを作らずに友だち追加だけしてURLを送った場合、最初の1回だけ「アカウントをつないで保存」のボタンが返ります。そこから連携すると保存され、次からは送るだけで保存されます。
+            </p>
             <div className="mt-4">
               <LineAddLink />
             </div>
@@ -318,7 +334,33 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer style={{ background: "#E4682C", color: "#FFFFFF" }}>
+      <section className="px-4 py-8 sm:px-7" style={{ background: "#FFF6EF" }} data-landing="pricing-and-storage">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-lg font-bold">料金と保存について</h2>
+          <dl className="mt-3 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border bg-white p-4 shadow-sm" style={{ borderColor: "#F0C8AE" }}>
+              <dt className="text-sm font-bold" style={{ color: "#9C3D12" }}>料金</dt>
+              <dd className="text-muted-foreground mt-1 text-xs leading-6">
+                無料で使えます。有料プランへの自動移行はありません。
+              </dd>
+            </div>
+            <div className="rounded-2xl border bg-white p-4 shadow-sm" style={{ borderColor: "#F0C8AE" }}>
+              <dt className="text-sm font-bold" style={{ color: "#9C3D12" }}>保存件数・保存期間</dt>
+              <dd className="text-muted-foreground mt-1 text-xs leading-6">
+                保存件数の上限はなく、ご自身で削除しないかぎり写真やメモも含めてアカウントに残ります。
+              </dd>
+            </div>
+            <div className="rounded-2xl border bg-white p-4 shadow-sm" style={{ borderColor: "#F0C8AE" }}>
+              <dt className="text-sm font-bold" style={{ color: "#9C3D12" }}>毎朝の確認とLINE通知</dt>
+              <dd className="text-muted-foreground mt-1 text-xs leading-6">
+                毎朝7時ごろに価格と掲載状況を自動確認します。LINE通知は、お気に入り（♡）に入れた車だけ1日1通にまとめて届きます。
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <footer style={{ background: "#9C3D12", color: "#FFFFFF" }}>
         <div className="mx-auto max-w-6xl px-4 pt-5 pb-4 sm:px-7">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <Wordmark height={22} />

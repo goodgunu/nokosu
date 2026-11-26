@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "のこす｜気になった中古車を、消える前に残す",
     short_name: "のこす",
     description:
-      "カーセンサー・グーネット・カババ・ヤフオクの中古車掲載を、売約や掲載終了の前に自分のアカウントへ残すメモ。値下げや掲載終了はLINEでお知らせします。",
+      "カーセンサー・グーネット・カババ・ヤフオクの中古車掲載を、掲載終了の前に自分のアカウントへ残すメモ。値下げや掲載終了はLINEでお知らせします。",
     lang: "ja",
     start_url: "/",
     scope: "/",

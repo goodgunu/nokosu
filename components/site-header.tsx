@@ -8,7 +8,7 @@ export function SiteHeader() {
   const account = useAccount();
   return (
     <>
-    <header className="border-b border-black/10" style={{ background: "#E4682C", color: "#FFFFFF" }}>
+    <header className="border-b border-black/10" style={{ background: "#9C3D12", color: "#FFFFFF" }}>
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 px-3 py-2 sm:gap-4 sm:px-6">
         <Link href="/" aria-label="のこす ホーム" className="shrink-0">
           <Wordmark height={30} />

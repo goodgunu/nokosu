@@ -22,7 +22,7 @@ export const OAUTH_PROVIDERS: OAuthProvider[] = [
 ];
 
 const BUTTON = "flex h-12 w-full items-center justify-center gap-3 rounded-full border bg-card text-base font-medium shadow-sm disabled:opacity-60";
-const ORANGE = "#E4682C";
+const ORANGE = "#9C3D12";
 
 export function LoginOptions({ redirectUrl = "/", onBeforeStart }: { redirectUrl?: string; onBeforeStart?: () => void }) {
   const { signIn, fetchStatus } = useSignIn();

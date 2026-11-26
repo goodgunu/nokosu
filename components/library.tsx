@@ -439,7 +439,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
             >
               並べ替え・絞り込み
               {(sort ? 1 : 0) + (isExtraActive(extra) ? 1 : 0) > 0 && (
-                <span className="grid size-4 place-items-center rounded-full bg-[#E4682C] text-[10px] text-white">{(sort ? 1 : 0) + (isExtraActive(extra) ? 1 : 0)}</span>
+                <span className="grid size-4 place-items-center rounded-full bg-[#9C3D12] text-[10px] text-white">{(sort ? 1 : 0) + (isExtraActive(extra) ? 1 : 0)}</span>
               )}
               <ChevronDown className="size-4 transition-transform duration-[var(--motion-dur-short)] ease-[var(--motion-ease-out)] [[aria-expanded=true]>&]:rotate-180" aria-hidden />
             </Button>
@@ -523,7 +523,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                       aria-pressed={active}
                       data-availability={value}
                       onClick={() => setExtra((current) => ({ ...current, availability: value }))}
-                      className={`h-10 px-3 text-sm font-bold ${index ? "border-l border-border" : ""} ${active ? "bg-[#E7692F] text-white" : "bg-card text-muted-foreground"}`}
+                      className={`h-10 px-3 text-sm font-bold ${index ? "border-l border-border" : ""} ${active ? "bg-[#9C3D12] text-white" : "bg-card text-muted-foreground"}`}
                     >
                       {label}
                     </button>
@@ -535,7 +535,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                 aria-pressed={extra.favoritesOnly}
                 data-control="favorites"
                 onClick={() => setExtra((current) => ({ ...current, favoritesOnly: !current.favoritesOnly }))}
-                className={`inline-flex h-10 items-center gap-1 rounded-lg border px-3 text-sm font-bold ${extra.favoritesOnly ? "border-[#E7692F] bg-[#E7692F] text-white" : "border-border bg-card text-muted-foreground"}`}
+                className={`inline-flex h-10 items-center gap-1 rounded-lg border px-3 text-sm font-bold ${extra.favoritesOnly ? "border-[#9C3D12] bg-[#9C3D12] text-white" : "border-border bg-card text-muted-foreground"}`}
               >
                 <HeartIcon filled={extra.favoritesOnly} color={extra.favoritesOnly ? "#FFFFFF" : undefined} className="size-4" />
                 お気に入り（{favoriteCount}）
@@ -546,7 +546,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
           {isExtraActive(extra) && (
             <p className="text-muted-foreground flex items-center gap-2 text-xs">
               {visible.length}台を表示中
-              <button type="button" className="font-bold text-[#E7692F] underline" onClick={() => setExtra(NO_EXTRA_FILTER)}>
+              <button type="button" className="font-bold text-[#9C3D12] underline" onClick={() => setExtra(NO_EXTRA_FILTER)}>
                 絞り込みを解除
               </button>
             </p>
@@ -670,7 +670,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
         <LineAddCard />
 
         <footer className="text-muted-foreground border-t pt-5 text-xs leading-6">
-          のこすは各掲載サイトとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店・出品者と各サイトにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。掲載が続いているかと価格は、毎日朝に自動で確認します。値下げとアップは一覧に出ます。LINEとつないでいると、お気に入りに入れた車の値下げや掲載終了をLINEでもお知らせします（1日1通まで）。
+          のこすは各掲載サイトとは関係のない個人用のメモです。掲載の文章と写真の権利は販売店・出品者と各サイトにあります。保存した車はこのアカウントに残るので、同じメールアドレスで別の端末からも見られます。掲載が続いているかと価格は、毎朝7時ごろに自動で確認します。値下げとアップは一覧に出ます。LINEとつないでいると、お気に入りに入れた車の値下げや掲載終了をLINEでもお知らせします（1日1通まで）。
         </footer>
       </main>
 
@@ -729,8 +729,21 @@ function SourceFilterButton({
 
 function EmptyLibrary() {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card px-5 py-10 text-center text-sm leading-7 text-muted-foreground">
-      まだ何も残っていません。上のフォームにURLを貼るか、LINEから共有してください。
+    <div className="rounded-2xl border border-dashed bg-card px-5 py-7 text-left shadow-sm" style={{ borderColor: "#E4682C" }} data-library="empty">
+      <p className="text-base font-bold text-foreground">最初の1台を残してみましょう</p>
+      <p className="text-muted-foreground mt-1 text-xs leading-6">
+        カーセンサー・グーネット・カババ・ヤフオクの気になる車を保存できます。
+      </p>
+      <ol className="mt-4 space-y-2.5 text-sm leading-6">
+        <li className="flex gap-2.5">
+          <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold text-white" style={{ background: "#9C3D12" }}>1</span>
+          <span>上の入力欄に車の詳細ページURLを貼って「掲載を残す」を押す</span>
+        </li>
+        <li className="flex gap-2.5">
+          <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold text-white" style={{ background: "#9C3D12" }}>2</span>
+          <span>スマホなら、中古車サイトの共有ボタンから公式LINE「のこす」に送るだけでも保存できます</span>
+        </li>
+      </ol>
     </div>
   );
 }

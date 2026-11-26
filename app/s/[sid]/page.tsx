@@ -68,7 +68,7 @@ export default async function SharePage({ params }: Props) {
 
   return (
     <div className="min-h-full bg-background">
-      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
+      <header style={{ background: "#9C3D12", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-xl items-center justify-between px-4 py-3">
           <Link href="/" aria-label="のこす"><Wordmark height={24} /></Link>
           <Link href="/" className="text-xs font-bold">のこすとは</Link>
@@ -120,12 +120,12 @@ export default async function SharePage({ params }: Props) {
         <section className="mt-6 rounded-2xl p-5 text-center" style={{ background: "#FFF6EF" }}>
           <p className="text-sm font-bold">気になる車を、消える前に残す</p>
           <p className="text-muted-foreground mt-1 text-xs leading-6">
-            中古車の掲載は、売約や掲載終了で見られなくなります。のこすなら、写真も価格も自分のアカウントに残せます。
+            中古車の掲載は、掲載が終わると見られなくなります。のこすなら、写真も価格も自分のアカウントに残せます。
           </p>
           <Link
             href="/"
             className="mt-3 inline-block rounded-full px-6 py-3 text-sm font-bold text-white"
-            style={{ background: "#E4682C" }}
+            style={{ background: "#9C3D12" }}
           >
             のこすで保存する
           </Link>
