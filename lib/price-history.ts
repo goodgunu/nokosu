@@ -44,7 +44,7 @@ export function priceChange(record: Pick<ArchiveRecord, "priceHistory">): {
     const kind = delta < 0 ? "down" : "up";
     return {
       kind,
-      label: `${manText(Math.abs(delta))}${kind === "down" ? "値下げ" : "値上げ"}`,
+      label: `${manText(Math.abs(delta))}${kind === "down" ? "値下げ" : "アップ"}`,
       previous: before.totalPrice,
     };
   }

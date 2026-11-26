@@ -27,6 +27,29 @@ test("price history keeps the saved price and records a drop", () => {
   assert.equal(change.previous, "175.2万円");
 });
 
+
+test("price history records an increase as アップ", () => {
+  const saved = priceHistoryAfter(undefined, {
+    at: "2026-10-01T00:00:00.000Z",
+    priceYen: 2_500_000,
+    totalPrice: "250万円",
+  });
+  const next = priceHistoryAfter(
+    {
+      savedAt: "2026-10-01T00:00:00.000Z",
+      priceYen: 2_500_000,
+      totalPrice: "250万円",
+      basePrice: "",
+      priceHistory: saved,
+    },
+    { at: "2026-10-14T00:00:00.000Z", priceYen: 2_600_000, totalPrice: "260万円" },
+  );
+  const change = priceChange({ priceHistory: next });
+  assert.equal(change.kind, "up");
+  assert.equal(change.label, "10万円アップ");
+  assert.equal(change.previous, "250万円");
+});
+
 test("the same price does not add another history point", () => {
   const first = priceHistoryAfter(undefined, {
     at: "2026-10-01T00:00:00.000Z",
