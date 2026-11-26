@@ -275,13 +275,14 @@ export function LineChatPhone({ maxWidth = 290 }: { maxWidth?: number }) {
         </div>
         <div className="flex flex-col gap-2.5 px-2.5 pt-1 pb-4">
           <span className="mx-auto rounded-full px-2.5 py-0.5 text-[9px] text-white" style={{ background: "rgba(0,0,0,0.25)" }}>今日</span>
-          <div className="flex items-end justify-end gap-1">
+          {/* 見えたら「URLを送る」→「保存しました」の順に吹き出しが出る（おくと同じ動き） */}
+          <Reveal variant="slide-right" delay={150} className="flex items-end justify-end gap-1">
             <span className="text-right text-[8px] leading-3" style={{ color: "#33425e" }}>既読<br />12:52</span>
             <div className="max-w-[72%] rounded-2xl rounded-tr-sm px-3 py-2 text-[10px] leading-4 break-all" style={{ background: "#6FE87A", color: "#111" }}>
               https://example.jp/c/123
             </div>
-          </div>
-          <div className="flex items-start gap-1.5">
+          </Reveal>
+          <Reveal variant="slide-left" delay={650} className="flex items-start gap-1.5">
             <NokosuIcon size={28} badge={false} />
             <div className="flex min-w-0 flex-1 items-end gap-1">
               <div className="min-w-0 flex-1 overflow-hidden rounded-2xl rounded-tl-sm bg-white">
@@ -298,7 +299,7 @@ export function LineChatPhone({ maxWidth = 290 }: { maxWidth?: number }) {
               </div>
               <span className="shrink-0 text-[8px]" style={{ color: "#33425e" }}>12:52</span>
             </div>
-          </div>
+          </Reveal>
         </div>
         <div className="flex items-center gap-2 bg-white px-3 pt-2 pb-5" style={{ color: "#555" }}>
           <Plus className="size-4" aria-hidden />
