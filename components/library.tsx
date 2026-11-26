@@ -656,7 +656,7 @@ export function Library({ lineReady = false }: { lineReady?: boolean }) {
                 {cards}
               </ul>
             ) : (
-              <Stagger as="ul" className="min-w-0 space-y-3">
+              <Stagger as="ul" skip={1} className="min-w-0 space-y-3">
                 {cards}
               </Stagger>
             );
