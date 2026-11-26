@@ -100,7 +100,9 @@ function ShareSheet() {
         <div className="absolute inset-x-0 top-0 h-24 opacity-60 blur-[3px]">
           <Image src="/86-card-2.jpg" alt="" fill sizes="260px" className="object-cover" />
         </div>
-        <div
+        <Reveal
+          variant="sheet-up"
+          delay={220}
           className="relative mx-1.5 mb-1.5 rounded-[22px] px-3 pt-3 pb-2"
           style={{ background: "linear-gradient(180deg, rgba(236,236,240,0.88), rgba(244,244,246,0.94))", backdropFilter: "blur(14px)", boxShadow: "0 0 0 0.5px rgba(0,0,0,0.12)" }}
         >
@@ -179,7 +181,7 @@ function ShareSheet() {
             <Cell label={"“ファイル”に保存"} icon={<ActionCircle><path d="M3.500 7.500a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" /></ActionCircle>} />
             <Cell label="表示を増やす" icon={<ActionCircle><path d="M6 9.500l6 6 6-6" /></ActionCircle>} />
           </div>
-        </div>
+        </Reveal>
       </div>
     </Frame>
   );
@@ -188,22 +190,24 @@ function ShareSheet() {
 // 2. LINEの転送画面
 function Forward() {
   return (
-    <Frame label="LINEの転送画面で「のこす」を選び、転送を押す（サンプル）" bg="#FFFFFF">
-      <div className="flex items-center justify-between px-3 pt-3">
-        <span className="grid size-7 place-items-center rounded-full" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.12)", border: "1px solid #E3E3E6", background: "linear-gradient(180deg,#FFFFFF,#F4F4F6)" }}><X className="size-3.5" aria-hidden /></span>
-        <span className="text-[11px] font-extrabold text-black">選択中 1</span>
-        <span className="rounded-full px-3 py-1 text-[11px] font-bold" style={{ color: "#4A6CF7", boxShadow: "0 1px 4px rgba(0,0,0,0.12)", border: "1px solid #E3E3E6", background: "linear-gradient(180deg,#FFFFFF,#F4F4F6)" }}>転送</span>
-      </div>
-      <p className="px-3 pt-3 text-[10px] font-bold" style={{ color: "#666" }}>最近の履歴</p>
-      {[true, false, false, false].map((checked, i) => (
-        <div key={i} className="flex items-center gap-2.5 px-3 py-1.5">
-          {i === 0 ? <NokosuIcon size={32} badge={false} /> : <Dummy size={32} />}
-          <span className="flex-1 text-[11px]" style={{ color: i === 0 ? "#111" : "#666" }}>{i === 0 ? "のこす" : "友だち"}</span>
-          <span className="grid size-5 place-items-center rounded-full border" style={checked ? { background: "#06C755", borderColor: "#06C755" } : undefined}>
-            {checked && <Check className="size-3 text-white" aria-hidden />}
-          </span>
+    <Frame label="LINEの転送画面で「のこす」を選び、転送を押す（サンプル）" bg="#E8EAEE">
+      <Reveal variant="sheet-up" delay={220} className="h-full rounded-t-[17px] bg-white">
+        <div className="flex items-center justify-between px-3 pt-3">
+          <span className="grid size-7 place-items-center rounded-full" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.12)", border: "1px solid #E3E3E6", background: "linear-gradient(180deg,#FFFFFF,#F4F4F6)" }}><X className="size-3.5" aria-hidden /></span>
+          <span className="text-[11px] font-extrabold text-black">選択中 1</span>
+          <span className="rounded-full px-3 py-1 text-[11px] font-bold" style={{ color: "#4A6CF7", boxShadow: "0 1px 4px rgba(0,0,0,0.12)", border: "1px solid #E3E3E6", background: "linear-gradient(180deg,#FFFFFF,#F4F4F6)" }}>転送</span>
         </div>
-      ))}
+        <p className="px-3 pt-3 text-[10px] font-bold" style={{ color: "#666" }}>最近の履歴</p>
+        {[true, false, false, false].map((checked, i) => (
+          <div key={i} className="flex items-center gap-2.5 px-3 py-1.5">
+            {i === 0 ? <NokosuIcon size={32} badge={false} /> : <Dummy size={32} />}
+            <span className="flex-1 text-[11px]" style={{ color: i === 0 ? "#111" : "#666" }}>{i === 0 ? "のこす" : "友だち"}</span>
+            <span className="grid size-5 place-items-center rounded-full border" style={checked ? { background: "#06C755", borderColor: "#06C755" } : undefined}>
+              {checked && <Check className="size-3 text-white" aria-hidden />}
+            </span>
+          </div>
+        ))}
+      </Reveal>
     </Frame>
   );
 }
