@@ -158,3 +158,10 @@
 .bg-orange { background: var(--orange); }
 .bg-green { background: var(--green); }
 .border-orange { border-color: var(--orange); }
+
+/* ログイン前のトップをすぐ出すための出し分け（components/account-provider.tsx）。
+   ログインのクッキーがある人だけ、画面が動き出すまでトップを隠して「確認しています」を出す */
+.auth-pending-only { display: none; }
+.auth-pending-hide { display: contents; }
+html.nokosu-auth-pending .auth-pending-only { display: block; }
+html.nokosu-auth-pending .auth-pending-hide { display: none; }

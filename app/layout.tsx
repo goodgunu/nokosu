@@ -3,6 +3,7 @@ import { jaJP } from "@clerk/localizations";
 import type { Metadata } from "next";
 import { AccountProvider } from "@/components/account-provider";
 import { MotionBoot } from "@/lib/motion/motion-boot";
+import { AUTH_HINT_SCRIPT } from "@/lib/auth-hint";
 import "./globals.css";
 import "@/lib/motion/motion.css";
 
@@ -41,6 +42,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="bg-background text-foreground min-h-full">
         <MotionBoot />
+        {/* ログインのクッキーがある人は、画面が動き出すまでトップを隠して「確認しています」を出す */}
+        <script dangerouslySetInnerHTML={{ __html: AUTH_HINT_SCRIPT }} />
         <style>{`
           :root {
             --orange: #E4682C;

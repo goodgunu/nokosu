@@ -89,7 +89,8 @@ export function LandingPage() {
               src="/gtr-hero-3.jpg"
               alt="オレンジのGT-Rの写真"
               fill
-              priority
+              loading="eager"
+              fetchPriority="high"
               sizes="(min-width: 1152px) 1100px, 100vw"
               className="object-cover"
               style={{ objectPosition: "50% 55%" }}

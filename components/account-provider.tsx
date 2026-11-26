@@ -3,11 +3,12 @@
 import { useClerk, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react";
 import { LoginOptions } from "@/components/login-options";
 import { LandingPage } from "@/components/landing-page";
 import { Wordmark } from "@/components/wordmark";
 import { getSession } from "@/lib/remote";
+import { AUTH_PENDING_CLASS, looksSignedIn } from "@/lib/auth-hint";
 
 type AccountValue = {
   email: string;
@@ -26,6 +27,14 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
   const { signOut } = useClerk();
   const [phase, setPhase] = useState<"loading" | "google" | "mismatch" | "ready">("loading");
   const [email, setEmail] = useState("");
+  // ログインしていそうか（クッキーの目安）。サーバーと hydration 中は null＝わからない
+  const signedInHint = useSyncExternalStore(subscribeNever, readSignedInHint, readNoHint);
+
+  // 目安が読めたら、html の印（最初のスクリプトが付けたもの）を外し、以後は React の描画で出し分ける。
+  // 描画の直後・画面に出る前に動くので、ログイン中の人にトップは見えない
+  useLayoutEffect(() => {
+    if (signedInHint !== null) document.documentElement.classList.remove(AUTH_PENDING_CLASS);
+  }, [signedInHint]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -66,6 +75,12 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
   if (!isGatedPath(pathname)) return children;
 
   if (view === "loading") {
+    // ログイン前のトップは、確認を待たずにすぐ出す（ログイン中とわかったら一覧に切り替わる）。
+    // ログインのクッキーがある人だけ、確認中の表示にする。
+    // 画面が動き出す前は、最初のスクリプトが html に付けた印で、トップを隠して確認中を出す（CSS は globals.css）
+    if (pathname === "/" && signedInHint !== true) {
+      return <LandingWithPending />;
+    }
     return <main className="mx-auto max-w-xl px-4 py-16 text-sm text-muted-foreground">アカウントを確認しています</main>;
   }
 
@@ -89,11 +104,23 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
 
   if (view !== "ready") {
     if (pathname.startsWith("/line/connect")) return <LoginScreen />;
-    if (pathname === "/") return <LandingPage />;
+    // 確認中と同じ形で返す（形が変わるとトップ全体を作り直して、重い処理と動きのやり直しが起きる）
+    if (pathname === "/") return <LandingWithPending />;
     return <LoginRequired />;
   }
 
   return <AccountContext.Provider value={{ email, logout }}>{children}</AccountContext.Provider>;
+}
+
+// クッキーの変化は追わない（ログイン・ログアウトの後は /api/auth の結果で切り替わる）
+function subscribeNever() {
+  return () => {};
+}
+function readSignedInHint(): boolean | null {
+  return looksSignedIn();
+}
+function readNoHint(): boolean | null {
+  return null;
 }
 
 function isGatedPath(pathname: string): boolean {
@@ -103,6 +130,18 @@ function isGatedPath(pathname: string): boolean {
 
 function currentPath(): string {
   return typeof window === "undefined" ? "/" : `${window.location.pathname}${window.location.search}`;
+}
+
+// ログイン前のトップ。確認中の表示は、ログインのクッキーがある人に画面が動き出すまでだけ出る（globals.css）
+function LandingWithPending() {
+  return (
+    <>
+      <main className="auth-pending-only mx-auto max-w-xl px-4 py-16 text-sm text-muted-foreground">アカウントを確認しています</main>
+      <div className="auth-pending-hide">
+        <LandingPage />
+      </div>
+    </>
+  );
 }
 
 // トップ以外のログインが要るページを、未ログインで開いたとき

@@ -1,3 +1,4 @@
+import { signedInHintCookie } from "@/lib/auth-hint";
 import { accountState, unauthorized } from "@/lib/current-user";
 import { linkedEmail, linkLineUser } from "@/lib/line-link";
 import { consumeLineLoginCode, lineAccountId, safeNext } from "@/lib/line-login";
@@ -21,13 +22,10 @@ export async function GET(request: Request) {
   const email = linked && linked !== selfAccount ? `lineauth:${linked}` : selfAccount;
   const token = signSession(email, await authSecret());
   const secure = Boolean(process.env.VERCEL) || new URL(request.url).protocol === "https:";
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: safeNext(login.next),
-      "Set-Cookie": sessionCookie(token, secure),
-    },
-  });
+  const headers = new Headers({ Location: safeNext(login.next) });
+  headers.append("Set-Cookie", sessionCookie(token, secure));
+  headers.append("Set-Cookie", signedInHintCookie(true, secure));
+  return new Response(null, { status: 302, headers });
 }
 
 export async function POST() {

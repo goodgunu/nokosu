@@ -1,3 +1,4 @@
+import { signedInHintCookie } from "@/lib/auth-hint";
 import { readCookie, sessionCookie, signSession } from "@/lib/session";
 import { authSecret } from "@/lib/store";
 import { exchangeYahooCode, readYahooPending, YAHOO_STATE_COOKIE, yahooLoginConfig } from "@/lib/yahoo-oauth";
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
   const token = signSession(`yahoo:${profile.sub}`, await authSecret());
   const headers = new Headers({ Location: pending.next });
   headers.append("Set-Cookie", sessionCookie(token, true));
+  headers.append("Set-Cookie", signedInHintCookie(true, true));
   headers.append("Set-Cookie", `${YAHOO_STATE_COOKIE}=; HttpOnly; Path=/api/auth/yahoo-login; SameSite=Lax; Max-Age=0; Secure`);
   return new Response(null, { status: 302, headers });
 }
