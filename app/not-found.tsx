@@ -11,12 +11,12 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "#FFFFFF", color: "#1C1917" }}>
-      <header style={{ background: "#E4682C", color: "#111111" }}>
+      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2 sm:px-7">
           <Link href="/" aria-label="のこす トップへ" className="inline-flex min-h-11 items-center">
             <Wordmark height={26} />
           </Link>
-          <Link href="/" className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-bold">
+          <Link href="/" className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-bold text-white">
             のこすとは
           </Link>
         </div>
@@ -29,8 +29,8 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="mt-7 inline-flex h-12 items-center justify-center rounded-full px-8 text-base font-bold"
-          style={{ background: "#E4682C", color: "#111111" }}
+          className="mt-7 inline-flex h-12 items-center justify-center rounded-full px-8 text-base font-bold text-white"
+          style={{ background: "#E4682C" }}
         >
           トップへ戻る
         </Link>

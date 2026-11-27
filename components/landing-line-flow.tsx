@@ -240,7 +240,7 @@ export function LandingLineFlow() {
           {steps.map((step, i) => (
             <Reveal as="li" key={step.title} index={i} variant="fade-up" className="rounded-2xl p-4" style={{ background: "#FFF6EF" }}>
               <p className="flex items-center gap-2">
-                <span className="motion-step-dot size-6 border-2 border-[var(--motion-step-color)] text-xs font-bold text-[var(--motion-step-color)] [[data-revealed]_&]:text-[#111]">
+                <span className="motion-step-dot size-6 border-2 border-[var(--motion-step-color)] text-xs font-bold text-[var(--motion-step-color)] [[data-revealed]_&]:text-white">
                   {i + 1}
                 </span>
                 <span className="text-sm font-bold">{step.title}</span>

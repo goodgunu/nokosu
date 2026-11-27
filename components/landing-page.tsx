@@ -44,7 +44,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-full" style={{ background: "#FFFFFF", color: "#1C1917" }}>
-      <header style={{ background: "#E4682C", color: "#111111" }}>
+      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-1.5 px-3 py-2 sm:gap-3 sm:px-7">
           <span className="shrink-0 [&_img]:h-[22px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
           <nav className="flex shrink-0 items-center gap-1 sm:gap-2.5" aria-label="ログインと使い方">
@@ -194,7 +194,7 @@ export function LandingPage() {
                 {urlError}
               </p>
             ) : null}
-            <button type="submit" className="motion-press mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold" style={{ background: "#E4682C", color: "#111111" }} >
+            <button type="submit" className="motion-press mt-2.5 w-full rounded-lg py-3 text-[15px] font-bold text-white" style={{ background: "#E4682C" }} >
               掲載を残す
             </button>
             <p className="text-muted-foreground mt-2.5 text-[11px] leading-5">
@@ -204,16 +204,16 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="daily-check" style={{ background: "#E7692F", color: "#111111" }}>
+      <section id="daily-check" style={{ background: "#E7692F", color: "#FFFFFF" }}>
         <Stagger className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-9 sm:px-7 sm:py-12 lg:grid-cols-2 lg:gap-12">
           <div>
-            <p className="text-xs font-bold tracking-[0.14em] text-black/80">毎朝7時ごろに自動チェック</p>
+            <p className="text-xs font-bold tracking-[0.14em] text-white/90">毎朝7時ごろに自動チェック</p>
             <h2 className="mt-2 text-[1.65rem] leading-snug font-extrabold tracking-tight sm:text-4xl">
               毎朝、自動で確認。
               <br />
               値下げも掲載終了もわかる。
             </h2>
-            <p className="mt-3 max-w-md text-sm leading-7 text-black/80 sm:text-base">
+            <p className="mt-3 max-w-md text-sm leading-7 text-white/95 sm:text-base">
               残した掲載は、毎朝7時ごろに自動でチェックします。価格が変わると一覧に出ます。
             </p>
             <div className="mt-5 max-w-md rounded-2xl bg-white p-4 shadow-lg" style={{ color: "#1C1917" }} data-promo-line>
@@ -244,7 +244,7 @@ export function LandingPage() {
           <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-lg lg:mx-0" style={{ color: "#1C1917" }} data-promo-card>
             <div className="relative aspect-[16/10] w-full">
               <Image src="/gtr-hero-3.jpg" alt="例のオレンジのGT-R" fill sizes="(min-width: 1024px) 384px, 90vw" className="object-cover" style={{ objectPosition: "30% 50%" }} />
-              <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold shadow" style={{ background: "#E7692F", color: "#111111" }}>例</span>
+              <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white shadow" style={{ background: "#E7692F" }}>例</span>
             </div>
             <div className="border-t-2 p-4" style={{ borderTopColor: "#E7692F" }}>
               <div className="flex items-center justify-between">
@@ -294,7 +294,7 @@ export function LandingPage() {
           <Stagger as="ul" className="mt-3 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
             {kept.map(([title, body, Icon]) => (
               <li key={title} className="rounded-2xl border bg-white p-3.5 shadow-sm sm:p-4" style={{ borderColor: "#F0C8AE" }}>
-                <span className="grid size-9 place-items-center rounded-xl" style={{ background: "#E4682C", color: "#111111" }}>
+                <span className="grid size-9 place-items-center rounded-xl text-white" style={{ background: "#E4682C" }}>
                   <Icon className="size-[18px]" aria-hidden />
                 </span>
                 <p className="mt-2.5 text-sm font-bold">{title}</p>
@@ -360,18 +360,18 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer style={{ background: "#E4682C", color: "#111111" }}>
+      <footer style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto max-w-6xl px-4 pt-5 pb-4 sm:px-7">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <Wordmark height={22} />
-            <p className="text-xs text-black/80">気になる車を、いつでも見返せる場所。</p>
+            <p className="text-xs text-white/90">気になる車を、いつでも見返せる場所。</p>
             <span className="flex-1" />
             <nav className="-mx-2 flex flex-wrap" aria-label="規約">
               <a href="/privacy" className="inline-flex min-h-11 items-center px-2 text-sm font-bold underline-offset-4 hover:underline">プライバシーポリシー</a>
               <a href="/terms" className="inline-flex min-h-11 items-center px-2 text-sm font-bold underline-offset-4 hover:underline">利用規約</a>
             </nav>
           </div>
-          <p className="mt-2 text-xs leading-5 text-black/80" data-landing="disclaimer">
+          <p className="mt-2 text-xs leading-5 text-white/90" data-landing="disclaimer">
             のこすは個人が運営するサービスで、カーセンサー・グーネット・カババ・ヤフオクなど各サイトの公式サービスではありません。掲載の文章と写真の権利は、販売店・出品者と各サイトにあります。
           </p>
         </div>

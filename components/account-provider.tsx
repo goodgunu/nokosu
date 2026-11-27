@@ -148,7 +148,7 @@ function LandingWithPending() {
 function LoginRequired() {
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "#FFFFFF", color: "#1C1917" }}>
-      <header style={{ background: "#E4682C", color: "#111111" }}>
+      <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2 sm:px-7">
           <Link href="/" aria-label="のこす トップへ" className="inline-flex min-h-11 items-center">
             <Wordmark height={26} />

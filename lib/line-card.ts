@@ -171,7 +171,7 @@ function filled(label: string, action: Record<string, unknown>): Record<string, 
     paddingAll: "12px",
     margin: "sm",
     action,
-    contents: [{ type: "text", text: label.slice(0, 40), color: "#111111", weight: "bold", align: "center" }],
+    contents: [{ type: "text", text: label.slice(0, 40), color: "#FFFFFF", weight: "bold", align: "center" }],
   };
 }
 
