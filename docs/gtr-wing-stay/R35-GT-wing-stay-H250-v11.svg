@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="841.0mm" height="594.0mm" viewBox="0 0 841.0 594.0">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>text { font-family: "WenQuanYi Micro Hei", sans-serif; }</style>
+<rect x="6.00" y="6.00" width="829.00" height="582.00" fill="none" stroke="#1c2430" stroke-width="0.7"/>
+<rect x="8.00" y="8.00" width="825.00" height="578.00" fill="none" stroke="#1c2430" stroke-width="0.25"/>
+<rect x="8.00" y="8.00" width="825.00" height="34.00" fill="#1c2430" stroke="#1c2430" stroke-width="0.3"/>
+<text x="18.00" y="22.00" fill="#ffffff" font-size="6.40" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">R35 GT-R  GTウィング かさ上げステー  製作図面</text>
+<text x="18.00" y="36.00" fill="#d6deea" font-size="3.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">H250 v11    トラス無し    ウイング穴を赤点へ移設    SUS304  t5</text>
+<text x="823.00" y="22.00" fill="#d6deea" font-size="2.80" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">尺度 1 : 1 を 1.32倍で配置</text>
+<text x="823.00" y="36.00" fill="#d6deea" font-size="2.80" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">原点は 300×250 板の左下    X→車両前方    Y↑</text>
+<polygon points="62.00,548.00 458.00,548.00 458.00,218.00 62.00,218.00" fill="none" stroke="#9aa6b2" stroke-width="0.28" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="2.2 1.6"/>
+<text x="260.00" y="210.08" fill="#9aa6b2" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">材料枠 300 × 250（破線）</text>
+<polygon points="147.44,548.00 451.40,548.00 452.87,547.83 454.26,547.35 455.52,546.56 456.56,545.52 457.35,544.26 457.83,542.87 458.00,541.40 458.00,511.57 457.84,509.35 457.38,507.17 456.61,505.08 455.56,503.12 454.24,501.33 277.42,292.75 275.12,290.36 272.54,288.28 269.72,286.54 266.70,285.16 263.54,284.17 260.27,283.59 245.76,281.73 231.31,279.45 216.93,276.76 202.63,273.65 188.43,270.14 174.33,266.22 160.35,261.90 146.50,257.18 132.80,252.07 119.24,246.56 105.85,240.67 92.63,234.40 90.25,233.46 87.75,232.91 85.20,232.78 82.66,233.05 80.19,233.74 77.87,234.81 75.74,236.24 73.88,237.99 72.33,240.02 71.12,242.28 70.29,244.70 69.86,247.22 69.84,249.78 70.23,252.31 139.74,541.93 140.34,543.58 141.29,545.06 142.54,546.30 144.03,547.23 145.70,547.80" fill="#e7f2e4" stroke="#1c2430" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="128.00" y1="548.00" x2="128.00" y2="550.40" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="128.00" y="554.20" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">50</text>
+<line x1="194.00" y1="548.00" x2="194.00" y2="550.40" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="194.00" y="554.20" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">100</text>
+<line x1="260.00" y1="548.00" x2="260.00" y2="550.40" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="260.00" y="554.20" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">150</text>
+<line x1="326.00" y1="548.00" x2="326.00" y2="550.40" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="326.00" y="554.20" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">200</text>
+<line x1="392.00" y1="548.00" x2="392.00" y2="550.40" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="392.00" y="554.20" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">250</text>
+<line x1="458.00" y1="548.00" x2="458.00" y2="550.40" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="458.00" y="554.20" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">300</text>
+<line x1="59.60" y1="548.00" x2="62.00" y2="548.00" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="58.60" y="548.80" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">0</text>
+<line x1="59.60" y1="482.00" x2="62.00" y2="482.00" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="58.60" y="482.80" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">50</text>
+<line x1="59.60" y1="416.00" x2="62.00" y2="416.00" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="58.60" y="416.80" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">100</text>
+<line x1="59.60" y1="350.00" x2="62.00" y2="350.00" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="58.60" y="350.80" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">150</text>
+<line x1="59.60" y1="284.00" x2="62.00" y2="284.00" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="58.60" y="284.80" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">200</text>
+<line x1="59.60" y1="218.00" x2="62.00" y2="218.00" stroke="#1c2430" stroke-width="0.25" fill="none"/>
+<text x="58.60" y="218.80" fill="#1c2430" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">250</text>
+<text x="260.00" y="582.32" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">X [mm]   左 0（材料左端） → 右 300（車両前方）</text>
+<text x="51.44" y="202.16" fill="#1c2430" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="end">Y</text>
+<text x="88.40" y="202.16" fill="#1a4f8b" font-size="2.80" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">◀  車両後方  REAR</text>
+<text x="339.20" y="202.16" fill="#1a4f8b" font-size="2.80" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">車両前方  FRONT  ▶</text>
+<line x1="62.00" y1="563.84" x2="141.20" y2="563.84" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="62.00" y1="559.34" x2="62.00" y2="565.04" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="141.20" y1="559.34" x2="141.20" y2="565.04" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="101.60" y="562.54" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">60</text>
+<line x1="141.20" y1="563.84" x2="458.00" y2="563.84" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="141.20" y1="559.34" x2="141.20" y2="565.04" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="458.00" y1="559.34" x2="458.00" y2="565.04" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="299.60" y="562.54" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">底辺 240（板の下辺を使用）</text>
+<line x1="32.96" y1="548.00" x2="32.96" y2="218.00" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="31.76" y1="548.00" x2="37.16" y2="548.00" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="31.76" y1="218.00" x2="37.16" y2="218.00" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="30.76" y="383.00" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end" transform="rotate(-90.0 30.76 383.00)">250</text>
+<line x1="473.84" y1="548.00" x2="473.84" y2="505.76" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="472.64" y1="548.00" x2="478.04" y2="548.00" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="472.64" y1="505.76" x2="478.04" y2="505.76" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="476.04" y="526.88" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start" transform="rotate(-90.0 476.04 526.88)">32</text>
+<text x="98.96" y="376.40" fill="#1a4f8b" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle" transform="rotate(-76.0 98.96 376.40)">後縁 257.1</text>
+<text x="368.24" y="400.16" fill="#1a4f8b" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle" transform="rotate(50.0 368.24 400.16)">前斜辺 219.6</text>
+<text x="164.96" y="241.76" fill="#1a4f8b" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">上辺 凹アール  R386.6    弦 165.9    矢高 9.0</text>
+<text x="162.66" y="255.65" fill="#1a4f8b" font-size="2.20" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">最深</text>
+<line x1="162.66" y1="261.15" x2="162.66" y2="264.15" stroke="#1a4f8b" stroke-width="0.3" fill="none"/>
+<line x1="161.16" y1="262.65" x2="164.16" y2="262.65" stroke="#1a4f8b" stroke-width="0.3" fill="none"/>
+<text x="70.00" y="208.00" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">V5  R12</text>
+<text x="278.56" y="272.66" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">V4  R20</text>
+<text x="428.96" y="487.28" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">V3  R12</text>
+<text x="428.96" y="537.44" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">V2  R5</text>
+<text x="164.96" y="529.52" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">V1  R6</text>
+<text x="283.76" y="429.20" fill="#3d6b45" font-size="3.40" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="middle">トラス抜きなし（中実）</text>
+<text x="283.76" y="442.40" fill="#3d6b45" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">v10 の W1・W2 は廃止</text>
+<circle cx="102.70" cy="268.23" r="4.29" fill="none" stroke="#8d96a3" stroke-width="0.28" stroke-dasharray="1.3 0.9"/>
+<line x1="97.70" y1="268.23" x2="107.70" y2="268.23" stroke="#8d96a3" stroke-width="0.18" fill="none"/>
+<line x1="102.70" y1="263.23" x2="102.70" y2="273.23" stroke="#8d96a3" stroke-width="0.18" fill="none"/>
+<circle cx="244.37" cy="310.47" r="4.29" fill="none" stroke="#8d96a3" stroke-width="0.28" stroke-dasharray="1.3 0.9"/>
+<line x1="239.37" y1="310.47" x2="249.37" y2="310.47" stroke="#8d96a3" stroke-width="0.18" fill="none"/>
+<line x1="244.37" y1="305.47" x2="244.37" y2="315.47" stroke="#8d96a3" stroke-width="0.18" fill="none"/>
+<line x1="102.70" y1="268.23" x2="147.58" y2="296.04" stroke="#8d96a3" stroke-width="0.25" fill="none" stroke-dasharray="1.4 1.0"/>
+<line x1="244.37" y1="310.47" x2="256.25" y2="340.83" stroke="#8d96a3" stroke-width="0.25" fill="none" stroke-dasharray="1.4 1.0"/>
+<circle cx="147.58" cy="296.04" r="4.29" fill="#fde8e6" stroke="#b42318" stroke-width="0.55"/>
+<line x1="140.58" y1="296.04" x2="154.58" y2="296.04" stroke="#b42318" stroke-width="0.22" fill="none"/>
+<line x1="147.58" y1="289.04" x2="147.58" y2="303.04" stroke="#b42318" stroke-width="0.22" fill="none"/>
+<circle cx="256.25" cy="340.83" r="4.29" fill="#fde8e6" stroke="#b42318" stroke-width="0.55"/>
+<line x1="249.25" y1="340.83" x2="263.25" y2="340.83" stroke="#b42318" stroke-width="0.22" fill="none"/>
+<line x1="256.25" y1="333.83" x2="256.25" y2="347.83" stroke="#b42318" stroke-width="0.22" fill="none"/>
+<line x1="147.58" y1="296.04" x2="256.25" y2="340.83" stroke="#b42318" stroke-width="0.28" fill="none" stroke-dasharray="3 1.4"/>
+<text x="209.91" y="312.43" fill="#b42318" font-size="2.80" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">斜め 89.05</text>
+<line x1="147.58" y1="379.04" x2="256.25" y2="379.04" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="147.58" y1="374.54" x2="147.58" y2="380.24" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="256.25" y1="374.54" x2="256.25" y2="380.24" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="201.91" y="377.74" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">横 82.33</text>
+<line x1="283.76" y1="340.83" x2="283.76" y2="296.04" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="282.56" y1="340.83" x2="287.96" y2="340.83" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="282.56" y1="296.04" x2="287.96" y2="296.04" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="285.96" y="318.43" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start" transform="rotate(-90.0 285.96 318.43)">縦 33.93</text>
+<text x="101.60" y="313.04" fill="#b42318" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">U1'  φ6.5</text>
+<text x="101.60" y="320.96" fill="#b42318" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">(64.83, 190.88)</text>
+<text x="217.76" y="355.28" fill="#b42318" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">U2'  φ6.5</text>
+<text x="217.76" y="363.20" fill="#b42318" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">(147.16, 156.95)</text>
+<text x="92.70" y="261.23" fill="#8d96a3" font-size="2.20" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">現行</text>
+<text x="236.37" y="302.47" fill="#8d96a3" font-size="2.20" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="end">現行</text>
+<circle cx="201.26" cy="534.14" r="7.92" fill="none" stroke="#1a5276" stroke-width="0.25" stroke-dasharray="1.1 0.8"/>
+<circle cx="201.26" cy="534.14" r="4.29" fill="#e4eef8" stroke="#1a5276" stroke-width="0.5"/>
+<line x1="195.76" y1="534.14" x2="206.76" y2="534.14" stroke="#1a5276" stroke-width="0.18" fill="none"/>
+<line x1="201.26" y1="528.64" x2="201.26" y2="539.64" stroke="#1a5276" stroke-width="0.18" fill="none"/>
+<text x="193.26" y="548.14" fill="#1a5276" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="middle">L1</text>
+<circle cx="299.60" cy="534.14" r="7.92" fill="none" stroke="#1a5276" stroke-width="0.25" stroke-dasharray="1.1 0.8"/>
+<circle cx="299.60" cy="534.14" r="4.29" fill="#e4eef8" stroke="#1a5276" stroke-width="0.5"/>
+<line x1="294.10" y1="534.14" x2="305.10" y2="534.14" stroke="#1a5276" stroke-width="0.18" fill="none"/>
+<line x1="299.60" y1="528.64" x2="299.60" y2="539.64" stroke="#1a5276" stroke-width="0.18" fill="none"/>
+<text x="299.60" y="548.14" fill="#1a5276" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="middle">L2</text>
+<circle cx="397.94" cy="534.14" r="7.92" fill="none" stroke="#1a5276" stroke-width="0.25" stroke-dasharray="1.1 0.8"/>
+<circle cx="397.94" cy="534.14" r="4.29" fill="#e4eef8" stroke="#1a5276" stroke-width="0.5"/>
+<line x1="392.44" y1="534.14" x2="403.44" y2="534.14" stroke="#1a5276" stroke-width="0.18" fill="none"/>
+<line x1="397.94" y1="528.64" x2="397.94" y2="539.64" stroke="#1a5276" stroke-width="0.18" fill="none"/>
+<text x="405.94" y="548.14" fill="#1a5276" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="middle">L3</text>
+<text x="299.60" y="511.04" fill="#1a5276" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">下マウント  皿φ12（上面） / キリ φ6.5    ピッチ 74.5</text>
+<line x1="141.20" y1="575.72" x2="201.26" y2="575.72" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="141.20" y1="571.22" x2="141.20" y2="576.92" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="201.26" y1="571.22" x2="201.26" y2="576.92" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="171.23" y="574.42" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">45.5</text>
+<line x1="201.26" y1="575.72" x2="299.60" y2="575.72" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="201.26" y1="571.22" x2="201.26" y2="576.92" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="299.60" y1="571.22" x2="299.60" y2="576.92" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="250.43" y="574.42" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">74.5</text>
+<line x1="299.60" y1="575.72" x2="397.94" y2="575.72" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="299.60" y1="571.22" x2="299.60" y2="576.92" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="397.94" y1="571.22" x2="397.94" y2="576.92" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="348.77" y="574.42" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">74.5</text>
+<line x1="397.94" y1="575.72" x2="458.00" y2="575.72" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="397.94" y1="571.22" x2="397.94" y2="576.92" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<line x1="458.00" y1="571.22" x2="458.00" y2="576.92" stroke="#1a4f8b" stroke-width="0.22" fill="none"/>
+<text x="427.97" y="574.42" fill="#1a4f8b" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="middle">45.5</text>
+<text x="122.72" y="336.80" fill="#b42318" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">縁まで 27.6</text>
+<text x="294.32" y="368.48" fill="#b42318" font-size="2.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">縁まで 35.8</text>
+<rect x="508.00" y="50.00" width="318.00" height="78.00" fill="#fff4e5" stroke="#8a4b08" stroke-width="0.4"/>
+<text x="516.00" y="58.00" fill="#8a4b08" font-size="3.20" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">切断前の確認</text>
+<text x="516.00" y="68.00" fill="#8a4b08" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">ウイング取付の穴ピッチが変わります。ブラケット実測と合わせてから切る。</text>
+<text x="516.00" y="80.00" fill="#8d96a3" font-size="2.70" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">現行   斜め 112.00    横 107.33    縦 32.00    角度 16.6°</text>
+<text x="516.00" y="92.00" fill="#b42318" font-size="2.90" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">v11    斜め 89.05    横 82.33    縦 33.93    角度 22.4°</text>
+<text x="516.00" y="106.00" fill="#8a4b08" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">下マウント L1・L2・L3 は v10 のまま。トラス穴は開けない。</text>
+<text x="516.00" y="118.00" fill="#8a4b08" font-size="2.60" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">反対側の1枚は本図の鏡像（前後が反転）。</text>
+<text x="508.00" y="138.00" fill="#1c2430" font-size="3.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">穴・外周の座標    原点 = 300×250 板の左下</text>
+<rect x="508.00" y="144.00" width="318.00" height="7.15" fill="#1c2430" stroke="none" stroke-width="0.3"/>
+<text x="510.00" y="149.00" fill="#ffffff" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">部位</text>
+<text x="588.00" y="149.00" fill="#ffffff" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">X</text>
+<text x="628.00" y="149.00" fill="#ffffff" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">Y</text>
+<text x="668.00" y="149.00" fill="#ffffff" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">加工</text>
+<rect x="508.00" y="151.15" width="318.00" height="7.15" fill="#fdecea" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="156.15" fill="#b42318" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">U1'  ウイング後</text>
+<text x="588.00" y="156.15" fill="#b42318" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">64.83</text>
+<text x="628.00" y="156.15" fill="#b42318" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">190.88</text>
+<text x="668.00" y="156.15" fill="#b42318" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">φ6.5 キリ   新</text>
+<rect x="508.00" y="158.30" width="318.00" height="7.15" fill="#fdecea" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="163.30" fill="#b42318" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">U2'  ウイング前</text>
+<text x="588.00" y="163.30" fill="#b42318" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">147.16</text>
+<text x="628.00" y="163.30" fill="#b42318" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">156.95</text>
+<text x="668.00" y="163.30" fill="#b42318" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">φ6.5 キリ   新</text>
+<rect x="508.00" y="165.45" width="318.00" height="7.15" fill="#f7f8fa" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="170.45" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">L1  下マウント後</text>
+<text x="588.00" y="170.45" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">105.50</text>
+<text x="628.00" y="170.45" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">10.50</text>
+<text x="668.00" y="170.45" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">皿φ12 / φ6.5</text>
+<rect x="508.00" y="172.60" width="318.00" height="7.15" fill="#ffffff" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="177.60" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">L2  下マウント中</text>
+<text x="588.00" y="177.60" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">180.00</text>
+<text x="628.00" y="177.60" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">10.50</text>
+<text x="668.00" y="177.60" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">皿φ12 / φ6.5</text>
+<rect x="508.00" y="179.75" width="318.00" height="7.15" fill="#f7f8fa" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="184.75" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">L3  下マウント前</text>
+<text x="588.00" y="184.75" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">254.50</text>
+<text x="628.00" y="184.75" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">10.50</text>
+<text x="668.00" y="184.75" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">皿φ12 / φ6.5</text>
+<rect x="508.00" y="186.90" width="318.00" height="7.15" fill="#ffffff" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="191.90" fill="#8d96a3" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">現行 U1（参考）</text>
+<text x="588.00" y="191.90" fill="#8d96a3" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">30.83</text>
+<text x="628.00" y="191.90" fill="#8d96a3" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">211.95</text>
+<text x="668.00" y="191.90" fill="#8d96a3" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">加工しない</text>
+<rect x="508.00" y="194.05" width="318.00" height="7.15" fill="#f7f8fa" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="199.05" fill="#8d96a3" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">現行 U2（参考）</text>
+<text x="588.00" y="199.05" fill="#8d96a3" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">138.16</text>
+<text x="628.00" y="199.05" fill="#8d96a3" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">179.95</text>
+<text x="668.00" y="199.05" fill="#8d96a3" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">加工しない</text>
+<rect x="508.00" y="201.20" width="318.00" height="7.15" fill="#ffffff" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="206.20" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">V5  後端上</text>
+<text x="588.00" y="206.20" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">0.00</text>
+<text x="628.00" y="206.20" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">250.00</text>
+<text x="668.00" y="206.20" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">角 R12</text>
+<rect x="508.00" y="208.35" width="318.00" height="7.15" fill="#f7f8fa" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="213.35" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">V4  上辺・斜辺</text>
+<text x="588.00" y="213.35" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">158.00</text>
+<text x="628.00" y="213.35" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">199.50</text>
+<text x="668.00" y="213.35" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">角 R20</text>
+<rect x="508.00" y="215.50" width="318.00" height="7.15" fill="#ffffff" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="220.50" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">V3  前端立上り</text>
+<text x="588.00" y="220.50" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">300.00</text>
+<text x="628.00" y="220.50" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">32.00</text>
+<text x="668.00" y="220.50" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">角 R12</text>
+<rect x="508.00" y="222.65" width="318.00" height="7.15" fill="#f7f8fa" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="227.65" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">V2  下辺前端</text>
+<text x="588.00" y="227.65" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">300.00</text>
+<text x="628.00" y="227.65" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">0.00</text>
+<text x="668.00" y="227.65" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">角 R5</text>
+<rect x="508.00" y="229.80" width="318.00" height="7.15" fill="#ffffff" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="234.80" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">V1  下辺後端</text>
+<text x="588.00" y="234.80" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">60.00</text>
+<text x="628.00" y="234.80" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">0.00</text>
+<text x="668.00" y="234.80" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">角 R6</text>
+<rect x="508.00" y="236.95" width="318.00" height="7.15" fill="#f7f8fa" stroke="#d5dde6" stroke-width="0.15"/>
+<text x="510.00" y="241.95" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">上辺 最深</text>
+<text x="588.00" y="241.95" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">76.26</text>
+<text x="628.00" y="241.95" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">216.18</text>
+<text x="668.00" y="241.95" fill="#1c2430" font-size="2.45" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">R386.6  矢高9</text>
+<text x="508.00" y="252.10" fill="#1c2430" font-size="3.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">赤点の読み（試作木材の手計測）</text>
+<text x="508.00" y="260.10" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">U1' は現行U1から前方 34mm、直線 40mm。</text>
+<text x="508.00" y="264.25" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">  縦は √(40²−34²) = 21.07 mm 下げ。</text>
+<text x="508.00" y="268.40" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">U2' は現行U2から前方 9mm、下方 23mm。</text>
+<text x="508.00" y="272.55" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">  直線は √(9²+23²) = 24.70 mm（メモは 24）。</text>
+<text x="508.00" y="276.70" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">2点間は 横 82.33（メモ 82）、縦 33.93、</text>
+<text x="508.00" y="280.85" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">  斜め 89.05（メモ 89）。横と斜めで閉じる。</text>
+<text x="508.00" y="285.00" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">縦メモ 32.5 は計算 33.93 と 1.4mm 差。</text>
+<text x="508.00" y="289.15" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">  横82・斜め89が同時に合う側を採用。</text>
+<text x="508.00" y="293.30" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">20.5 は現行U1から上辺までの実測。</text>
+<text x="508.00" y="297.45" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">  図面の半径方向すきまは 20.0mm。新穴の位置には使わない。</text>
+<text x="508.00" y="301.60" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">新穴の外形までの最短  U1' 27.6 mm / U2' 35.8 mm。</text>
+<text x="508.00" y="311.75" fill="#1c2430" font-size="3.30" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="700" text-anchor="start">加工</text>
+<text x="508.00" y="319.75" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">材質 SUS304  t5。1枚の外形は 300×250 の枠内。</text>
+<text x="508.00" y="323.90" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">本板 600×300 から左右2枚取り（v10 の板取りと同じ）。</text>
+<text x="508.00" y="328.05" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">外形・角R・上辺アールは v10 のまま。</text>
+<text x="508.00" y="332.20" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">v10 の三角トラス W1・W2 は設けない。</text>
+<text x="508.00" y="336.35" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">ウイング穴は φ6.5 のキリのみ（皿なし）。</text>
+<text x="508.00" y="340.50" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">下3穴は上面から皿 φ12、通りは φ6.5。</text>
+<text x="508.00" y="344.65" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">破線の現行U1・U2は位置の参考。新板では開けない。</text>
+<text x="508.00" y="348.80" fill="#1c2430" font-size="2.50" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">座標は板の左下原点。反対側は X を前後反転した鏡像。</text>
+<text x="508.00" y="568.00" fill="#1c2430" font-size="2.40" font-family="WenQuanYi Micro Hei, sans-serif" font-weight="400" text-anchor="start">H250 v11    v10 からの変更: トラス廃止。ウイング穴は U1'・U2'。下穴と外形は v10。</text>
+</svg>
