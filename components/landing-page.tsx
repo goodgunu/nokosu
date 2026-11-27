@@ -47,10 +47,7 @@ export function LandingPage() {
       <header style={{ background: "#E4682C", color: "#FFFFFF" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-1.5 px-3 py-2 sm:gap-3 sm:px-7">
           <span className="shrink-0 [&_img]:h-[22px] [&_img]:w-auto sm:[&_img]:h-[26px]"><Wordmark height={26} /></span>
-          <nav className="flex shrink-0 items-center gap-1 sm:gap-2.5" aria-label="ログインと使い方">
-            <a href="#line-flow" className="inline-flex h-11 items-center px-1.5 text-xs font-bold whitespace-nowrap sm:px-2 sm:text-sm">
-              使い方
-            </a>
+          <nav className="flex shrink-0 items-center gap-1 sm:gap-2.5" aria-label="ログイン">
             <a
               href="/api/auth/line-login?next=%2F"
               className="inline-flex h-11 shrink-0 items-center whitespace-nowrap rounded-full px-3 text-xs font-bold text-white sm:px-4 sm:text-sm"
